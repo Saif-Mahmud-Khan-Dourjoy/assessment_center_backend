@@ -1,3 +1,4 @@
+.idea
 /public/storage
 /storage/*.key
 .env
@@ -7,4 +8,3 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
-.idea/
