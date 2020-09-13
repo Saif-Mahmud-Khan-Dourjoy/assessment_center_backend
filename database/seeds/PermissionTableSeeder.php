@@ -21,7 +21,11 @@ class PermissionTableSeeder extends Seeder
             'question-list',
             'question-create',
             'question-edit',
-            'question-delete'
+            'question-delete',
+            'permission-list',
+            'permission-create',
+            'permission-edit',
+            'permission-delete'
         ];
 
 
