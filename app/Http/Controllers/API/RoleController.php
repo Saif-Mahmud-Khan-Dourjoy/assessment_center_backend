@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
@@ -19,6 +21,8 @@ class RoleController extends Controller
         $this->middleware('api_permission:role-edit', ['only' => ['update']]);
         $this->middleware('api_permission:role-delete', ['only' => ['destroy']]);
     }
+
+
     /**
      * Display a listing of the resource.
      *
@@ -27,6 +31,8 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::all();
+        $rolePermissions = Permission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")
+            ->get();
         return response()->json(['success' => true, 'roles' => $roles], $this-> successStatus);
     }
 
@@ -44,8 +50,12 @@ class RoleController extends Controller
             'permission' => 'required',
         ]);
 
-        $role = Role::create(['name' => $request->input('name')]);
-        $role->syncPermissions($request->input('permission'));
+        $role = Role::create([
+            'name' => $request->input('name'),
+            'guard_name' => 'web'
+        ]);
+        $permission = explode(',', $request->input('permission'));
+        $role->syncPermissions($permission);
         if( $role )
             return response()->json(['success' => true, 'role' => $role], $this->successStatus);
         else
@@ -62,6 +72,10 @@ class RoleController extends Controller
     public function show($id)
     {
         $role = Role::find($id);
+        $rolePermissions = Permission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")
+            ->where("role_has_permissions.role_id",$id)
+            ->get();
+        $role['permissions'] = $rolePermissions;
         if ( !$role )
             return response()->json(['success' => false, 'message' => 'Role not found'], $this->invalidStatus);
         else
@@ -75,14 +89,21 @@ class RoleController extends Controller
      * @param Request $request
      * @param $id
      * @return JsonResponse
+     * @throws ValidationException
      */
     public function update(Request $request, $id)
     {
-        $role = Role::find($id);
-        request()->validate([
-            'name' => 'required|unique:roles,name,'.$id,
+        $this->validate($request, [
+            'name' => 'required',
+            'permission' => 'required',
         ]);
-        $role = $role->update($request->all());
+        $role = Role::find($id);
+        $role->name = $request->input('name');
+        $role->guard_name = 'web';
+        $role->save();
+
+        $permission = explode(',', $request->input('permission'));
+        $role->syncPermissions($permission);
         if( $role )
             return response()->json(['success' => true, 'message' => 'Role update successfully'], $this->successStatus);
         else
