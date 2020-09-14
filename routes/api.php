@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,10 +20,12 @@ Route::group(['prefix' => 'v1'], function() {
 
     Route::middleware('auth:api')->group( function () {
         Route::resource('permission-list', 'API\PermissionListController');
+        Route::resource('roles', 'API\RoleController');
         Route::resource('users', 'API\UserController');
         Route::post('change-password', 'API\Auth\ChangePasswordController@updateAPIUserPassword')->name('change.password');
-        Route::post('role-permissions/{role}', 'API\RoleAccessController@role_has_permissions');
-        Route::post('assign-user-role/{role}', 'API\RoleAccessController@assign_user_to_role');
+
+        Route::resource('contributors','API\ContributorController');
+
     });
     Route::fallback(function(){
         return response()->json(['message' => 'Not Found.'], 404);

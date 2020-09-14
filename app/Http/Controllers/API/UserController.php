@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 
 use App\User;
+use App\UserProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -50,6 +51,8 @@ class UserController extends Controller
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
         if( $user ){
+
+            // Assign Role
             $role_id = 2;
             if( $input['role_id'] ){
                 $role_id = $input['role_id'];
@@ -58,6 +61,14 @@ class UserController extends Controller
                 $role_id = 2;
             }
             $user->assignRole([$role_id]);
+
+            // Add User Profile
+            UserProfile::create([
+                'user_id' => $user['id'],
+                'first_name' => $input['name'],
+                'email' => $input['email']
+            ]);
+
             $responseData['name'] =  $user->name;
             $responseData['token'] =  $user->createToken('NSLAssessmentCenter')-> accessToken;
             return response()->json(['success' => true, 'user' => $responseData], $this->successStatus);

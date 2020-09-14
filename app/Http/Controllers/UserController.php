@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\UserProfile;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
@@ -61,8 +62,16 @@ class UserController extends Controller
 
 
         $user = User::create($input);
+
+        // Assign Role
         $user->assignRole($request->input('roles'));
 
+        // Add User Profile
+        UserProfile::create([
+            'user_id' => $user['id'],
+            'first_name' => $input['name'],
+            'email' => $input['email']
+        ]);
 
         return redirect()->route('users.index')
             ->with('success','User created successfully');

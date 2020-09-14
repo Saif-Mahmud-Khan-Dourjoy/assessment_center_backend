@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use App\UserProfile;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -55,7 +56,17 @@ class RegisterController extends Controller
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
         if( $user ){
+
+            // Assign Role
             $user->assignRole([2]);
+
+            // Add User Profile
+            UserProfile::create([
+                'user_id' => $user['id'],
+                'first_name' => $input['name'],
+                'email' => $input['email']
+            ]);
+
             $responseData['name'] =  $user->name;
             $responseData['token'] =  $user->createToken('NSLAssessmentCenter')-> accessToken;
             return response()->json(['success' => true, 'user' => $responseData], $this->successStatus);
