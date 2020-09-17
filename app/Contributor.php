@@ -14,7 +14,7 @@ class Contributor extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'completing_percentage', 'total_question', 'average_rating', 'approve_status', 'active_status', 'guard_name'
+        'profile_id', 'completing_percentage', 'total_question', 'average_rating', 'approve_status', 'active_status', 'guard_name'
     ];
 
     /**

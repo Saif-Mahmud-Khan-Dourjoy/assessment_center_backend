@@ -60,12 +60,9 @@ class ContributorController extends Controller
         ];
         $user = User::create($login_data);
 
-        // Add Role
-        $user->assignRole([2]);
-
         // Add User Profile
         $data = [
-            'user_id' => $user['id'],
+            'user_id' => $user->id,
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'email' => $input['email'],
@@ -80,12 +77,15 @@ class ContributorController extends Controller
             'guard_name' => 'web',
         ];
 
+        // Add Role
+        $user->assignRole([2]);
+
         $user_profile = UserProfile::create( $data );
         if( $user_profile ){
 
             // Add Contributor Info
             $contributor_data = [
-                'user_id' => $user_profile['id'],
+                'profile_id' => $user_profile['id'],
                 'completing_percentage' => 100,
                 'total_question' => 0,
                 'average_rating' => 0,
