@@ -21,6 +21,6 @@ class Contributor extends Model
      * @return BelongsTo
      */
     public function user_profile(){
-        return $this->belongsTo('UserProfile');
+        return $this->belongsTo('App\UserProfile', 'profile_id');
     }
 }

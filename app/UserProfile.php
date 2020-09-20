@@ -22,6 +22,6 @@ class UserProfile extends Model
      * @return HasOne
      */
     public function contributor(){
-        return $this->hasOne('Contributor');
+        return $this->hasOne('App\Contributor', 'profile_id');
     }
 }
