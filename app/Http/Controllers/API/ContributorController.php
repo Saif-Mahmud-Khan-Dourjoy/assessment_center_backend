@@ -31,7 +31,7 @@ class ContributorController extends Controller
      */
     public function index()
     {
-        $contributors = UserProfile::all();
+        $contributors = Contributor::with('user_profile')->get();
         return response()->json(['success' => true, 'contributors' => $contributors], $this-> successStatus);
     }
 
@@ -112,7 +112,10 @@ class ContributorController extends Controller
      */
     public function show($id)
     {
-        $contributor = UserProfile::find($id);
+        //$contributor = UserProfile::find($id);
+        $contributor = Contributor::with('user_profile')
+                                    ->where('id', $id)
+                                    ->get();
         if ( !$contributor )
             return response()->json(['success' => false, 'message' => 'Contributor not found'], $this->invalidStatus);
         else
