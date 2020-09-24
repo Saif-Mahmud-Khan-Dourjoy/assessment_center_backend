@@ -18,14 +18,22 @@ class PermissionTableSeeder extends Seeder
             'role-create',
             'role-edit',
             'role-delete',
-            'question-list',
-            'question-create',
-            'question-edit',
-            'question-delete',
             'permission-list',
             'permission-create',
             'permission-edit',
-            'permission-delete'
+            'permission-delete',
+            'contributor-list',
+            'contributor-create',
+            'contributor-edit',
+            'contributor-delete',
+            'question-category-list',
+            'question-category-create',
+            'question-category-edit',
+            'question-category-delete',
+            'question-list',
+            'question-create',
+            'question-edit',
+            'question-delete'
         ];
 
 

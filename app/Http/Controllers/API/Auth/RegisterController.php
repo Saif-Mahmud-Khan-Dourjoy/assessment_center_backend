@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\Controller;
+use App\RoleSetup;
 use App\User;
 use App\UserProfile;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -52,13 +53,19 @@ class RegisterController extends Controller
             'password' => 'required',
             'c_password' => 'required|same:password',
         ]);
+        $role = RoleSetup::first();
+        if( !$role ){
+            return response()->json(['success' => false, 'message' => 'Role not found for this user'], $this->failedStatus);
+        }
+
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
         if( $user ){
 
             // Assign Role
-            $user->assignRole([2]);
+            //$role = RoleSetup::first();
+            $user->assignRole([$role->new_register_user_role_id]);
 
             // Add User Profile
             UserProfile::create([

@@ -21,10 +21,13 @@ Route::group(['prefix' => 'v1'], function() {
     Route::middleware('auth:api')->group( function () {
         Route::resource('permission-list', 'API\PermissionListController');
         Route::resource('roles', 'API\RoleController');
+        Route::resource('role-setup', 'API\RoleSetupController');
         Route::resource('users', 'API\UserController');
         Route::post('change-password', 'API\Auth\ChangePasswordController@updateAPIUserPassword')->name('change.password');
 
         Route::resource('contributors','API\ContributorController');
+        Route::resource('question-categories','API\QuestionCategoryController');
+        Route::resource('questions','API\QuestionController');
 
     });
     Route::fallback(function(){

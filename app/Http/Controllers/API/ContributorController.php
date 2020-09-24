@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\RoleSetup;
 use App\User;
 use App\UserProfile;
 use App\Http\Controllers\Controller;
@@ -9,6 +10,7 @@ use App\Contributor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Hash;
+use Spatie\Permission\Contracts\Role;
 
 class ContributorController extends Controller
 {
@@ -51,6 +53,10 @@ class ContributorController extends Controller
             'phone' => 'required|unique:user_profiles',
         ]);
         $input = $request->all();
+        $role = RoleSetup::first();
+        if( !$role ){
+            return response()->json(['success' => false, 'message' => 'Role not found for this user'], $this->failedStatus);
+        }
 
         // Add Login Info
         $login_data = [
@@ -76,9 +82,30 @@ class ContributorController extends Controller
             'country' => $input['country'],
             'guard_name' => 'web',
         ];
+        // Add User Academic History
+        $dataAcademic = [
+            'profile_id' => $user->id,
+            'exam_course_title' => $input['exam_course_title'],
+            'major' => $input['major'],
+            'institute' => $input['institute'],
+            'result' => $input['result'],
+            'passing_year' => $input['passing_year'],
+            'duration' => $input['duration'],
+        ];
+        // Add User Employment History
+        $dataEmployment = [
+            'profile_id' => $user->profile_id,
+            'institute' => $input['institute'],
+            'position' => $input['position'],
+            'responsibility' => $input['responsibility'],
+            'duration' => $input['duration'],
+            'currently_work' => $input['currently_work'],
+            'description' => $input['description'],
+        ];
 
-        // Add Role
-        $user->assignRole([2]);
+        // Assign Role
+        //$role = RoleSetup::first();
+        $user->assignRole($role->contributor_role_id);
 
         $user_profile = UserProfile::create( $data );
         if( $user_profile ){
