@@ -28,7 +28,7 @@ class PermissionTableSeeder extends Seeder
             'user-edit',
             'user-delete',
             'user-academic-history',
-            'user-employment-histor',
+            'user-employment-history',
             'contributor-list',
             'contributor-create',
             'contributor-edit',
