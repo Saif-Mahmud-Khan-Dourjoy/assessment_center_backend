@@ -15,7 +15,7 @@ class RoleSetupController extends Controller
     public $invalidStatus = 400;
     function __construct()
     {
-        //
+        $this->middleware('api_permission:role-setup', ['only' => ['index', 'store']]);
     }
 
 

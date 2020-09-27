@@ -102,7 +102,7 @@ class ContributorController extends Controller
                 'guard_name' => 'web',
             ];
             $contributor = Contributor::create( $contributor_data );
-
+            /*
             // Add User Academic History
             $dataAcademic = [
                 'profile_id' => $user_profile['id'],
@@ -124,7 +124,7 @@ class ContributorController extends Controller
                 'currently_work' => $input['currently_work'],
                 'description' => $input['description'],
             ];
-            UserEmploymentHistory::create($dataEmployment);
+            UserEmploymentHistory::create($dataEmployment);*/
 
             if( $contributor ){
                 return response()->json(['success' => true, 'contributor' => $user_profile], $this->successStatus);
