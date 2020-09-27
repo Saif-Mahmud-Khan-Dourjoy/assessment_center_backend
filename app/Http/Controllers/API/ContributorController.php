@@ -124,7 +124,8 @@ class ContributorController extends Controller
                 'currently_work' => $input['currently_work'],
                 'description' => $input['description'],
             ];
-            UserEmploymentHistory::create($dataEmployment);*/
+            UserEmploymentHistory::create($dataEmployment);
+            */
 
             if( $contributor ){
                 return response()->json(['success' => true, 'contributor' => $user_profile], $this->successStatus);
