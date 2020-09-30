@@ -1,11 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\API\User;
 
 use App\RoleSetup;
 use App\User;
-use App\UserAcademicHistory;
-use App\UserEmploymentHistory;
 use App\UserProfile;
 use App\Http\Controllers\Controller;
 use App\Contributor;
@@ -102,30 +100,6 @@ class ContributorController extends Controller
                 'guard_name' => 'web',
             ];
             $contributor = Contributor::create( $contributor_data );
-            /*
-            // Add User Academic History
-            $dataAcademic = [
-                'profile_id' => $user_profile['id'],
-                'exam_course_title' => $input['exam_course_title'],
-                'major' => $input['major'],
-                'institute' => $input['institute'],
-                'result' => $input['result'],
-                'passing_year' => $input['passing_year'],
-                'duration' => $input['duration'],
-            ];
-            UserAcademicHistory::create($dataAcademic);
-            // Add User Employment History
-            $dataEmployment = [
-                'profile_id' => $user_profile['id'],
-                'institute' => $input['institute'],
-                'position' => $input['position'],
-                'responsibility' => $input['responsibility'],
-                'duration' => $input['duration'],
-                'currently_work' => $input['currently_work'],
-                'description' => $input['description'],
-            ];
-            UserEmploymentHistory::create($dataEmployment);
-            */
 
             if( $contributor ){
                 return response()->json(['success' => true, 'contributor' => $user_profile], $this->successStatus);

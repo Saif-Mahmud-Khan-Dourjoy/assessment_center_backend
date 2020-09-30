@@ -19,15 +19,19 @@ Route::group(['prefix' => 'v1'], function() {
     Route::post('forgot-password', 'API\Auth\ForgotPasswordController@sendResetLink')->name('forgot.password');
 
     Route::middleware('auth:api')->group( function () {
-        Route::resource('permission-list', 'API\PermissionListController');
-        Route::resource('roles', 'API\RoleController');
-        Route::resource('role-setup', 'API\RoleSetupController');
-        Route::resource('users', 'API\UserController');
+        Route::resource('permission-list', 'API\Setup\PermissionListController');
+        Route::resource('roles', 'API\Setup\RoleController');
+        Route::resource('role-setup', 'API\Setup\RoleSetupController');
+        Route::resource('users', 'API\User\UserController');
+
+        Route::post('add-academic-history', 'API\User\UserController@addAcademicHistory')->name('add-academic-history');
+        Route::post('add-employment-history', 'API\User\UserController@addEmploymentHistory')->name('add-employment-history');
+
         Route::post('change-password', 'API\Auth\ChangePasswordController@updateAPIUserPassword')->name('change.password');
 
-        Route::resource('contributors','API\ContributorController');
-        Route::resource('question-categories','API\QuestionCategoryController');
-        Route::resource('questions','API\QuestionController');
+        Route::resource('contributors','API\User\ContributorController');
+        Route::resource('question-categories','API\Question\QuestionCategoryController');
+        Route::resource('questions','API\Question\QuestionController');
 
     });
     Route::fallback(function(){
