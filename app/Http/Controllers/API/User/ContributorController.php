@@ -32,7 +32,7 @@ class ContributorController extends Controller
      */
     public function index()
     {
-        $contributors = Contributor::with('user_profile')->get();
+        $contributors = Contributor::with(['user_profile'])->get();
         return response()->json(['success' => true, 'contributors' => $contributors], $this-> successStatus);
     }
 

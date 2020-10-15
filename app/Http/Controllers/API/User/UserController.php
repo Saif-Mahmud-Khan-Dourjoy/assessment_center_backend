@@ -128,7 +128,6 @@ class UserController extends Controller
             'passing_year' => $input['passing_year'],
             'duration' => $input['duration'],
         ];
-        dd($dataAcademic);
         UserAcademicHistory::create($dataAcademic);
 
         return response()->json(['success' => true, 'message' => 'Academic history add successfully'], $this->successStatus);
@@ -159,7 +158,6 @@ class UserController extends Controller
             'currently_work' => $input['currently_work'],
             'description' => $input['description'],
         ];
-        dd($dataEmployment);
         UserEmploymentHistory::create($dataEmployment);
 
         return response()->json(['success' => true, 'message' => 'Employment history add successfully'], $this->successStatus);
