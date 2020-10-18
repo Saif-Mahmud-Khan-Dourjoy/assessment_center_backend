@@ -139,7 +139,8 @@ class ContributorController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $contributor = UserProfile::find($id);
+        $profile_id = Contributor::find($id);
+        $contributor = UserProfile::find($profile_id->profile_id);
         request()->validate([
             'email' => 'unique:user_profiles,email,'.$id,
             'phone' => 'unique:user_profiles,phone,'.$id,

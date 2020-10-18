@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
@@ -46,6 +47,7 @@ class UserController extends Controller
      *
      * @param Request $request
      * @return Response
+     * @throws ValidationException
      */
     public function store(Request $request)
     {
@@ -114,7 +116,7 @@ class UserController extends Controller
      * @param Request $request
      * @param int $id
      * @return Response
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function update(Request $request, $id)
     {

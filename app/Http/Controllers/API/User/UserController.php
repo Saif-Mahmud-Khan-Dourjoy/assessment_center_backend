@@ -127,10 +127,27 @@ class UserController extends Controller
             'result' => $input['result'],
             'passing_year' => $input['passing_year'],
             'duration' => $input['duration'],
+            'description' => $input['description'],
         ];
         UserAcademicHistory::create($dataAcademic);
 
         return response()->json(['success' => true, 'message' => 'Academic history add successfully'], $this->successStatus);
+
+    }
+
+
+    /**
+     * Show a newly created resource in storage.
+     *
+     * @param $id
+     * @return JsonResponse
+     */
+    public function getAcademicHistory($id)
+    {
+        // Get User Academic History
+        $dataAcademic = UserAcademicHistory::where('profile_id', '=', $id)->get();
+
+        return response()->json(['success' => true, 'data' => $dataAcademic], $this->successStatus);
 
     }
 
@@ -161,6 +178,21 @@ class UserController extends Controller
         UserEmploymentHistory::create($dataEmployment);
 
         return response()->json(['success' => true, 'message' => 'Employment history add successfully'], $this->successStatus);
+
+    }
+
+    /**
+     * Show a newly created resource in storage.
+     *
+     * @param $id
+     * @return JsonResponse
+     */
+    public function getEmploymentHistory($id)
+    {
+        // Get User Employment History
+        $dataEmployment = UserEmploymentHistory::where('profile_id', '=', $id)->get();
+
+        return response()->json(['success' => true, 'data' => $dataEmployment], $this->successStatus);
 
     }
 }

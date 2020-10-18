@@ -26,12 +26,15 @@ Route::group(['prefix' => 'v1'], function() {
 
         Route::post('add-academic-history', 'API\User\UserController@addAcademicHistory')->name('add-academic-history');
         Route::post('add-employment-history', 'API\User\UserController@addEmploymentHistory')->name('add-employment-history');
+        Route::get('get-academic-history/{id}', 'API\User\UserController@getAcademicHistory')->name('get-academic-history');
+        Route::get('get-employment-history/{id}', 'API\User\UserController@getEmploymentHistory')->name('get-employment-history');
 
         Route::post('change-password', 'API\Auth\ChangePasswordController@updateAPIUserPassword')->name('change.password');
 
         Route::resource('contributors','API\User\ContributorController');
         Route::resource('question-categories','API\Question\QuestionCategoryController');
         Route::resource('questions','API\Question\QuestionController');
+        Route::resource('question-sets','API\Question\QuestionSetController');
 
     });
     Route::fallback(function(){
