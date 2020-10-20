@@ -142,8 +142,8 @@ class ContributorController extends Controller
         $profile_id = Contributor::find($id);
         $contributor = UserProfile::find($profile_id->profile_id);
         request()->validate([
-            'email' => 'unique:user_profiles,email,'.$id,
-            'phone' => 'unique:user_profiles,phone,'.$id,
+            'email' => 'unique:user_profiles,email,'.$profile_id->profile_id,
+            'phone' => 'unique:user_profiles,phone,'.$profile_id->profile_id,
         ]);
         $contributor = $contributor->update($request->all());
         if( $contributor )
