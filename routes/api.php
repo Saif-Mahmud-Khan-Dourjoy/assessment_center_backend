@@ -23,6 +23,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::resource('roles', 'API\Setup\RoleController');
         Route::resource('role-setup', 'API\Setup\RoleSetupController');
         Route::resource('users', 'API\User\UserController');
+        Route::get('get-permission', 'API\User\UserController@getPermissionList')->name('get-permission');
 
         Route::post('add-academic-history', 'API\User\UserController@addAcademicHistory')->name('add-academic-history');
         Route::post('add-employment-history', 'API\User\UserController@addEmploymentHistory')->name('add-employment-history');
@@ -32,6 +33,8 @@ Route::group(['prefix' => 'v1'], function() {
         Route::post('change-password', 'API\Auth\ChangePasswordController@updateAPIUserPassword')->name('change.password');
 
         Route::resource('contributors','API\User\ContributorController');
+        Route::get('get-contributor/{id}', 'API\User\ContributorController@getContributor')->name('get-contributor');
+
         Route::resource('question-categories','API\Question\QuestionCategoryController');
         Route::resource('questions','API\Question\QuestionController');
         Route::resource('question-sets','API\Question\QuestionSetController');
