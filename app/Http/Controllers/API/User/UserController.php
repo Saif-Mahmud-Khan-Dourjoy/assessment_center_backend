@@ -195,4 +195,21 @@ class UserController extends Controller
         return response()->json(['success' => true, 'data' => $dataEmployment], $this->successStatus);
 
     }
+
+    /**
+     * Show a newly created resource in storage.
+     *
+     * @param $id
+     * @return JsonResponse
+     */
+    public function getPermissionList()
+    {
+        // get logged-in user
+        $user = auth()->user();
+        $permissions = $user->getAllPermissions();
+
+        //dd($permissions);
+        return response()->json(['success' => true, 'permissions' => $permissions], $this->successStatus);
+
+    }
 }

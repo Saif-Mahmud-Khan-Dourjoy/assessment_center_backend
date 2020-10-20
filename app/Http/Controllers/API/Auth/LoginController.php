@@ -22,7 +22,7 @@ class LoginController extends Controller
         if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
             $user = Auth::user();
             $token =  $user->createToken('NSLAssessmentCenter')-> accessToken;
-            return response()->json(['success' => true, 'user' => $user['name'], 'token' => $token], $this-> successStatus);
+            return response()->json(['success' => true, 'user' => $user, 'token' => $token], $this-> successStatus);
         }
         else{
             return response()->json(['error'=>'Unauthenticated'], 401);

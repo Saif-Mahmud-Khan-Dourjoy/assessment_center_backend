@@ -52,9 +52,14 @@ class ContributorController extends Controller
             'phone' => 'required|unique:user_profiles',
         ]);
         $input = $request->all();
-        $role = RoleSetup::first();
-        if( !$role ){
-            return response()->json(['success' => false, 'message' => 'Role not found for this user'], $this->failedStatus);
+        if($input['role_id']){
+            $contributor_role_id = $input['role_id'];
+        }else{
+            $role = RoleSetup::first();
+            if( !$role ){
+                return response()->json(['success' => false, 'message' => 'Role not found for this user'], $this->failedStatus);
+            }
+            $contributor_role_id = $role->contributor_role_id;
         }
 
         // Add Login Info
@@ -84,7 +89,7 @@ class ContributorController extends Controller
 
         // Assign Role
         //$role = RoleSetup::first();
-        $user->assignRole($role->contributor_role_id);
+        $user->assignRole($contributor_role_id);
 
         $user_profile = UserProfile::create( $data );
         if( $user_profile ){
@@ -125,6 +130,23 @@ class ContributorController extends Controller
                                     ->get();
         if ( !$contributor )
             return response()->json(['success' => false, 'message' => 'Contributor not found'], $this->invalidStatus);
+        else
+            return response()->json(['success' => true, 'contributor' => $contributor], $this->successStatus);
+    }
+
+
+    /**
+     * Display the specified resource.
+     *
+     * @param $id
+     * @return JsonResponse
+     */
+    public function getContributor($id)
+    {
+        $profile = UserProfile::where('user_id', $id)->first();
+        $contributor = Contributor::where('profile_id', $profile->id)->get();
+        if ( !$profile )
+            return response()->json(['success' => false, 'message' => 'User not found'], $this->invalidStatus);
         else
             return response()->json(['success' => true, 'contributor' => $contributor], $this->successStatus);
     }
