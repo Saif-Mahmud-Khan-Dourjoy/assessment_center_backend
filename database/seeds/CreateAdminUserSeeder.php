@@ -38,6 +38,7 @@ class CreateAdminUserSeeder extends Seeder
 
         RoleSetup::create([
             'contributor_role_id' => 1,
+            'student_role_id' => 1,
             'new_register_user_role_id' => 1,
         ]);
     }

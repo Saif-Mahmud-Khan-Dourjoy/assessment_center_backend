@@ -17,11 +17,13 @@ class PermissionListController extends Controller
     public $invalidStatus = 400;
     function __construct()
     {
-        $this->middleware('api_permission:permission-list|permission-create|permission-edit|permission-delete', ['only' => ['index','show']]);
-        $this->middleware('api_permission:permission-create', ['only' => ['store']]);
-        $this->middleware('api_permission:permission-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:permission-delete', ['only' => ['destroy']]);
+        //$this->middleware('api_permission:permission-list|permission-create|permission-edit|permission-delete', ['only' => ['index','show']]);
+        //$this->middleware('api_permission:permission-create', ['only' => ['store']]);
+        //$this->middleware('api_permission:permission-edit', ['only' => ['update']]);
+        //$this->middleware('api_permission:permission-delete', ['only' => ['destroy']]);
     }
+
+
     /**
      * Display a listing of the resource.
      *

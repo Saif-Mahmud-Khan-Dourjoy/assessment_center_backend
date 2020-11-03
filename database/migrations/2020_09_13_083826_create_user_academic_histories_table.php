@@ -21,9 +21,12 @@ class CreateUserAcademicHistoriesTable extends Migration
             $table->text('major');
             $table->char('institute', 200);
             $table->float('result')->nullable();
-            $table->integer('passing_year');
-            $table->char('duration', '200');
-            $table->text('description');
+            $table->char('start_year', 50);
+            $table->char('end_year', 50)->nullable();
+            $table->enum('currently_study',['0', '1'])->comment('0 for No, 1 for yes');
+            $table->char('duration', 200)->nullable();
+            $table->text('description')->nullable();
+            $table->char('check_status', 100)->nullable();
             $table->timestamps();
         });
     }

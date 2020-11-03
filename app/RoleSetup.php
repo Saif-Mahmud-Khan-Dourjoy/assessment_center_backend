@@ -13,6 +13,6 @@ class RoleSetup extends Model
      * @var array
      */
     protected $fillable = [
-        'contributor_role_id', 'new_register_user_role_id'
+        'contributor_role_id', 'new_register_user_role_id', 'student_role_id'
     ];
 }

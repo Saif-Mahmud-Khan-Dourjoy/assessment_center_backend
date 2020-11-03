@@ -55,6 +55,7 @@ class RoleSetupController extends Controller
         $role_setup = RoleSetup::first();
         $data = [
             'contributor_role_id' => $input['contributor_role_id'],
+            'student_role_id' => $input['student_role_id'],
             'new_register_user_role_id' => $input['new_register_user_role_id'],
         ];
         if( $role_setup ){

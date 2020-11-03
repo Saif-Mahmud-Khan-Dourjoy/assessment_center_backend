@@ -20,9 +20,12 @@ class CreateUserEmploymentHistoriesTable extends Migration
             $table->char('institute', 250);
             $table->char('position', 200);
             $table->text('responsibility');
-            $table->char('duration', '200');
+            $table->char('start_date', 50);
+            $table->char('end_date', 50)->nullable();
+            $table->char('duration', 250)->nullable();
             $table->enum('currently_work',['0', '1'])->comment('0 for No, 1 for yes');
-            $table->text('description');
+            $table->text('description')->nullable();
+            $table->char('check_status', 100)->nullable();
             $table->timestamps();
         });
     }

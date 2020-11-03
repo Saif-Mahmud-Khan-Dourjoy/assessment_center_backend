@@ -14,7 +14,7 @@ class UserEmploymentHistory extends Model
      * @var array
      */
     protected $fillable = [
-        'profile_id', 'institute', 'position', 'responsibility', 'duration', 'currently_work', 'description'
+        'profile_id', 'institute', 'position', 'responsibility', 'start_date', 'end_date', 'duration', 'currently_work', 'description', 'check_status'
     ];
 
     /**

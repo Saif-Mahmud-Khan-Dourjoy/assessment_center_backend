@@ -14,10 +14,10 @@ class PermissionTableSeeder extends Seeder
     public function run()
     {
         $permissions = [
-            //'permission-list',
-            //'permission-create',
-            //'permission-edit',
-            //'permission-delete',
+            'permission-list',
+            'permission-create',
+            'permission-edit',
+            'permission-delete',
             'role-list',
             'role-create',
             'role-edit',
@@ -33,6 +33,10 @@ class PermissionTableSeeder extends Seeder
             'contributor-create',
             'contributor-edit',
             'contributor-delete',
+            'student-list',
+            'student-create',
+            'student-edit',
+            'student-delete',
             'question-category-list',
             'question-category-create',
             'question-category-edit',
@@ -44,7 +48,11 @@ class PermissionTableSeeder extends Seeder
             'question-set-list',
             'question-set-create',
             'question-set-edit',
-            'question-set-delete'
+            'question-set-delete',
+            'question-set-answer-list',
+            'question-set-answer-create',
+            'question-set-answer-edit',
+            'question-set-answer-delete'
         ];
 
 

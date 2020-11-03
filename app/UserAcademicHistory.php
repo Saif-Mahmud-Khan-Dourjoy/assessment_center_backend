@@ -14,7 +14,7 @@ class UserAcademicHistory extends Model
      * @var array
      */
     protected $fillable = [
-        'profile_id', 'exam_course_title', 'major', 'institute', 'result', 'passing_year', 'duration', 'description'
+        'profile_id', 'exam_course_title', 'major', 'institute', 'result', 'start_year', 'end_year', 'duration', 'description', 'check_status'
     ];
 
     /**

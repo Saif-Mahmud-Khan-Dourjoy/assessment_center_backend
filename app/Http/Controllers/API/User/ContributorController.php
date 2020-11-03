@@ -105,9 +105,10 @@ class ContributorController extends Controller
                 'guard_name' => 'web',
             ];
             $contributor = Contributor::create( $contributor_data );
+            $user =Contributor::with(['user_profile'])->where('id', $contributor->id)->get();
 
             if( $contributor ){
-                return response()->json(['success' => true, 'contributor' => $user_profile], $this->successStatus);
+                return response()->json(['success' => true, 'contributor' => $user], $this->successStatus);
             }
         }
         else{

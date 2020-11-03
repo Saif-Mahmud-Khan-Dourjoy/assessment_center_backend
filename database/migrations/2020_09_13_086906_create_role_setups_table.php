@@ -17,6 +17,8 @@ class CreateRoleSetupsTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('contributor_role_id')->unsigned();
             $table->foreign('contributor_role_id')->references('id')->on('roles');
+            $table->unsignedBigInteger('student_role_id')->unsigned();
+            $table->foreign('student_role_id')->references('id')->on('roles');
             $table->unsignedBigInteger('new_register_user_role_id')->unsigned();
             $table->foreign('new_register_user_role_id')->references('id')->on('roles');
             $table->timestamps();

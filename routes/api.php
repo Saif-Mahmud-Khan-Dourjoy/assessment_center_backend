@@ -35,9 +35,13 @@ Route::group(['prefix' => 'v1'], function() {
         Route::resource('contributors','API\User\ContributorController');
         Route::get('get-contributor/{id}', 'API\User\ContributorController@getContributor')->name('get-contributor');
 
+        Route::resource('students','API\User\StudentController');
+        Route::get('get-student-all-assessment/{id}', 'API\User\StudentController@getAllAssessment')->name('get-student-all-assessment');
+
         Route::resource('question-categories','API\Question\QuestionCategoryController');
         Route::resource('questions','API\Question\QuestionController');
         Route::resource('question-sets','API\Question\QuestionSetController');
+        Route::resource('question-set-answer','API\Question\QuestionSetAnswerController');
 
     });
     Route::fallback(function(){

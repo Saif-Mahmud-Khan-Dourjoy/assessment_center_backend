@@ -118,6 +118,11 @@ class UserController extends Controller
         ]);
         $input = $request->all();
 
+        // Delete previous data
+        if( ! UserAcademicHistory::where(['profile_id' => $input['profile_id'], 'check_status' => $input['check_status']])->first() )
+            UserAcademicHistory::where('profile_id', $input['profile_id'])->delete();
+
+
         // Add User Academic History
         $dataAcademic = [
             'profile_id' => $input['profile_id'],
@@ -125,9 +130,12 @@ class UserController extends Controller
             'major' => $input['major'],
             'institute' => $input['institute'],
             'result' => $input['result'],
-            'passing_year' => $input['passing_year'],
+            'start_year' => $input['start_year'],
+            'end_year' => $input['end_year'],
+            'currently_study' => $input['currently_study'],
             'duration' => $input['duration'],
             'description' => $input['description'],
+            'check_status' => $input['check_status'],
         ];
         UserAcademicHistory::create($dataAcademic);
 
@@ -165,15 +173,22 @@ class UserController extends Controller
         ]);
         $input = $request->all();
 
+        // Delete previous data
+        if( ! UserEmploymentHistory::where(['profile_id' => $input['profile_id'], 'check_status' => $input['check_status']])->first() )
+            UserEmploymentHistory::where('profile_id', $input['profile_id'])->delete();
+
         // Add User Employment History
         $dataEmployment = [
             'profile_id' => $input['profile_id'],
             'institute' => $input['institute'],
             'position' => $input['position'],
             'responsibility' => $input['responsibility'],
+            'start_date' => $input['start_date'],
+            'end_date' => $input['end_date'],
             'duration' => $input['duration'],
             'currently_work' => $input['currently_work'],
             'description' => $input['description'],
+            'check_status' => $input['check_status'],
         ];
         UserEmploymentHistory::create($dataEmployment);
 
