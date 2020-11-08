@@ -106,6 +106,48 @@ class UserController extends Controller
 
 
     /**
+     * Display the specified resource.
+     *
+     * @param $id
+     * @return JsonResponse
+     */
+    public function getUser($id)
+    {
+        $profile = User::with('user_profile')->where('id', $id)->get();
+        if ( !$profile )
+            return response()->json(['success' => false, 'message' => 'User not found'], $this->invalidStatus);
+        else
+            return response()->json(['success' => true, 'profile' => $profile], $this->successStatus);
+    }
+
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param Request $request
+     * @param $id
+     * @return JsonResponse
+     */
+    public function updateProfile(Request $request)
+    {
+        $input = $request->all();
+        $user = UserProfile::find($input['profile_id']);
+        if( ! $user ){
+            return response()->json(['success' => true, 'message' => 'Profile not found'], $this->successStatus);
+        }
+        request()->validate([
+            'email' => 'unique:user_profiles,email,'.$input['profile_id'],
+            //'phone' => 'unique:user_profiles,phone,'.$input['profile_id'],
+        ]);
+        $userProfile = $user->update($request->all());
+        if( $userProfile )
+            return response()->json(['success' => true, 'message' => 'Profile update successfully'], $this->successStatus);
+        else
+            return response()->json(['success' => false, 'message' => 'Profile update failed'], $this->failedStatus);
+    }
+
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param Request $request
@@ -134,7 +176,7 @@ class UserController extends Controller
             'end_year' => $input['end_year'],
             'currently_study' => $input['currently_study'],
             'duration' => $input['duration'],
-            'description' => $input['description'],
+            'description' => (!empty($_POST["description"])) ? $input['description'] : 'n/a',
             'check_status' => $input['check_status'],
         ];
         UserAcademicHistory::create($dataAcademic);
@@ -187,7 +229,7 @@ class UserController extends Controller
             'end_date' => $input['end_date'],
             'duration' => $input['duration'],
             'currently_work' => $input['currently_work'],
-            'description' => $input['description'],
+            'description' => (!empty($_POST["description"])) ? $input['description'] : 'n/a',
             'check_status' => $input['check_status'],
         ];
         UserEmploymentHistory::create($dataEmployment);

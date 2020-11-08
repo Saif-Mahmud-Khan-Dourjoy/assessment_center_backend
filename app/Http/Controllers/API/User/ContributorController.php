@@ -18,10 +18,10 @@ class ContributorController extends Controller
     public $invalidStatus = 400;
     function __construct()
     {
-        $this->middleware('api_permission:contributor-list|contributor-create|contributor-edit|contributor-delete', ['only' => ['index','show']]);
+        /*$this->middleware('api_permission:contributor-list|contributor-create|contributor-edit|contributor-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:contributor-create', ['only' => ['store']]);
         $this->middleware('api_permission:contributor-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:contributor-delete', ['only' => ['destroy']]);
+        $this->middleware('api_permission:contributor-delete', ['only' => ['destroy']]);*/
     }
 
 
@@ -49,7 +49,7 @@ class ContributorController extends Controller
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|unique:user_profiles',
-            'phone' => 'required|unique:user_profiles',
+            //'phone' => 'required|unique:user_profiles',
         ]);
         $input = $request->all();
         if($input['role_id']){
@@ -77,11 +77,12 @@ class ContributorController extends Controller
             'last_name' => $input['last_name'],
             'email' => $input['email'],
             'phone' => $input['phone'],
-            'skype' => $input['skype'],
-            'profession' => $input['profession'],
+            'skype' => (!empty($_POST["skype"])) ? $input['skype'] : 0,
+            'profession' => (!empty($_POST["profession"])) ? $input['profession'] : 'n/a',
+            'skill' => (!empty($_POST["skill"])) ? $input['skill'] : 'n/a',
             'about' => $input['about'],
             'image' => $input['image'],
-            'address' => $input['address'],
+            'address' => (!empty($_POST["address"])) ? $input['address'] : 'n/a',
             'zipcode' => $input['zipcode'],
             'country' => $input['country'],
             'guard_name' => 'web',
@@ -125,7 +126,6 @@ class ContributorController extends Controller
      */
     public function show($id)
     {
-        //$contributor = UserProfile::find($id);
         $contributor = Contributor::with('user_profile')
                                     ->where('id', $id)
                                     ->get();
@@ -144,10 +144,9 @@ class ContributorController extends Controller
      */
     public function getContributor($id)
     {
-        $profile = UserProfile::where('user_id', $id)->first();
-        $contributor = Contributor::where('profile_id', $profile->id)->get();
-        if ( !$profile )
-            return response()->json(['success' => false, 'message' => 'User not found'], $this->invalidStatus);
+        $contributor = Contributor::with(['user_profile'])->where('profile_id', $id)->get();
+        if ( !$contributor )
+            return response()->json(['success' => false, 'message' => 'Contributor not found'], $this->invalidStatus);
         else
             return response()->json(['success' => true, 'contributor' => $contributor], $this->successStatus);
     }
@@ -162,11 +161,10 @@ class ContributorController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $profile_id = Contributor::find($id);
-        $contributor = UserProfile::find($profile_id->profile_id);
+        $contributor = UserProfile::find($id);
         request()->validate([
-            'email' => 'unique:user_profiles,email,'.$profile_id->profile_id,
-            'phone' => 'unique:user_profiles,phone,'.$profile_id->profile_id,
+            'email' => 'unique:user_profiles,email,'.$id,
+            //'phone' => 'unique:user_profiles,phone,'.$id,
         ]);
         $contributor = $contributor->update($request->all());
         if( $contributor )

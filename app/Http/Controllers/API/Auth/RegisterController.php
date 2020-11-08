@@ -9,6 +9,7 @@ use App\UserProfile;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
 class RegisterController extends Controller
@@ -48,7 +49,6 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         request()->validate([
-            'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required',
             'c_password' => 'required|same:password',
@@ -59,19 +59,24 @@ class RegisterController extends Controller
         }
 
         $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $user = User::create($input);
+        $login_data = [
+            'name' => $input['first_name'] .' '. $input['last_name'],
+            'email' => $input['email'],
+            'password' => bcrypt($input['password']),
+        ];
+        $user = User::create($login_data);
         if( $user ){
 
             // Assign Role
-            //$role = RoleSetup::first();
             $user->assignRole([$role->new_register_user_role_id]);
 
             // Add User Profile
             UserProfile::create([
                 'user_id' => $user['id'],
-                'first_name' => $input['name'],
-                'email' => $input['email']
+                'first_name' => $input['first_name'],
+                'last_name' => $input['last_name'],
+                'email' => $input['email'],
+                'phone' => $input['phone'],
             ]);
 
             $responseData['name'] =  $user->name;

@@ -16,7 +16,7 @@ class UserProfile extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'first_name', 'last_name', 'email', 'phone', 'skype', 'profession', 'about', 'image', 'address', 'zipcode', 'country', 'guard_name'
+        'user_id', 'first_name', 'last_name', 'email', 'phone', 'skype', 'profession', 'skill', 'about', 'image', 'address', 'zipcode', 'country', 'guard_name'
     ];
 
     /**

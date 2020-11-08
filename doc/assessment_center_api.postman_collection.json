@@ -17,7 +17,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8000/api/v1/register?name=New11&email=new2@nsl.com11&password=123456789&c_password=123456789",
+					"raw": "http://localhost:8000/api/v1/register?first_name=Test&last_name=Test&email=test12@nsl.com&phone=123456789&password=123456789&c_password=123456789",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -30,12 +30,20 @@
 					],
 					"query": [
 						{
-							"key": "name",
-							"value": "New11"
+							"key": "first_name",
+							"value": "Test"
+						},
+						{
+							"key": "last_name",
+							"value": "Test"
 						},
 						{
 							"key": "email",
-							"value": "new2@nsl.com11"
+							"value": "test12@nsl.com"
+						},
+						{
+							"key": "phone",
+							"value": "123456789"
 						},
 						{
 							"key": "password",
@@ -630,7 +638,10 @@
 							"value": "1",
 							"type": "text"
 						}
-					]
+					],
+					"options": {
+						"formdata": {}
+					}
 				},
 				"url": {
 					"raw": "http://localhost:8000/api/v1/role-setup",
@@ -649,7 +660,7 @@
 			"response": []
 		},
 		{
-			"name": "Contributor List",
+			"name": "Get Logged in user Permission List",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -660,12 +671,12 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOGMyNzZlNTZkNmVhNzA3M2NhYTdiNTZlYmU2YzM1ODJhOTM2MDUwMjE1YmMwY2RhOTM4ZjVhYWUxMjQ5OGQ3YWU4MDZhNTViNzdiNGQwMDQiLCJpYXQiOjE2MDQ4MDk5MTksIm5iZiI6MTYwNDgwOTkxOSwiZXhwIjoxNjM2MzQ1OTE5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.DbaXn6dWNlLb8PXhbADci1HORKnD_opqHKbkQ_G07vWi_dnKdnzWEcKkMCY-RTiNXc_UyMuiCtv-r2osuH1cdh7i6oeIyqDq99FN-P9A1yL-5eP4rKq5c76NF_0_fWc-9uCHoQ9O18mNP9VPBJHGy4RBGL5cmCusZEc7ciPZDVb3XjqOA0tePzjNbQU67lnun51BMMt4qJvcxKHiOr88VJANMLPuvS3tY8j20YEQCSNq_BqEaclHmkcx_CE_54h7bhu63xD4NH3Q81ZyfvmtphkXc8h4UudEicOpL60Mfx__tzqjv-Xm4FFynM10sAiPDYpU5zGrzK-qxhsoVoEk_1amW-cw0v17y0vWPAN35AhH1r6e42iS1vLWtYrsi-xb2jR06W7ShJa6Q0ZYTEHjNYoRUDdI90UuWlnxN5GKe1nbUbx3KgSkV8XDCdJfSbBXKsCzFvt5BReYiH2eV8YnnTkdE5k5hdkjHMyGu3zpOsiM3ISxumGWhn0Cnfsmu_O6SXnD49OqtYDbQk78v-l8q_Xgahz9L5La_NEQ2RgzEcAbOdMZxM-sf-mt2YqhgN28J4BLEk8QX4F2vYmHQdw2gI1UnvBadAkjny-W_t8_mT8pHOJ1gw4UqzpSCBSCMO4wH4I2cB2niNiPY-VWgMdSWwJ47ROFtl0ngNdBFoq7zZs",
 						"type": "text"
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8000/api/v1/contributors",
+					"raw": "http://localhost:8000/api/v1/get-permission",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -674,118 +685,59 @@
 					"path": [
 						"api",
 						"v1",
-						"contributors"
+						"get-permission"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Contributor Add",
+			"name": "Get Profile Information using Logged in User ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOGMyNzZlNTZkNmVhNzA3M2NhYTdiNTZlYmU2YzM1ODJhOTM2MDUwMjE1YmMwY2RhOTM4ZjVhYWUxMjQ5OGQ3YWU4MDZhNTViNzdiNGQwMDQiLCJpYXQiOjE2MDQ4MDk5MTksIm5iZiI6MTYwNDgwOTkxOSwiZXhwIjoxNjM2MzQ1OTE5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.DbaXn6dWNlLb8PXhbADci1HORKnD_opqHKbkQ_G07vWi_dnKdnzWEcKkMCY-RTiNXc_UyMuiCtv-r2osuH1cdh7i6oeIyqDq99FN-P9A1yL-5eP4rKq5c76NF_0_fWc-9uCHoQ9O18mNP9VPBJHGy4RBGL5cmCusZEc7ciPZDVb3XjqOA0tePzjNbQU67lnun51BMMt4qJvcxKHiOr88VJANMLPuvS3tY8j20YEQCSNq_BqEaclHmkcx_CE_54h7bhu63xD4NH3Q81ZyfvmtphkXc8h4UudEicOpL60Mfx__tzqjv-Xm4FFynM10sAiPDYpU5zGrzK-qxhsoVoEk_1amW-cw0v17y0vWPAN35AhH1r6e42iS1vLWtYrsi-xb2jR06W7ShJa6Q0ZYTEHjNYoRUDdI90UuWlnxN5GKe1nbUbx3KgSkV8XDCdJfSbBXKsCzFvt5BReYiH2eV8YnnTkdE5k5hdkjHMyGu3zpOsiM3ISxumGWhn0Cnfsmu_O6SXnD49OqtYDbQk78v-l8q_Xgahz9L5La_NEQ2RgzEcAbOdMZxM-sf-mt2YqhgN28J4BLEk8QX4F2vYmHQdw2gI1UnvBadAkjny-W_t8_mT8pHOJ1gw4UqzpSCBSCMO4wH4I2cB2niNiPY-VWgMdSWwJ47ROFtl0ngNdBFoq7zZs",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/v1/get-profile/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"get-profile",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Profile Update using Profile ID",
 			"request": {
 				"method": "POST",
 				"header": [
 					{
 						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
+						"type": "text",
+						"value": "application/json"
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": [],
-					"options": {
-						"formdata": {}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8000/api/v1/contributors?first_name=Hemayet&last_name=Khan&email=hk@nsl.com&phone=123456789&skype=hk&profession=Teacher&about=n/a&image=img&address=Dhaka&zipcode=1200&country=Bangladesh&role_id=1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"v1",
-						"contributors"
-					],
-					"query": [
-						{
-							"key": "first_name",
-							"value": "Hemayet"
-						},
-						{
-							"key": "last_name",
-							"value": "Khan"
-						},
-						{
-							"key": "email",
-							"value": "hk@nsl.com"
-						},
-						{
-							"key": "phone",
-							"value": "123456789"
-						},
-						{
-							"key": "skype",
-							"value": "hk"
-						},
-						{
-							"key": "profession",
-							"value": "Teacher"
-						},
-						{
-							"key": "about",
-							"value": "n/a"
-						},
-						{
-							"key": "image",
-							"value": "img"
-						},
-						{
-							"key": "address",
-							"value": "Dhaka"
-						},
-						{
-							"key": "zipcode",
-							"value": "1200"
-						},
-						{
-							"key": "country",
-							"value": "Bangladesh"
-						},
-						{
-							"key": "role_id",
-							"value": "1"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Contributor Details",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNTRlMzg5YjMzYTVhYzAwODBhYTNhZTc1ZjAwMWZmOTJmMmRiMjcxYjUzNmNlODQzYzJhMWUxYmE5MmUyMTI1NjY2N2M4YzNjZTdmZGM1NjUiLCJpYXQiOjE2MDE0NTY0ODYsIm5iZiI6MTYwMTQ1NjQ4NiwiZXhwIjoxNjMyOTkyNDg1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.XPyqtXdsmYX_0XOw0CqiPl_VboSNm3pXCEdm_3mnlOxSwMZG1f8Bxlehj0CI_2eGV3OcvTXiQ8ZzijQBvvAk4eO8cc-owA_tAYoIWTyLYp2AiXjwD2-RT-v9I3W9TQ0CqN42V-q12zFgncBhB6Mpx8aEpikvdB4-ng-mFAIOPCMNY-7TS1hVhsz2v7bbgBrjnpX_W4W4XyOwwj2f8-gGWayKFVAQazAZjfO0_ZjyGzPLF57BeMaWjht_uYj7d1jCBV3cc6tGYGUpCssvbUVVMQucq3QYM4FcAQ859eXyxp7uLzGzL0fuVYgjQqjxakUglu0H_tzOFp_1Sj63yQ4VaMgckLBEXQC239WSi-xW22YPoJVZAkil8qV_7hW2xWxvvv9KwVimVpom3wQ0UqmmAPvZvELt6OD9xenzOYUA2a309UwF989ZZa_G6LIrz1NV5wM7uQYcCzVbCs_bYLCy4b1SRQHusfA4HsUIgwj3ijsfD-mEi_xdE8zC-ZuJUhwooKxnQaxcV5hsIhEiNVYS0IdWx3NmpAqLqRmwNNCP81GAjVkGPPT36-iKHK81Y1o7-j5DYFOEw5CAaHWJdGdtELyO80mhMZ04xriaQlwS2INtxbpkDw72X1q9AFatVwaZ6TPg92JoPGZMejFBOg5ib5AhvhGpbuhZ5O1iXTeucmA",
-						"type": "text"
+						"type": "text",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOGMyNzZlNTZkNmVhNzA3M2NhYTdiNTZlYmU2YzM1ODJhOTM2MDUwMjE1YmMwY2RhOTM4ZjVhYWUxMjQ5OGQ3YWU4MDZhNTViNzdiNGQwMDQiLCJpYXQiOjE2MDQ4MDk5MTksIm5iZiI6MTYwNDgwOTkxOSwiZXhwIjoxNjM2MzQ1OTE5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.DbaXn6dWNlLb8PXhbADci1HORKnD_opqHKbkQ_G07vWi_dnKdnzWEcKkMCY-RTiNXc_UyMuiCtv-r2osuH1cdh7i6oeIyqDq99FN-P9A1yL-5eP4rKq5c76NF_0_fWc-9uCHoQ9O18mNP9VPBJHGy4RBGL5cmCusZEc7ciPZDVb3XjqOA0tePzjNbQU67lnun51BMMt4qJvcxKHiOr88VJANMLPuvS3tY8j20YEQCSNq_BqEaclHmkcx_CE_54h7bhu63xD4NH3Q81ZyfvmtphkXc8h4UudEicOpL60Mfx__tzqjv-Xm4FFynM10sAiPDYpU5zGrzK-qxhsoVoEk_1amW-cw0v17y0vWPAN35AhH1r6e42iS1vLWtYrsi-xb2jR06W7ShJa6Q0ZYTEHjNYoRUDdI90UuWlnxN5GKe1nbUbx3KgSkV8XDCdJfSbBXKsCzFvt5BReYiH2eV8YnnTkdE5k5hdkjHMyGu3zpOsiM3ISxumGWhn0Cnfsmu_O6SXnD49OqtYDbQk78v-l8q_Xgahz9L5La_NEQ2RgzEcAbOdMZxM-sf-mt2YqhgN28J4BLEk8QX4F2vYmHQdw2gI1UnvBadAkjny-W_t8_mT8pHOJ1gw4UqzpSCBSCMO4wH4I2cB2niNiPY-VWgMdSWwJ47ROFtl0ngNdBFoq7zZs"
 					}
 				],
 				"body": {
@@ -793,7 +745,7 @@
 					"formdata": []
 				},
 				"url": {
-					"raw": "http://localhost:8000/api/v1/contributors/1",
+					"raw": "http://localhost:8000/api/v1/update-profile?profile_id=5&first_name=Hemayet1&email=hk1@nsl.cos&phone=1234567890&profession=Teacher&about=n/a&image=img&address=Dhaka&zipcode=1200&country=Bangladesh",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -802,46 +754,16 @@
 					"path": [
 						"api",
 						"v1",
-						"contributors",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Contributor Profile Update",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNTRlMzg5YjMzYTVhYzAwODBhYTNhZTc1ZjAwMWZmOTJmMmRiMjcxYjUzNmNlODQzYzJhMWUxYmE5MmUyMTI1NjY2N2M4YzNjZTdmZGM1NjUiLCJpYXQiOjE2MDE0NTY0ODYsIm5iZiI6MTYwMTQ1NjQ4NiwiZXhwIjoxNjMyOTkyNDg1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.XPyqtXdsmYX_0XOw0CqiPl_VboSNm3pXCEdm_3mnlOxSwMZG1f8Bxlehj0CI_2eGV3OcvTXiQ8ZzijQBvvAk4eO8cc-owA_tAYoIWTyLYp2AiXjwD2-RT-v9I3W9TQ0CqN42V-q12zFgncBhB6Mpx8aEpikvdB4-ng-mFAIOPCMNY-7TS1hVhsz2v7bbgBrjnpX_W4W4XyOwwj2f8-gGWayKFVAQazAZjfO0_ZjyGzPLF57BeMaWjht_uYj7d1jCBV3cc6tGYGUpCssvbUVVMQucq3QYM4FcAQ859eXyxp7uLzGzL0fuVYgjQqjxakUglu0H_tzOFp_1Sj63yQ4VaMgckLBEXQC239WSi-xW22YPoJVZAkil8qV_7hW2xWxvvv9KwVimVpom3wQ0UqmmAPvZvELt6OD9xenzOYUA2a309UwF989ZZa_G6LIrz1NV5wM7uQYcCzVbCs_bYLCy4b1SRQHusfA4HsUIgwj3ijsfD-mEi_xdE8zC-ZuJUhwooKxnQaxcV5hsIhEiNVYS0IdWx3NmpAqLqRmwNNCP81GAjVkGPPT36-iKHK81Y1o7-j5DYFOEw5CAaHWJdGdtELyO80mhMZ04xriaQlwS2INtxbpkDw72X1q9AFatVwaZ6TPg92JoPGZMejFBOg5ib5AhvhGpbuhZ5O1iXTeucmA",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:8000/api/v1/contributors/1?first_name=Hemayet15&email=hk1@nsl.co1&phone=123456789015&profession=Teacher&about=n/a&image=img&address=Dhaka&zipcode=1200&country=Bangladesh",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"v1",
-						"contributors",
-						"1"
+						"update-profile"
 					],
 					"query": [
 						{
+							"key": "profile_id",
+							"value": "5"
+						},
+						{
 							"key": "first_name",
-							"value": "Hemayet15"
+							"value": "Hemayet1"
 						},
 						{
 							"key": "last_name",
@@ -850,11 +772,11 @@
 						},
 						{
 							"key": "email",
-							"value": "hk1@nsl.co1"
+							"value": "hk1@nsl.cos"
 						},
 						{
 							"key": "phone",
-							"value": "123456789015"
+							"value": "1234567890"
 						},
 						{
 							"key": "skype",
@@ -885,424 +807,6 @@
 							"key": "country",
 							"value": "Bangladesh"
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get contribution info using login id",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzIiwianRpIjoiZWE1OTZjMzg0ZTc1ZTQ0NTdjNTdjNTAwMWI0NjBjYTRjNmQ0NmIyODg5MDRhMmQxMmVlNzc4YTM5YzJmYTkzYzdhNWNiNzRhZDkwZjk2MGIiLCJpYXQiOjE2MDQyOTE2OTAsIm5iZiI6MTYwNDI5MTY5MCwiZXhwIjoxNjM1ODI3NjkwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.gs0p3d9znXnHUzrmiL8deVoDLiFmlGzX8NoM6ZGesm-G5s14FF6J5ePL1PcfWu1Yld_OYWE5ISHFt9Q-ygYC8tMrdVScNkg6DMegC786ABVYUULmBBnWqhI06_NZ-HhQId52V4C3mPKmIEwnck6hnvBias-e2OsE1lEAE7z6d10q3ZB1ABrPW7xj6eZd1MMctBudjyhM-vM7DnGRX69vfjv62hmGZ9-kzvCwnnWQaDY60DMkprMI2ikNFpHPUQgVz6Xzy5Nv1o88hlN_tzOJdIMqiiwxbSGnt5ZofGIkpm-oz0zGXxsJjEbWfV5KAolVB20lPWOa1ms9vOe_VCYf5fC0L2JiDn3mPV9Cwou41wXcg9WJbYjCBEHXTXtuboiyDGdGZnxsLN3t5K_l0TuQSndI6RxVWrTIae2zrxedt7FFEkKbJwE6T8TzoQ3AjsC-kHSIsLqajRkuZvBRoGSYt3FNWOMv5Nu-Z36qA0XgKlBI4n1LS2pH18DRWVmSx2PSkgB5iHbku5F7rHx3DbLB2iZYK7rZBj2i4LMjU99ngCdT1Mh7TOAi8nWz_1R7sPAljNJNREZmVbv1LPDuc2hHa97xAlX7qdfpld3j4DKTM8Aesdc617sNkr6tvS2Ndr9B5JPg3ZUW34izHq_GG2vKqS-ZzcwevVu_HAWgM7UiAHc",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:8000/api/v1/get-contributor/2",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"v1",
-						"get-contributor",
-						"2"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Question Category List",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzIiwianRpIjoiMjE0MGVkZDJhZGQzZjE4OTVjOTcxYzgxZDQwNzgxYWFiNTgxODJhNWEzMTYwYTVmM2UxYzYwNjhjY2QzZjYzNjNiNjcwMTc4NThhNDdlZWYiLCJpYXQiOjE2MDAwNzIxNjksIm5iZiI6MTYwMDA3MjE2OSwiZXhwIjoxNjMxNjA4MTY5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.azxidzJHaczMIGohh2gPYzM4XsMVX5wsHcm-IdE1ROXu9xjKoaZlcx_mkN64Y8tJpExUf-6EmhZheBYYvcS6kpMKMkZ7DMvZMsZPviAxkHZBvyFLYMYcfwmtqW09yAvX5H7l07_k5TM6sPDU_SMGd0lBLJut2MCf0NEkuAeaI-jYxWbjOLqdjhhzzazp9U_keK6zXUjiCp-Ie0hjuvN6-yzAMxX6maCfGny1YWXQQILAPVyjE4Ghj7n8f4P34pLsksncVsExnNn5jGRVKqOPURqZsIJYdPcPHerjx1_lfYoa23aHl_gecGkmdxJbl18Yo9-n7trD1AxOiws9HvICzrfA3y02GQcQ9Vn9oBlsbR0EEoAv9KLXTCx7PneFMy30XS0jWK0THvFpwlPknmucIhqcMasD7Ybo641uqGwrPib16JTzZwvDt7uoTrkuDUvb56OISXbUC7Jjik9NdHXnh2cctr1pI31yHJr1cQIjdRA4bJBUsgm5e1WRw2btplMTAvj7So8cZEfziK3x_H3bfTkXdoLxSET54h-eaZ_yxCU3U1Wiu9ubHx3p6QJJMDtVWnn9f6cJYGfeO9tR3KNBB_i0icy5vXMWD3ZX12MieOHYAVS0wpIRuK2APtesnra-9WKPq1FD2uysk6PVw2A7FfxPeRFyqHCj62ClJPLz8Ts",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:8000/api/v1/question-categories",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"v1",
-						"question-categories"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Question Category Add",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:8000/api/v1/question-categories?name=GK&description",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"v1",
-						"question-categories"
-					],
-					"query": [
-						{
-							"key": "name",
-							"value": "GK"
-						},
-						{
-							"key": "description",
-							"value": null
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Question Category Delete",
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzIiwianRpIjoiMjE0MGVkZDJhZGQzZjE4OTVjOTcxYzgxZDQwNzgxYWFiNTgxODJhNWEzMTYwYTVmM2UxYzYwNjhjY2QzZjYzNjNiNjcwMTc4NThhNDdlZWYiLCJpYXQiOjE2MDAwNzIxNjksIm5iZiI6MTYwMDA3MjE2OSwiZXhwIjoxNjMxNjA4MTY5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.azxidzJHaczMIGohh2gPYzM4XsMVX5wsHcm-IdE1ROXu9xjKoaZlcx_mkN64Y8tJpExUf-6EmhZheBYYvcS6kpMKMkZ7DMvZMsZPviAxkHZBvyFLYMYcfwmtqW09yAvX5H7l07_k5TM6sPDU_SMGd0lBLJut2MCf0NEkuAeaI-jYxWbjOLqdjhhzzazp9U_keK6zXUjiCp-Ie0hjuvN6-yzAMxX6maCfGny1YWXQQILAPVyjE4Ghj7n8f4P34pLsksncVsExnNn5jGRVKqOPURqZsIJYdPcPHerjx1_lfYoa23aHl_gecGkmdxJbl18Yo9-n7trD1AxOiws9HvICzrfA3y02GQcQ9Vn9oBlsbR0EEoAv9KLXTCx7PneFMy30XS0jWK0THvFpwlPknmucIhqcMasD7Ybo641uqGwrPib16JTzZwvDt7uoTrkuDUvb56OISXbUC7Jjik9NdHXnh2cctr1pI31yHJr1cQIjdRA4bJBUsgm5e1WRw2btplMTAvj7So8cZEfziK3x_H3bfTkXdoLxSET54h-eaZ_yxCU3U1Wiu9ubHx3p6QJJMDtVWnn9f6cJYGfeO9tR3KNBB_i0icy5vXMWD3ZX12MieOHYAVS0wpIRuK2APtesnra-9WKPq1FD2uysk6PVw2A7FfxPeRFyqHCj62ClJPLz8Ts",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:8000/api/v1/question-categories/1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"v1",
-						"question-categories",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Question Category Edit",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzIiwianRpIjoiMjE0MGVkZDJhZGQzZjE4OTVjOTcxYzgxZDQwNzgxYWFiNTgxODJhNWEzMTYwYTVmM2UxYzYwNjhjY2QzZjYzNjNiNjcwMTc4NThhNDdlZWYiLCJpYXQiOjE2MDAwNzIxNjksIm5iZiI6MTYwMDA3MjE2OSwiZXhwIjoxNjMxNjA4MTY5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.azxidzJHaczMIGohh2gPYzM4XsMVX5wsHcm-IdE1ROXu9xjKoaZlcx_mkN64Y8tJpExUf-6EmhZheBYYvcS6kpMKMkZ7DMvZMsZPviAxkHZBvyFLYMYcfwmtqW09yAvX5H7l07_k5TM6sPDU_SMGd0lBLJut2MCf0NEkuAeaI-jYxWbjOLqdjhhzzazp9U_keK6zXUjiCp-Ie0hjuvN6-yzAMxX6maCfGny1YWXQQILAPVyjE4Ghj7n8f4P34pLsksncVsExnNn5jGRVKqOPURqZsIJYdPcPHerjx1_lfYoa23aHl_gecGkmdxJbl18Yo9-n7trD1AxOiws9HvICzrfA3y02GQcQ9Vn9oBlsbR0EEoAv9KLXTCx7PneFMy30XS0jWK0THvFpwlPknmucIhqcMasD7Ybo641uqGwrPib16JTzZwvDt7uoTrkuDUvb56OISXbUC7Jjik9NdHXnh2cctr1pI31yHJr1cQIjdRA4bJBUsgm5e1WRw2btplMTAvj7So8cZEfziK3x_H3bfTkXdoLxSET54h-eaZ_yxCU3U1Wiu9ubHx3p6QJJMDtVWnn9f6cJYGfeO9tR3KNBB_i0icy5vXMWD3ZX12MieOHYAVS0wpIRuK2APtesnra-9WKPq1FD2uysk6PVw2A7FfxPeRFyqHCj62ClJPLz8Ts",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:8000/api/v1/question-categories/1?name=Test&description",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"v1",
-						"question-categories",
-						"1"
-					],
-					"query": [
-						{
-							"key": "name",
-							"value": "Test"
-						},
-						{
-							"key": "description",
-							"value": null
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Question List",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "id",
-							"value": "1",
-							"type": "text",
-							"disabled": true
-						}
-					],
-					"options": {
-						"formdata": {}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8000/api/v1/questions/",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"v1",
-						"questions",
-						""
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Question Add",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "contributor_id",
-							"value": "1",
-							"type": "text"
-						},
-						{
-							"key": "category_id",
-							"value": "1",
-							"type": "text"
-						},
-						{
-							"key": "privacy",
-							"value": "1",
-							"type": "text"
-						},
-						{
-							"key": "publish_status",
-							"value": "1",
-							"type": "text"
-						},
-						{
-							"key": "question_type",
-							"value": "checkbox",
-							"type": "text"
-						},
-						{
-							"key": "question_text",
-							"value": "Who is who?",
-							"type": "text"
-						},
-						{
-							"key": "description",
-							"value": "This is dummy question",
-							"type": "text"
-						},
-						{
-							"key": "option_type",
-							"value": "checkbox",
-							"type": "text"
-						},
-						{
-							"key": "no_of_option",
-							"value": "2",
-							"type": "text"
-						},
-						{
-							"key": "no_of_answer",
-							"value": "1",
-							"type": "text"
-						},
-						{
-							"key": "no_of_used",
-							"value": "0",
-							"type": "text"
-						},
-						{
-							"key": "no_of_comments",
-							"value": "0",
-							"type": "text"
-						},
-						{
-							"key": "average_rating",
-							"value": "0",
-							"type": "text"
-						},
-						{
-							"key": "active",
-							"value": "1",
-							"type": "text"
-						},
-						{
-							"key": "serial_no",
-							"value": "1|2",
-							"type": "text"
-						},
-						{
-							"key": "option",
-							"value": "A|B",
-							"type": "text"
-						},
-						{
-							"key": "description",
-							"value": "n/a|test option",
-							"type": "text"
-						},
-						{
-							"key": "image",
-							"value": "n/a",
-							"type": "text"
-						},
-						{
-							"key": "answer",
-							"value": "2",
-							"type": "text"
-						},
-						{
-							"key": "reference",
-							"value": "This is ref fo test question",
-							"type": "text"
-						},
-						{
-							"key": "tags",
-							"value": "1",
-							"type": "text"
-						}
-					],
-					"options": {
-						"formdata": {}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8000/api/v1/questions",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"v1",
-						"questions"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Question Details",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNGQ1NzUwYzA4YjE5ZTE3NjlhYTI2ZDAxOGIyZjRkOGViZWE2OTFlMmVlNzg5OTI3ZGNjNTAwZmRjNjZmZWYwZDM5YjhhNGI4ZGRmNzcxYmQiLCJpYXQiOjE2MDAzMzY1MzAsIm5iZiI6MTYwMDMzNjUzMCwiZXhwIjoxNjMxODcyNTI5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.SiPkFnoUUiTRT_TucSh69N7XP09m4NgrR8abK0kaxI1680X7wn-69FiaPrufd2GFjOYByslUnTT2IltG5r693WSDtNg08NkMNoYehcXteIEGMi6ko1tR5GLnWF6iMBdITxTqp_sHd7jstoM1ooW0vBIuzLg5_dL-Vz8MWlbehnAoERdpGx9okPgudo4CJeHIC-ZCUaYe2xeh3yA6mB12Tj2TvzRqtXu41DSv8LU6clbKwPGqXgPzfQIISsy39HLEEJsSyVF1bGXQoN_vIxXQR4sHVQh_ZtMggkRe3o5rBBA8mbroTXGMtbXmKv4Z369mul-XO81OSEELtWNGlLbyOXE9h48MbEIGDpjHg4x9LeCmfB2zvVO5LYwuxiLg2a0wgx5LHT68dlpN4tenP2aM_3Pyux2TIEaSOgZ_coFBv3UUC50cEtjC4PTCAWweo15WTWiZ2XPTUISGX-6vMTdhq4xCIlObWDoveqhDtomT0IwHgWNrWxEhTrM7dgOa5CkB9cFSjFqbuCogzWBj_JogijG282rCXxxoh1x6RchAZJaOdYHOsBxx4MxWdY7DKg0KRB2icQopXcjPDMKFP4h5E5-aOqshzROsgxqhxqdSNBZB2wz_SYUX_mU-jFSnI-v-KlDCIKFnmSMqN10EqSqLwa1-jwunAAr3-g8oVgud8qM",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": []
-				},
-				"url": {
-					"raw": "http://localhost:8000/api/v1/questions/11",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"v1",
-						"questions",
-						"11"
 					]
 				}
 			},
@@ -1725,9 +1229,133 @@
 			"response": []
 		},
 		{
-			"name": "Create question set",
+			"name": "Contributor List",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMmE1ZTI0MWRiYTI4OTRkZGQyOGM2MDhmYjA3MDY0ODJhN2NjNmViN2EyMDE4N2E2ZmYxZTJhZWRhZGI5MjVlNjc2NTgxMTAzMjgwOWMyNjAiLCJpYXQiOjE2MDQ4MTU2NjcsIm5iZiI6MTYwNDgxNTY2NywiZXhwIjoxNjM2MzUxNjY3LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.ULz61uOrI66ZwUBr-Wd4szMaWsDmV98MEyvWU_ugnCCKQN8nUrsuSggC8_jIIDy8mbDwXAEXKdJdjDaKbUjyTxWK8w_wiDRBdzcJio1Zo6lq8DekkC2SYnzfFsS9ckQsUfhhMzW9uX9PY3ozMg80qyXV_wz84iHXC4WNQczTmHgs0yy3MWBEZ5kG20q3L3OaFd8d_04nWkzNOeKnetJk95C9i2bLiwvXyPb6Y-aIaYzHKjS9mKLOTHgy3fWLHXqmoNFh5vgT8w2eaHJmfboGJkbF0Z0D8DCMhaWOE4nEa7Mi5CQCdrRfoANYL9P6--ENlL0sn3_4GTa6T0bToGoc6HMVoom7scY2TsJ-HErAfTHBE09wnqrPJsp47iOWLDzZRssqLWL5OuWnjq73ysdPdS2sAqjhySLF4idwGagzKtHjs_kTyZgyRKXegH6AhcsUPsyVn0sAU2LUNK0l_FaKmGlxxl9XWs0kMab-m0sCkdJVsqZK9M9_qMBliQLYn4Yg52BjVPrprJiFuc3bDnCT3dR2MrTNZGiteVlzmcDnajRgBlIgbE-W1rf90gBP3_NDoDLWoD-JDLyIyF_VsFy-eY7Hj9bNtgp-PdoYsrojiIy-y-__XKqjuUDjrsfLjVWWAybG9o-owKA4jYEy9d3oCP4oVfDvF_WdQ7pAgcRsy8k",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/v1/contributors",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"contributors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Contributor Add",
 			"request": {
 				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [],
+					"options": {
+						"formdata": {}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/contributors?first_name=Hemayet&last_name=Khan&email=hk@nsl.com&phone=123456789&skype=hk&profession=Teacher&about=n/a&image=img&address=Dhaka&zipcode=1200&country=Bangladesh&role_id=1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"contributors"
+					],
+					"query": [
+						{
+							"key": "first_name",
+							"value": "Hemayet"
+						},
+						{
+							"key": "last_name",
+							"value": "Khan"
+						},
+						{
+							"key": "email",
+							"value": "hk@nsl.com"
+						},
+						{
+							"key": "phone",
+							"value": "123456789"
+						},
+						{
+							"key": "skype",
+							"value": "hk"
+						},
+						{
+							"key": "profession",
+							"value": "Teacher"
+						},
+						{
+							"key": "about",
+							"value": "n/a"
+						},
+						{
+							"key": "image",
+							"value": "img"
+						},
+						{
+							"key": "address",
+							"value": "Dhaka"
+						},
+						{
+							"key": "zipcode",
+							"value": "1200"
+						},
+						{
+							"key": "country",
+							"value": "Bangladesh"
+						},
+						{
+							"key": "role_id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Contributor Details",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
 				"header": [
 					{
 						"key": "Accept",
@@ -1742,21 +1370,10 @@
 				],
 				"body": {
 					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "name",
-							"value": "Test",
-							"type": "text"
-						},
-						{
-							"key": "question",
-							"value": "1,2",
-							"type": "text"
-						}
-					]
+					"formdata": []
 				},
 				"url": {
-					"raw": "http://localhost:8000/api/v1/question-sets",
+					"raw": "http://localhost:8000/api/v1/contributors/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1765,18 +1382,88 @@
 					"path": [
 						"api",
 						"v1",
-						"question-sets"
+						"contributors",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Contributor Profile Update using Profile ID",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOGMyNzZlNTZkNmVhNzA3M2NhYTdiNTZlYmU2YzM1ODJhOTM2MDUwMjE1YmMwY2RhOTM4ZjVhYWUxMjQ5OGQ3YWU4MDZhNTViNzdiNGQwMDQiLCJpYXQiOjE2MDQ4MDk5MTksIm5iZiI6MTYwNDgwOTkxOSwiZXhwIjoxNjM2MzQ1OTE5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.DbaXn6dWNlLb8PXhbADci1HORKnD_opqHKbkQ_G07vWi_dnKdnzWEcKkMCY-RTiNXc_UyMuiCtv-r2osuH1cdh7i6oeIyqDq99FN-P9A1yL-5eP4rKq5c76NF_0_fWc-9uCHoQ9O18mNP9VPBJHGy4RBGL5cmCusZEc7ciPZDVb3XjqOA0tePzjNbQU67lnun51BMMt4qJvcxKHiOr88VJANMLPuvS3tY8j20YEQCSNq_BqEaclHmkcx_CE_54h7bhu63xD4NH3Q81ZyfvmtphkXc8h4UudEicOpL60Mfx__tzqjv-Xm4FFynM10sAiPDYpU5zGrzK-qxhsoVoEk_1amW-cw0v17y0vWPAN35AhH1r6e42iS1vLWtYrsi-xb2jR06W7ShJa6Q0ZYTEHjNYoRUDdI90UuWlnxN5GKe1nbUbx3KgSkV8XDCdJfSbBXKsCzFvt5BReYiH2eV8YnnTkdE5k5hdkjHMyGu3zpOsiM3ISxumGWhn0Cnfsmu_O6SXnD49OqtYDbQk78v-l8q_Xgahz9L5La_NEQ2RgzEcAbOdMZxM-sf-mt2YqhgN28J4BLEk8QX4F2vYmHQdw2gI1UnvBadAkjny-W_t8_mT8pHOJ1gw4UqzpSCBSCMO4wH4I2cB2niNiPY-VWgMdSWwJ47ROFtl0ngNdBFoq7zZs",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/v1/contributors/2?first_name=Hemayet15&email=hk1@nsl.co1&phone=123456789015&profession=Teacher&about=n/a&image=img&address=Dhaka&zipcode=1200&country=Bangladesh",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"contributors",
+						"2"
 					],
 					"query": [
 						{
-							"key": "name",
-							"value": null,
+							"key": "first_name",
+							"value": "Hemayet15"
+						},
+						{
+							"key": "last_name",
+							"value": "Khan",
 							"disabled": true
 						},
 						{
-							"key": "question",
-							"value": null,
+							"key": "email",
+							"value": "hk1@nsl.co1"
+						},
+						{
+							"key": "phone",
+							"value": "123456789015"
+						},
+						{
+							"key": "skype",
+							"value": "hk",
 							"disabled": true
+						},
+						{
+							"key": "profession",
+							"value": "Teacher"
+						},
+						{
+							"key": "about",
+							"value": "n/a"
+						},
+						{
+							"key": "image",
+							"value": "img"
+						},
+						{
+							"key": "address",
+							"value": "Dhaka"
+						},
+						{
+							"key": "zipcode",
+							"value": "1200"
+						},
+						{
+							"key": "country",
+							"value": "Bangladesh"
 						}
 					]
 				}
@@ -1784,7 +1471,10 @@
 			"response": []
 		},
 		{
-			"name": "Get permission list",
+			"name": "Get contribution info using Profile ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"method": "GET",
 				"header": [
@@ -1795,12 +1485,16 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYWFmY2E0YmU5NTViMTliMTAzZGY4ZTM4YTZlNTk5MDFkZGFmZjQ0ZmY1MmM5MjQ1YzgwYTNkNDg5MzNkMGMzODk1NDNhN2Q4OWQ3YmU4MWEiLCJpYXQiOjE2MDMxODgwNTQsIm5iZiI6MTYwMzE4ODA1NCwiZXhwIjoxNjM0NzI0MDU0LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Krsm8P0jJ4Tx5qZuWwwLhoQ7G6gVusTmzChNCtg8ssixIYO4Pu-XFysCEO1OpfglwwUbLXzm3bHSzrUe0GT1diekxsv6sepRISwptf8eGBVvzxQ5q8yGVBzqoreRhK4IJpe9nS0d-q7IQ9fkWHBx_aKmMjpa_1-tenIeb13rLrH99GoAUtX-SGwBJSd1uFpFok2a9PMIq3r0NILaVmM5u_Da-OvYUimXYocHeZGpmfqrbqbjcX2CkUZpTidkg0K9AqxCw1xYtKdtADNceUjzkT_zyFM5znxenx4RpEBTeDKRo6UtSF2imFgaCjaKh8ergaXiJjACwM2aRMOhmv8YGcKol-hyg5tQXvw6cyfAaQiQ8YjS-51-lW3-o2pNs1jPhEuaJdxsr-vwbbzCuMxmahZKh8IiB_M_W5NvPOHWP2r3QDvpmO6KrekS4Z2VXa1_0aJFiTQkGnigODSEeuWguwxVRPNJMetp5KACwprAIgs9NzPNy6f_nhsmt1RUviyiifwPjOnvMl-xF_5sNoTSYCFEvWIOcRotyGYP2Z9TPwc2Nwxg-EM-WYFwlrjjdIeQf91tP5-LGxz4yG3ayce2_pA0jYh-qfb1rNG9FlVJcUP70CqqMXtraEeg_Q0IkFm19hSTCBHXTeb2tlb4lwKGv7X-fz5vuCVgqF-8zd1-3KU",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOGMyNzZlNTZkNmVhNzA3M2NhYTdiNTZlYmU2YzM1ODJhOTM2MDUwMjE1YmMwY2RhOTM4ZjVhYWUxMjQ5OGQ3YWU4MDZhNTViNzdiNGQwMDQiLCJpYXQiOjE2MDQ4MDk5MTksIm5iZiI6MTYwNDgwOTkxOSwiZXhwIjoxNjM2MzQ1OTE5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.DbaXn6dWNlLb8PXhbADci1HORKnD_opqHKbkQ_G07vWi_dnKdnzWEcKkMCY-RTiNXc_UyMuiCtv-r2osuH1cdh7i6oeIyqDq99FN-P9A1yL-5eP4rKq5c76NF_0_fWc-9uCHoQ9O18mNP9VPBJHGy4RBGL5cmCusZEc7ciPZDVb3XjqOA0tePzjNbQU67lnun51BMMt4qJvcxKHiOr88VJANMLPuvS3tY8j20YEQCSNq_BqEaclHmkcx_CE_54h7bhu63xD4NH3Q81ZyfvmtphkXc8h4UudEicOpL60Mfx__tzqjv-Xm4FFynM10sAiPDYpU5zGrzK-qxhsoVoEk_1amW-cw0v17y0vWPAN35AhH1r6e42iS1vLWtYrsi-xb2jR06W7ShJa6Q0ZYTEHjNYoRUDdI90UuWlnxN5GKe1nbUbx3KgSkV8XDCdJfSbBXKsCzFvt5BReYiH2eV8YnnTkdE5k5hdkjHMyGu3zpOsiM3ISxumGWhn0Cnfsmu_O6SXnD49OqtYDbQk78v-l8q_Xgahz9L5La_NEQ2RgzEcAbOdMZxM-sf-mt2YqhgN28J4BLEk8QX4F2vYmHQdw2gI1UnvBadAkjny-W_t8_mT8pHOJ1gw4UqzpSCBSCMO4wH4I2cB2niNiPY-VWgMdSWwJ47ROFtl0ngNdBFoq7zZs",
 						"type": "text"
 					}
 				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
 				"url": {
-					"raw": "http://localhost:8000/api/v1/get-permission",
+					"raw": "http://localhost:8000/api/v1/get-contributor/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1809,7 +1503,396 @@
 					"path": [
 						"api",
 						"v1",
-						"get-permission"
+						"get-contributor",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Question Category List",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzIiwianRpIjoiMjE0MGVkZDJhZGQzZjE4OTVjOTcxYzgxZDQwNzgxYWFiNTgxODJhNWEzMTYwYTVmM2UxYzYwNjhjY2QzZjYzNjNiNjcwMTc4NThhNDdlZWYiLCJpYXQiOjE2MDAwNzIxNjksIm5iZiI6MTYwMDA3MjE2OSwiZXhwIjoxNjMxNjA4MTY5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.azxidzJHaczMIGohh2gPYzM4XsMVX5wsHcm-IdE1ROXu9xjKoaZlcx_mkN64Y8tJpExUf-6EmhZheBYYvcS6kpMKMkZ7DMvZMsZPviAxkHZBvyFLYMYcfwmtqW09yAvX5H7l07_k5TM6sPDU_SMGd0lBLJut2MCf0NEkuAeaI-jYxWbjOLqdjhhzzazp9U_keK6zXUjiCp-Ie0hjuvN6-yzAMxX6maCfGny1YWXQQILAPVyjE4Ghj7n8f4P34pLsksncVsExnNn5jGRVKqOPURqZsIJYdPcPHerjx1_lfYoa23aHl_gecGkmdxJbl18Yo9-n7trD1AxOiws9HvICzrfA3y02GQcQ9Vn9oBlsbR0EEoAv9KLXTCx7PneFMy30XS0jWK0THvFpwlPknmucIhqcMasD7Ybo641uqGwrPib16JTzZwvDt7uoTrkuDUvb56OISXbUC7Jjik9NdHXnh2cctr1pI31yHJr1cQIjdRA4bJBUsgm5e1WRw2btplMTAvj7So8cZEfziK3x_H3bfTkXdoLxSET54h-eaZ_yxCU3U1Wiu9ubHx3p6QJJMDtVWnn9f6cJYGfeO9tR3KNBB_i0icy5vXMWD3ZX12MieOHYAVS0wpIRuK2APtesnra-9WKPq1FD2uysk6PVw2A7FfxPeRFyqHCj62ClJPLz8Ts",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/v1/question-categories",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"question-categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Question Category Add",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/v1/question-categories?name=GK&description",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"question-categories"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "GK"
+						},
+						{
+							"key": "description",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Question Category Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzIiwianRpIjoiMjE0MGVkZDJhZGQzZjE4OTVjOTcxYzgxZDQwNzgxYWFiNTgxODJhNWEzMTYwYTVmM2UxYzYwNjhjY2QzZjYzNjNiNjcwMTc4NThhNDdlZWYiLCJpYXQiOjE2MDAwNzIxNjksIm5iZiI6MTYwMDA3MjE2OSwiZXhwIjoxNjMxNjA4MTY5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.azxidzJHaczMIGohh2gPYzM4XsMVX5wsHcm-IdE1ROXu9xjKoaZlcx_mkN64Y8tJpExUf-6EmhZheBYYvcS6kpMKMkZ7DMvZMsZPviAxkHZBvyFLYMYcfwmtqW09yAvX5H7l07_k5TM6sPDU_SMGd0lBLJut2MCf0NEkuAeaI-jYxWbjOLqdjhhzzazp9U_keK6zXUjiCp-Ie0hjuvN6-yzAMxX6maCfGny1YWXQQILAPVyjE4Ghj7n8f4P34pLsksncVsExnNn5jGRVKqOPURqZsIJYdPcPHerjx1_lfYoa23aHl_gecGkmdxJbl18Yo9-n7trD1AxOiws9HvICzrfA3y02GQcQ9Vn9oBlsbR0EEoAv9KLXTCx7PneFMy30XS0jWK0THvFpwlPknmucIhqcMasD7Ybo641uqGwrPib16JTzZwvDt7uoTrkuDUvb56OISXbUC7Jjik9NdHXnh2cctr1pI31yHJr1cQIjdRA4bJBUsgm5e1WRw2btplMTAvj7So8cZEfziK3x_H3bfTkXdoLxSET54h-eaZ_yxCU3U1Wiu9ubHx3p6QJJMDtVWnn9f6cJYGfeO9tR3KNBB_i0icy5vXMWD3ZX12MieOHYAVS0wpIRuK2APtesnra-9WKPq1FD2uysk6PVw2A7FfxPeRFyqHCj62ClJPLz8Ts",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/v1/question-categories/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"question-categories",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Question Category Edit",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzIiwianRpIjoiMjE0MGVkZDJhZGQzZjE4OTVjOTcxYzgxZDQwNzgxYWFiNTgxODJhNWEzMTYwYTVmM2UxYzYwNjhjY2QzZjYzNjNiNjcwMTc4NThhNDdlZWYiLCJpYXQiOjE2MDAwNzIxNjksIm5iZiI6MTYwMDA3MjE2OSwiZXhwIjoxNjMxNjA4MTY5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.azxidzJHaczMIGohh2gPYzM4XsMVX5wsHcm-IdE1ROXu9xjKoaZlcx_mkN64Y8tJpExUf-6EmhZheBYYvcS6kpMKMkZ7DMvZMsZPviAxkHZBvyFLYMYcfwmtqW09yAvX5H7l07_k5TM6sPDU_SMGd0lBLJut2MCf0NEkuAeaI-jYxWbjOLqdjhhzzazp9U_keK6zXUjiCp-Ie0hjuvN6-yzAMxX6maCfGny1YWXQQILAPVyjE4Ghj7n8f4P34pLsksncVsExnNn5jGRVKqOPURqZsIJYdPcPHerjx1_lfYoa23aHl_gecGkmdxJbl18Yo9-n7trD1AxOiws9HvICzrfA3y02GQcQ9Vn9oBlsbR0EEoAv9KLXTCx7PneFMy30XS0jWK0THvFpwlPknmucIhqcMasD7Ybo641uqGwrPib16JTzZwvDt7uoTrkuDUvb56OISXbUC7Jjik9NdHXnh2cctr1pI31yHJr1cQIjdRA4bJBUsgm5e1WRw2btplMTAvj7So8cZEfziK3x_H3bfTkXdoLxSET54h-eaZ_yxCU3U1Wiu9ubHx3p6QJJMDtVWnn9f6cJYGfeO9tR3KNBB_i0icy5vXMWD3ZX12MieOHYAVS0wpIRuK2APtesnra-9WKPq1FD2uysk6PVw2A7FfxPeRFyqHCj62ClJPLz8Ts",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/v1/question-categories/1?name=Test&description",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"question-categories",
+						"1"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "Test"
+						},
+						{
+							"key": "description",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Question List",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "1",
+							"type": "text",
+							"disabled": true
+						}
+					],
+					"options": {
+						"formdata": {}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/questions/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"questions",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Question Add",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMmE1ZTI0MWRiYTI4OTRkZGQyOGM2MDhmYjA3MDY0ODJhN2NjNmViN2EyMDE4N2E2ZmYxZTJhZWRhZGI5MjVlNjc2NTgxMTAzMjgwOWMyNjAiLCJpYXQiOjE2MDQ4MTU2NjcsIm5iZiI6MTYwNDgxNTY2NywiZXhwIjoxNjM2MzUxNjY3LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.ULz61uOrI66ZwUBr-Wd4szMaWsDmV98MEyvWU_ugnCCKQN8nUrsuSggC8_jIIDy8mbDwXAEXKdJdjDaKbUjyTxWK8w_wiDRBdzcJio1Zo6lq8DekkC2SYnzfFsS9ckQsUfhhMzW9uX9PY3ozMg80qyXV_wz84iHXC4WNQczTmHgs0yy3MWBEZ5kG20q3L3OaFd8d_04nWkzNOeKnetJk95C9i2bLiwvXyPb6Y-aIaYzHKjS9mKLOTHgy3fWLHXqmoNFh5vgT8w2eaHJmfboGJkbF0Z0D8DCMhaWOE4nEa7Mi5CQCdrRfoANYL9P6--ENlL0sn3_4GTa6T0bToGoc6HMVoom7scY2TsJ-HErAfTHBE09wnqrPJsp47iOWLDzZRssqLWL5OuWnjq73ysdPdS2sAqjhySLF4idwGagzKtHjs_kTyZgyRKXegH6AhcsUPsyVn0sAU2LUNK0l_FaKmGlxxl9XWs0kMab-m0sCkdJVsqZK9M9_qMBliQLYn4Yg52BjVPrprJiFuc3bDnCT3dR2MrTNZGiteVlzmcDnajRgBlIgbE-W1rf90gBP3_NDoDLWoD-JDLyIyF_VsFy-eY7Hj9bNtgp-PdoYsrojiIy-y-__XKqjuUDjrsfLjVWWAybG9o-owKA4jYEy9d3oCP4oVfDvF_WdQ7pAgcRsy8k",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "contributor_profile_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "category_id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "privacy",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "publish_status",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "question_type",
+							"value": "checkbox",
+							"type": "text"
+						},
+						{
+							"key": "question_text",
+							"value": "Who is who?",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "This is dummy question",
+							"type": "text"
+						},
+						{
+							"key": "option_type",
+							"value": "checkbox",
+							"type": "text"
+						},
+						{
+							"key": "no_of_option",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "no_of_answer",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "no_of_used",
+							"value": "0",
+							"type": "text"
+						},
+						{
+							"key": "no_of_comments",
+							"value": "0",
+							"type": "text"
+						},
+						{
+							"key": "average_rating",
+							"value": "0",
+							"type": "text"
+						},
+						{
+							"key": "active",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "serial_no",
+							"value": "1|2",
+							"type": "text"
+						},
+						{
+							"key": "option",
+							"value": "A|B",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "n/a|test option",
+							"type": "text"
+						},
+						{
+							"key": "image",
+							"value": "n/a",
+							"type": "text"
+						},
+						{
+							"key": "answer",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "reference",
+							"value": "This is ref fo test question",
+							"type": "text"
+						},
+						{
+							"key": "tags",
+							"value": "1",
+							"type": "text"
+						}
+					],
+					"options": {
+						"formdata": {}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/questions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Question Details",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [],
+					"options": {
+						"formdata": {}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/questions/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"questions",
+						"1"
 					]
 				}
 			},
@@ -1897,6 +1980,11 @@
 							"type": "text"
 						},
 						{
+							"key": "total_question",
+							"value": "2",
+							"type": "text"
+						},
+						{
 							"key": "total_mark",
 							"value": "20",
 							"type": "text"
@@ -1967,13 +2055,16 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzIiwianRpIjoiZWE1OTZjMzg0ZTc1ZTQ0NTdjNTdjNTAwMWI0NjBjYTRjNmQ0NmIyODg5MDRhMmQxMmVlNzc4YTM5YzJmYTkzYzdhNWNiNzRhZDkwZjk2MGIiLCJpYXQiOjE2MDQyOTE2OTAsIm5iZiI6MTYwNDI5MTY5MCwiZXhwIjoxNjM1ODI3NjkwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.gs0p3d9znXnHUzrmiL8deVoDLiFmlGzX8NoM6ZGesm-G5s14FF6J5ePL1PcfWu1Yld_OYWE5ISHFt9Q-ygYC8tMrdVScNkg6DMegC786ABVYUULmBBnWqhI06_NZ-HhQId52V4C3mPKmIEwnck6hnvBias-e2OsE1lEAE7z6d10q3ZB1ABrPW7xj6eZd1MMctBudjyhM-vM7DnGRX69vfjv62hmGZ9-kzvCwnnWQaDY60DMkprMI2ikNFpHPUQgVz6Xzy5Nv1o88hlN_tzOJdIMqiiwxbSGnt5ZofGIkpm-oz0zGXxsJjEbWfV5KAolVB20lPWOa1ms9vOe_VCYf5fC0L2JiDn3mPV9Cwou41wXcg9WJbYjCBEHXTXtuboiyDGdGZnxsLN3t5K_l0TuQSndI6RxVWrTIae2zrxedt7FFEkKbJwE6T8TzoQ3AjsC-kHSIsLqajRkuZvBRoGSYt3FNWOMv5Nu-Z36qA0XgKlBI4n1LS2pH18DRWVmSx2PSkgB5iHbku5F7rHx3DbLB2iZYK7rZBj2i4LMjU99ngCdT1Mh7TOAi8nWz_1R7sPAljNJNREZmVbv1LPDuc2hHa97xAlX7qdfpld3j4DKTM8Aesdc617sNkr6tvS2Ndr9B5JPg3ZUW34izHq_GG2vKqS-ZzcwevVu_HAWgM7UiAHc",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "formdata",
-					"formdata": []
+					"formdata": [],
+					"options": {
+						"formdata": {}
+					}
 				},
 				"url": {
 					"raw": "http://localhost:8000/api/v1/question-sets/1",
@@ -2154,7 +2245,7 @@
 			"response": []
 		},
 		{
-			"name": "Student Profile Update",
+			"name": "Student Profile Update using Profile ID",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -2165,12 +2256,12 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNmJlYzllYzY3YTZjMGQ4ZTE1MDk5NmY4NTg1MTQwNjBiYjJiM2Q2ZThjMDMxMGYwMjBmZWI3ZGIwZTZhNWE0OTM5MDA3ZDBjZjZkOTZlOTYiLCJpYXQiOjE2MDQzNzg5MzgsIm5iZiI6MTYwNDM3ODkzOCwiZXhwIjoxNjM1OTE0OTM4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.xfrkfgWv8Q1Nvo5EPObiNZzy_TDXKtQYnTpK1NGKehn0Ea_t4g6oRfAxz2pYsGnTsicLZqIGgLK8QXAkUYN6wFWCntaSOQnO_iabYNmpMDyPvpIDL0CW-6dVIS7T7set6XDhUkfyhVewb_ZiGomjBKfRNP_TYAQuGrawkhJ5hxa-Z8x9Xhem46cNxAoJBMdMuFgh76qgC_W6_f4Z740Jr4ObtE5Vp_RlX8cYB_AOGzT4Haa03VRKvfZ20COjLpkXFKnhDR1XSCUfe8wzMtGZ5Jp843AmcKIUNWCZU0c_YiAEy1M6IKC3t2OE44LCX8aA2nES9x6pjtlbRtKimUrA-cHKAOCC8a_53xG3LkqlCokKpLLCnkx9_oYnG2nc37ZLjbxvkecdCAvc7oBQQBPZtIr1srURG889ueUylhlYt8ToLFUL_wha84a-YYMSnrCzcywuPnidv6g7N0OmYTRnJGSiS5-PxgqikRDojBzRP-ZmYcs0KbOju65RPzsqNJn1wvQ0nvwbbIZYWOuuvlyg-sIFg3CpdaVkgrPjbS9VqSmEKk4Kk_OOvqh10nI_sxwX2hd1shlkYYp0Iuopj9ECt56BrjZBUEy26S5USZqgQEk1I3DYX6jYpRLjnGJtodBY_BBmhRN4Ryp9-CeyJi5NzGy-tTlUSwd59VvzLWWqB0c",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOGMyNzZlNTZkNmVhNzA3M2NhYTdiNTZlYmU2YzM1ODJhOTM2MDUwMjE1YmMwY2RhOTM4ZjVhYWUxMjQ5OGQ3YWU4MDZhNTViNzdiNGQwMDQiLCJpYXQiOjE2MDQ4MDk5MTksIm5iZiI6MTYwNDgwOTkxOSwiZXhwIjoxNjM2MzQ1OTE5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.DbaXn6dWNlLb8PXhbADci1HORKnD_opqHKbkQ_G07vWi_dnKdnzWEcKkMCY-RTiNXc_UyMuiCtv-r2osuH1cdh7i6oeIyqDq99FN-P9A1yL-5eP4rKq5c76NF_0_fWc-9uCHoQ9O18mNP9VPBJHGy4RBGL5cmCusZEc7ciPZDVb3XjqOA0tePzjNbQU67lnun51BMMt4qJvcxKHiOr88VJANMLPuvS3tY8j20YEQCSNq_BqEaclHmkcx_CE_54h7bhu63xD4NH3Q81ZyfvmtphkXc8h4UudEicOpL60Mfx__tzqjv-Xm4FFynM10sAiPDYpU5zGrzK-qxhsoVoEk_1amW-cw0v17y0vWPAN35AhH1r6e42iS1vLWtYrsi-xb2jR06W7ShJa6Q0ZYTEHjNYoRUDdI90UuWlnxN5GKe1nbUbx3KgSkV8XDCdJfSbBXKsCzFvt5BReYiH2eV8YnnTkdE5k5hdkjHMyGu3zpOsiM3ISxumGWhn0Cnfsmu_O6SXnD49OqtYDbQk78v-l8q_Xgahz9L5La_NEQ2RgzEcAbOdMZxM-sf-mt2YqhgN28J4BLEk8QX4F2vYmHQdw2gI1UnvBadAkjny-W_t8_mT8pHOJ1gw4UqzpSCBSCMO4wH4I2cB2niNiPY-VWgMdSWwJ47ROFtl0ngNdBFoq7zZs",
 						"type": "text"
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8000/api/v1/students/1?first_name=Hemayet&email=hk1@nsl.co&phone=1234567890&profession=Teacher&about=n/a&image=img&address=Dhaka&zipcode=1200&country=Bangladesh",
+					"raw": "http://localhost:8000/api/v1/students/5?email=hk1@nsl.co&phone=1234567890&profession=Teacher&about=n/a&image=img&address=Dhaka&zipcode=1200&country=Bangladesh&first_name=Hemayet2",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -2180,13 +2271,9 @@
 						"api",
 						"v1",
 						"students",
-						"1"
+						"5"
 					],
 					"query": [
-						{
-							"key": "first_name",
-							"value": "Hemayet"
-						},
 						{
 							"key": "last_name",
 							"value": "Khan",
@@ -2228,7 +2315,44 @@
 						{
 							"key": "country",
 							"value": "Bangladesh"
+						},
+						{
+							"key": "first_name",
+							"value": "Hemayet2"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Student Information using Profile ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOGMyNzZlNTZkNmVhNzA3M2NhYTdiNTZlYmU2YzM1ODJhOTM2MDUwMjE1YmMwY2RhOTM4ZjVhYWUxMjQ5OGQ3YWU4MDZhNTViNzdiNGQwMDQiLCJpYXQiOjE2MDQ4MDk5MTksIm5iZiI6MTYwNDgwOTkxOSwiZXhwIjoxNjM2MzQ1OTE5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.DbaXn6dWNlLb8PXhbADci1HORKnD_opqHKbkQ_G07vWi_dnKdnzWEcKkMCY-RTiNXc_UyMuiCtv-r2osuH1cdh7i6oeIyqDq99FN-P9A1yL-5eP4rKq5c76NF_0_fWc-9uCHoQ9O18mNP9VPBJHGy4RBGL5cmCusZEc7ciPZDVb3XjqOA0tePzjNbQU67lnun51BMMt4qJvcxKHiOr88VJANMLPuvS3tY8j20YEQCSNq_BqEaclHmkcx_CE_54h7bhu63xD4NH3Q81ZyfvmtphkXc8h4UudEicOpL60Mfx__tzqjv-Xm4FFynM10sAiPDYpU5zGrzK-qxhsoVoEk_1amW-cw0v17y0vWPAN35AhH1r6e42iS1vLWtYrsi-xb2jR06W7ShJa6Q0ZYTEHjNYoRUDdI90UuWlnxN5GKe1nbUbx3KgSkV8XDCdJfSbBXKsCzFvt5BReYiH2eV8YnnTkdE5k5hdkjHMyGu3zpOsiM3ISxumGWhn0Cnfsmu_O6SXnD49OqtYDbQk78v-l8q_Xgahz9L5La_NEQ2RgzEcAbOdMZxM-sf-mt2YqhgN28J4BLEk8QX4F2vYmHQdw2gI1UnvBadAkjny-W_t8_mT8pHOJ1gw4UqzpSCBSCMO4wH4I2cB2niNiPY-VWgMdSWwJ47ROFtl0ngNdBFoq7zZs",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8000/api/v1/get-student/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"get-student",
+						"5"
 					]
 				}
 			},
@@ -2289,7 +2413,7 @@
 					{
 						"key": "Authorization",
 						"type": "text",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo"
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMmE1ZTI0MWRiYTI4OTRkZGQyOGM2MDhmYjA3MDY0ODJhN2NjNmViN2EyMDE4N2E2ZmYxZTJhZWRhZGI5MjVlNjc2NTgxMTAzMjgwOWMyNjAiLCJpYXQiOjE2MDQ4MTU2NjcsIm5iZiI6MTYwNDgxNTY2NywiZXhwIjoxNjM2MzUxNjY3LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.ULz61uOrI66ZwUBr-Wd4szMaWsDmV98MEyvWU_ugnCCKQN8nUrsuSggC8_jIIDy8mbDwXAEXKdJdjDaKbUjyTxWK8w_wiDRBdzcJio1Zo6lq8DekkC2SYnzfFsS9ckQsUfhhMzW9uX9PY3ozMg80qyXV_wz84iHXC4WNQczTmHgs0yy3MWBEZ5kG20q3L3OaFd8d_04nWkzNOeKnetJk95C9i2bLiwvXyPb6Y-aIaYzHKjS9mKLOTHgy3fWLHXqmoNFh5vgT8w2eaHJmfboGJkbF0Z0D8DCMhaWOE4nEa7Mi5CQCdrRfoANYL9P6--ENlL0sn3_4GTa6T0bToGoc6HMVoom7scY2TsJ-HErAfTHBE09wnqrPJsp47iOWLDzZRssqLWL5OuWnjq73ysdPdS2sAqjhySLF4idwGagzKtHjs_kTyZgyRKXegH6AhcsUPsyVn0sAU2LUNK0l_FaKmGlxxl9XWs0kMab-m0sCkdJVsqZK9M9_qMBliQLYn4Yg52BjVPrprJiFuc3bDnCT3dR2MrTNZGiteVlzmcDnajRgBlIgbE-W1rf90gBP3_NDoDLWoD-JDLyIyF_VsFy-eY7Hj9bNtgp-PdoYsrojiIy-y-__XKqjuUDjrsfLjVWWAybG9o-owKA4jYEy9d3oCP4oVfDvF_WdQ7pAgcRsy8k"
 					}
 				],
 				"body": {
@@ -2301,8 +2425,8 @@
 							"type": "text"
 						},
 						{
-							"key": "student_id",
-							"value": "1",
+							"key": "student_profile_id",
+							"value": "3",
 							"type": "text"
 						},
 						{
@@ -2316,18 +2440,13 @@
 							"type": "text"
 						},
 						{
-							"key": "question_set_answer_id",
-							"value": "1",
-							"type": "text"
-						},
-						{
 							"key": "question_id",
 							"value": "1|2",
 							"type": "text"
 						},
 						{
 							"key": "answer",
-							"value": "1|2",
+							"value": "2|2",
 							"type": "text"
 						},
 						{
@@ -2400,7 +2519,7 @@
 			"response": []
 		},
 		{
-			"name": "Get Student Wise All Assessment",
+			"name": "Get Student Wise All Assessment using Profile ID",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -2415,7 +2534,7 @@
 					{
 						"key": "Authorization",
 						"type": "text",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo"
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOGMyNzZlNTZkNmVhNzA3M2NhYTdiNTZlYmU2YzM1ODJhOTM2MDUwMjE1YmMwY2RhOTM4ZjVhYWUxMjQ5OGQ3YWU4MDZhNTViNzdiNGQwMDQiLCJpYXQiOjE2MDQ4MDk5MTksIm5iZiI6MTYwNDgwOTkxOSwiZXhwIjoxNjM2MzQ1OTE5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.DbaXn6dWNlLb8PXhbADci1HORKnD_opqHKbkQ_G07vWi_dnKdnzWEcKkMCY-RTiNXc_UyMuiCtv-r2osuH1cdh7i6oeIyqDq99FN-P9A1yL-5eP4rKq5c76NF_0_fWc-9uCHoQ9O18mNP9VPBJHGy4RBGL5cmCusZEc7ciPZDVb3XjqOA0tePzjNbQU67lnun51BMMt4qJvcxKHiOr88VJANMLPuvS3tY8j20YEQCSNq_BqEaclHmkcx_CE_54h7bhu63xD4NH3Q81ZyfvmtphkXc8h4UudEicOpL60Mfx__tzqjv-Xm4FFynM10sAiPDYpU5zGrzK-qxhsoVoEk_1amW-cw0v17y0vWPAN35AhH1r6e42iS1vLWtYrsi-xb2jR06W7ShJa6Q0ZYTEHjNYoRUDdI90UuWlnxN5GKe1nbUbx3KgSkV8XDCdJfSbBXKsCzFvt5BReYiH2eV8YnnTkdE5k5hdkjHMyGu3zpOsiM3ISxumGWhn0Cnfsmu_O6SXnD49OqtYDbQk78v-l8q_Xgahz9L5La_NEQ2RgzEcAbOdMZxM-sf-mt2YqhgN28J4BLEk8QX4F2vYmHQdw2gI1UnvBadAkjny-W_t8_mT8pHOJ1gw4UqzpSCBSCMO4wH4I2cB2niNiPY-VWgMdSWwJ47ROFtl0ngNdBFoq7zZs"
 					}
 				],
 				"body": {
@@ -2426,7 +2545,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8000/api/v1/get-student-all-assessment/2",
+					"raw": "http://localhost:8000/api/v1/get-student-all-assessment/3",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -2436,7 +2555,7 @@
 						"api",
 						"v1",
 						"get-student-all-assessment",
-						"2"
+						"3"
 					]
 				}
 			},
