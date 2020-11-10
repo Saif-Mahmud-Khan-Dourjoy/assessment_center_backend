@@ -1240,7 +1240,7 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMmE1ZTI0MWRiYTI4OTRkZGQyOGM2MDhmYjA3MDY0ODJhN2NjNmViN2EyMDE4N2E2ZmYxZTJhZWRhZGI5MjVlNjc2NTgxMTAzMjgwOWMyNjAiLCJpYXQiOjE2MDQ4MTU2NjcsIm5iZiI6MTYwNDgxNTY2NywiZXhwIjoxNjM2MzUxNjY3LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.ULz61uOrI66ZwUBr-Wd4szMaWsDmV98MEyvWU_ugnCCKQN8nUrsuSggC8_jIIDy8mbDwXAEXKdJdjDaKbUjyTxWK8w_wiDRBdzcJio1Zo6lq8DekkC2SYnzfFsS9ckQsUfhhMzW9uX9PY3ozMg80qyXV_wz84iHXC4WNQczTmHgs0yy3MWBEZ5kG20q3L3OaFd8d_04nWkzNOeKnetJk95C9i2bLiwvXyPb6Y-aIaYzHKjS9mKLOTHgy3fWLHXqmoNFh5vgT8w2eaHJmfboGJkbF0Z0D8DCMhaWOE4nEa7Mi5CQCdrRfoANYL9P6--ENlL0sn3_4GTa6T0bToGoc6HMVoom7scY2TsJ-HErAfTHBE09wnqrPJsp47iOWLDzZRssqLWL5OuWnjq73ysdPdS2sAqjhySLF4idwGagzKtHjs_kTyZgyRKXegH6AhcsUPsyVn0sAU2LUNK0l_FaKmGlxxl9XWs0kMab-m0sCkdJVsqZK9M9_qMBliQLYn4Yg52BjVPrprJiFuc3bDnCT3dR2MrTNZGiteVlzmcDnajRgBlIgbE-W1rf90gBP3_NDoDLWoD-JDLyIyF_VsFy-eY7Hj9bNtgp-PdoYsrojiIy-y-__XKqjuUDjrsfLjVWWAybG9o-owKA4jYEy9d3oCP4oVfDvF_WdQ7pAgcRsy8k",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYTdiZjJkYTUzOWJhNDVlYTYyOGEwN2VmMjI3MjZhYjlmNTIzOGYzMmJmYTg1NmMzMWFiOTFiOGNjMjU1OGQ4NzIxOWEwMzcyYTUwMjFkN2MiLCJpYXQiOjE2MDQ4MzUxNTYsIm5iZiI6MTYwNDgzNTE1NiwiZXhwIjoxNjM2MzcxMTU2LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.xaRzX7-3GedseEXHXvgIMDgkMbxfIunm6UMRHA_bpFq4aXGiikGEBmwQGHYYRMeQ3Cx08GQt4JmpGfDiGoXwsC-hoZ0MIgsW_Zv1F35Vf8X3wp2fsokcDonPI32434LxambFQQK97tCRnOOzZVsjW2-rM1S173d0wBeh87wUqljkW50A85hALxw8cS3Gyd82D08K0Yt94BNg3q8vVe0CVHfv1nsjBFVqo9Fl6kHR4YWrvQClA0ql4TQ7t9x_iJzyGBEOtkrZTmDo92r8aPA-W-NOxDnBiRMH8cmy1vB0HwOqAi959_bCLvujvDhOn8V7mB0A0vfWjNhSWTYP0NDVwmSkYvDzAoF94G6gQU_fsztWmJKrBV-9hBWYFz7JVO5zQ2XVKLSkgC4RevJUJjc9a7A19g1Z_s7I_97tngKBy0qZK91QeZTDflArpKygphCiwENRdEanPelcxCSe2lW9xBsW8rB3Z_23NXsVucCeOdo8B3FIyFb22YEmbiGwi_ndwnE2XYpLysayC7IwyVQplcZGlr4ze_p87d6I5FtEhswRrSt3mIb_yLJWQ9UiBASSDLsrhx11AEYsG0YCjWLix7E5VgY8YjETXGicDXvlg0i3d83pfeeL8s7fyE_LrEZoYA1jLKjmi-XCHCa-yUSI7dSxP0uM5jDkDjzPovt24E0",
 						"type": "text"
 					}
 				],
@@ -1390,7 +1390,7 @@
 			"response": []
 		},
 		{
-			"name": "Contributor Profile Update using Profile ID",
+			"name": "Contributor Update",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -1401,12 +1401,12 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOGMyNzZlNTZkNmVhNzA3M2NhYTdiNTZlYmU2YzM1ODJhOTM2MDUwMjE1YmMwY2RhOTM4ZjVhYWUxMjQ5OGQ3YWU4MDZhNTViNzdiNGQwMDQiLCJpYXQiOjE2MDQ4MDk5MTksIm5iZiI6MTYwNDgwOTkxOSwiZXhwIjoxNjM2MzQ1OTE5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.DbaXn6dWNlLb8PXhbADci1HORKnD_opqHKbkQ_G07vWi_dnKdnzWEcKkMCY-RTiNXc_UyMuiCtv-r2osuH1cdh7i6oeIyqDq99FN-P9A1yL-5eP4rKq5c76NF_0_fWc-9uCHoQ9O18mNP9VPBJHGy4RBGL5cmCusZEc7ciPZDVb3XjqOA0tePzjNbQU67lnun51BMMt4qJvcxKHiOr88VJANMLPuvS3tY8j20YEQCSNq_BqEaclHmkcx_CE_54h7bhu63xD4NH3Q81ZyfvmtphkXc8h4UudEicOpL60Mfx__tzqjv-Xm4FFynM10sAiPDYpU5zGrzK-qxhsoVoEk_1amW-cw0v17y0vWPAN35AhH1r6e42iS1vLWtYrsi-xb2jR06W7ShJa6Q0ZYTEHjNYoRUDdI90UuWlnxN5GKe1nbUbx3KgSkV8XDCdJfSbBXKsCzFvt5BReYiH2eV8YnnTkdE5k5hdkjHMyGu3zpOsiM3ISxumGWhn0Cnfsmu_O6SXnD49OqtYDbQk78v-l8q_Xgahz9L5La_NEQ2RgzEcAbOdMZxM-sf-mt2YqhgN28J4BLEk8QX4F2vYmHQdw2gI1UnvBadAkjny-W_t8_mT8pHOJ1gw4UqzpSCBSCMO4wH4I2cB2niNiPY-VWgMdSWwJ47ROFtl0ngNdBFoq7zZs",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYTdiZjJkYTUzOWJhNDVlYTYyOGEwN2VmMjI3MjZhYjlmNTIzOGYzMmJmYTg1NmMzMWFiOTFiOGNjMjU1OGQ4NzIxOWEwMzcyYTUwMjFkN2MiLCJpYXQiOjE2MDQ4MzUxNTYsIm5iZiI6MTYwNDgzNTE1NiwiZXhwIjoxNjM2MzcxMTU2LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.xaRzX7-3GedseEXHXvgIMDgkMbxfIunm6UMRHA_bpFq4aXGiikGEBmwQGHYYRMeQ3Cx08GQt4JmpGfDiGoXwsC-hoZ0MIgsW_Zv1F35Vf8X3wp2fsokcDonPI32434LxambFQQK97tCRnOOzZVsjW2-rM1S173d0wBeh87wUqljkW50A85hALxw8cS3Gyd82D08K0Yt94BNg3q8vVe0CVHfv1nsjBFVqo9Fl6kHR4YWrvQClA0ql4TQ7t9x_iJzyGBEOtkrZTmDo92r8aPA-W-NOxDnBiRMH8cmy1vB0HwOqAi959_bCLvujvDhOn8V7mB0A0vfWjNhSWTYP0NDVwmSkYvDzAoF94G6gQU_fsztWmJKrBV-9hBWYFz7JVO5zQ2XVKLSkgC4RevJUJjc9a7A19g1Z_s7I_97tngKBy0qZK91QeZTDflArpKygphCiwENRdEanPelcxCSe2lW9xBsW8rB3Z_23NXsVucCeOdo8B3FIyFb22YEmbiGwi_ndwnE2XYpLysayC7IwyVQplcZGlr4ze_p87d6I5FtEhswRrSt3mIb_yLJWQ9UiBASSDLsrhx11AEYsG0YCjWLix7E5VgY8YjETXGicDXvlg0i3d83pfeeL8s7fyE_LrEZoYA1jLKjmi-XCHCa-yUSI7dSxP0uM5jDkDjzPovt24E0",
 						"type": "text"
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8000/api/v1/contributors/2?first_name=Hemayet15&email=hk1@nsl.co1&phone=123456789015&profession=Teacher&about=n/a&image=img&address=Dhaka&zipcode=1200&country=Bangladesh",
+					"raw": "http://localhost:8000/api/v1/contributors/1?first_name=Hemayet&email=hk1@nsl.com&phone=123456789015&profession=Teacher&about=n/a&image=img&address=Dhaka&zipcode=1200&country=Bangladesh",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1416,12 +1416,12 @@
 						"api",
 						"v1",
 						"contributors",
-						"2"
+						"1"
 					],
 					"query": [
 						{
 							"key": "first_name",
-							"value": "Hemayet15"
+							"value": "Hemayet"
 						},
 						{
 							"key": "last_name",
@@ -1430,7 +1430,7 @@
 						},
 						{
 							"key": "email",
-							"value": "hk1@nsl.co1"
+							"value": "hk1@nsl.com"
 						},
 						{
 							"key": "phone",
@@ -2055,7 +2055,7 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOGMyNzZlNTZkNmVhNzA3M2NhYTdiNTZlYmU2YzM1ODJhOTM2MDUwMjE1YmMwY2RhOTM4ZjVhYWUxMjQ5OGQ3YWU4MDZhNTViNzdiNGQwMDQiLCJpYXQiOjE2MDQ4MDk5MTksIm5iZiI6MTYwNDgwOTkxOSwiZXhwIjoxNjM2MzQ1OTE5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.DbaXn6dWNlLb8PXhbADci1HORKnD_opqHKbkQ_G07vWi_dnKdnzWEcKkMCY-RTiNXc_UyMuiCtv-r2osuH1cdh7i6oeIyqDq99FN-P9A1yL-5eP4rKq5c76NF_0_fWc-9uCHoQ9O18mNP9VPBJHGy4RBGL5cmCusZEc7ciPZDVb3XjqOA0tePzjNbQU67lnun51BMMt4qJvcxKHiOr88VJANMLPuvS3tY8j20YEQCSNq_BqEaclHmkcx_CE_54h7bhu63xD4NH3Q81ZyfvmtphkXc8h4UudEicOpL60Mfx__tzqjv-Xm4FFynM10sAiPDYpU5zGrzK-qxhsoVoEk_1amW-cw0v17y0vWPAN35AhH1r6e42iS1vLWtYrsi-xb2jR06W7ShJa6Q0ZYTEHjNYoRUDdI90UuWlnxN5GKe1nbUbx3KgSkV8XDCdJfSbBXKsCzFvt5BReYiH2eV8YnnTkdE5k5hdkjHMyGu3zpOsiM3ISxumGWhn0Cnfsmu_O6SXnD49OqtYDbQk78v-l8q_Xgahz9L5La_NEQ2RgzEcAbOdMZxM-sf-mt2YqhgN28J4BLEk8QX4F2vYmHQdw2gI1UnvBadAkjny-W_t8_mT8pHOJ1gw4UqzpSCBSCMO4wH4I2cB2niNiPY-VWgMdSWwJ47ROFtl0ngNdBFoq7zZs",
 						"type": "text"
 					}
 				],
@@ -2095,7 +2095,7 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOTU1N2ZmNTRjZWUyZTZhZTQ5Y2UwY2E1ZWY0YzUxMjQ3OGE1NWEzYTgxYmE0OTVmNzdiOTNhYTEwY2QyNzhiZDAxMjUxNWRiNDc0MDU5M2QiLCJpYXQiOjE2MDQzODE2MDUsIm5iZiI6MTYwNDM4MTYwNSwiZXhwIjoxNjM1OTE3NjA1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Lp0M30FNgpXG1gcqKq8hAZqVtKBilbkCoatNvV9cTEHWKbGK-WBmVCi0QSc4XHG9j2_k50nYQvmuD1Z48HK_7AFmQTndTUP37n4_a2knMObf36loUrLoROPbRC4SHQUPEYEHe4g6YthXNLEDfgj5qq_6IPbxQth2mfGn_JHM4paml9to7FCrc_ov-5joSqj7Qacy9lq_fZFYLBBVHt7hItiLvrmErusNzNO56zsimJKwk6IAn3fzhL5jSTL3hE6wfA5efhkO_eqvbbR2AvxlKO1A5vMTRkRj2rPv03YAfLqEqhOwmoH05Rkcp7WpKhDkl3_LH5wYPZTrzMRwLrB_48qVmAzyhYCu4-qAWf0CkXYbDbngFCrIx2peAtZQaVI1x_v7Gu4kb4UUMuOdH8jxSwEvzDjZpvmnjFHzUQ3Yiqhdk7syzNgp2bNzGiq3lJk5RyCG5qaOiKrXPHk0RgEeS3N8FiOJDtw8iPsW3ZTlIRoG-TZd_GN6saD1MzIMOa34Qigoy0aE4X_7CXbotToOiIltLbbRlTrZsHK2hIVEaKEUgHwa8OQPVcy6MFYkmMB1G_P_9ZQiXGn7woAxb0KfjwM63T96dIb29S85eCLl09lNxVBjZ09I6QMFkeEy7_P7lKLDpcUU73fWk3bM4nVlLxWmoKs0X_JvwuN23cMwjHo",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYTdiZjJkYTUzOWJhNDVlYTYyOGEwN2VmMjI3MjZhYjlmNTIzOGYzMmJmYTg1NmMzMWFiOTFiOGNjMjU1OGQ4NzIxOWEwMzcyYTUwMjFkN2MiLCJpYXQiOjE2MDQ4MzUxNTYsIm5iZiI6MTYwNDgzNTE1NiwiZXhwIjoxNjM2MzcxMTU2LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.xaRzX7-3GedseEXHXvgIMDgkMbxfIunm6UMRHA_bpFq4aXGiikGEBmwQGHYYRMeQ3Cx08GQt4JmpGfDiGoXwsC-hoZ0MIgsW_Zv1F35Vf8X3wp2fsokcDonPI32434LxambFQQK97tCRnOOzZVsjW2-rM1S173d0wBeh87wUqljkW50A85hALxw8cS3Gyd82D08K0Yt94BNg3q8vVe0CVHfv1nsjBFVqo9Fl6kHR4YWrvQClA0ql4TQ7t9x_iJzyGBEOtkrZTmDo92r8aPA-W-NOxDnBiRMH8cmy1vB0HwOqAi959_bCLvujvDhOn8V7mB0A0vfWjNhSWTYP0NDVwmSkYvDzAoF94G6gQU_fsztWmJKrBV-9hBWYFz7JVO5zQ2XVKLSkgC4RevJUJjc9a7A19g1Z_s7I_97tngKBy0qZK91QeZTDflArpKygphCiwENRdEanPelcxCSe2lW9xBsW8rB3Z_23NXsVucCeOdo8B3FIyFb22YEmbiGwi_ndwnE2XYpLysayC7IwyVQplcZGlr4ze_p87d6I5FtEhswRrSt3mIb_yLJWQ9UiBASSDLsrhx11AEYsG0YCjWLix7E5VgY8YjETXGicDXvlg0i3d83pfeeL8s7fyE_LrEZoYA1jLKjmi-XCHCa-yUSI7dSxP0uM5jDkDjzPovt24E0",
 						"type": "text"
 					}
 				],
@@ -2245,7 +2245,7 @@
 			"response": []
 		},
 		{
-			"name": "Student Profile Update using Profile ID",
+			"name": "Student Update",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -2256,12 +2256,16 @@
 					},
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOGMyNzZlNTZkNmVhNzA3M2NhYTdiNTZlYmU2YzM1ODJhOTM2MDUwMjE1YmMwY2RhOTM4ZjVhYWUxMjQ5OGQ3YWU4MDZhNTViNzdiNGQwMDQiLCJpYXQiOjE2MDQ4MDk5MTksIm5iZiI6MTYwNDgwOTkxOSwiZXhwIjoxNjM2MzQ1OTE5LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.DbaXn6dWNlLb8PXhbADci1HORKnD_opqHKbkQ_G07vWi_dnKdnzWEcKkMCY-RTiNXc_UyMuiCtv-r2osuH1cdh7i6oeIyqDq99FN-P9A1yL-5eP4rKq5c76NF_0_fWc-9uCHoQ9O18mNP9VPBJHGy4RBGL5cmCusZEc7ciPZDVb3XjqOA0tePzjNbQU67lnun51BMMt4qJvcxKHiOr88VJANMLPuvS3tY8j20YEQCSNq_BqEaclHmkcx_CE_54h7bhu63xD4NH3Q81ZyfvmtphkXc8h4UudEicOpL60Mfx__tzqjv-Xm4FFynM10sAiPDYpU5zGrzK-qxhsoVoEk_1amW-cw0v17y0vWPAN35AhH1r6e42iS1vLWtYrsi-xb2jR06W7ShJa6Q0ZYTEHjNYoRUDdI90UuWlnxN5GKe1nbUbx3KgSkV8XDCdJfSbBXKsCzFvt5BReYiH2eV8YnnTkdE5k5hdkjHMyGu3zpOsiM3ISxumGWhn0Cnfsmu_O6SXnD49OqtYDbQk78v-l8q_Xgahz9L5La_NEQ2RgzEcAbOdMZxM-sf-mt2YqhgN28J4BLEk8QX4F2vYmHQdw2gI1UnvBadAkjny-W_t8_mT8pHOJ1gw4UqzpSCBSCMO4wH4I2cB2niNiPY-VWgMdSWwJ47ROFtl0ngNdBFoq7zZs",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYTdiZjJkYTUzOWJhNDVlYTYyOGEwN2VmMjI3MjZhYjlmNTIzOGYzMmJmYTg1NmMzMWFiOTFiOGNjMjU1OGQ4NzIxOWEwMzcyYTUwMjFkN2MiLCJpYXQiOjE2MDQ4MzUxNTYsIm5iZiI6MTYwNDgzNTE1NiwiZXhwIjoxNjM2MzcxMTU2LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.xaRzX7-3GedseEXHXvgIMDgkMbxfIunm6UMRHA_bpFq4aXGiikGEBmwQGHYYRMeQ3Cx08GQt4JmpGfDiGoXwsC-hoZ0MIgsW_Zv1F35Vf8X3wp2fsokcDonPI32434LxambFQQK97tCRnOOzZVsjW2-rM1S173d0wBeh87wUqljkW50A85hALxw8cS3Gyd82D08K0Yt94BNg3q8vVe0CVHfv1nsjBFVqo9Fl6kHR4YWrvQClA0ql4TQ7t9x_iJzyGBEOtkrZTmDo92r8aPA-W-NOxDnBiRMH8cmy1vB0HwOqAi959_bCLvujvDhOn8V7mB0A0vfWjNhSWTYP0NDVwmSkYvDzAoF94G6gQU_fsztWmJKrBV-9hBWYFz7JVO5zQ2XVKLSkgC4RevJUJjc9a7A19g1Z_s7I_97tngKBy0qZK91QeZTDflArpKygphCiwENRdEanPelcxCSe2lW9xBsW8rB3Z_23NXsVucCeOdo8B3FIyFb22YEmbiGwi_ndwnE2XYpLysayC7IwyVQplcZGlr4ze_p87d6I5FtEhswRrSt3mIb_yLJWQ9UiBASSDLsrhx11AEYsG0YCjWLix7E5VgY8YjETXGicDXvlg0i3d83pfeeL8s7fyE_LrEZoYA1jLKjmi-XCHCa-yUSI7dSxP0uM5jDkDjzPovt24E0",
 						"type": "text"
 					}
 				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
 				"url": {
-					"raw": "http://localhost:8000/api/v1/students/5?email=hk1@nsl.co&phone=1234567890&profession=Teacher&about=n/a&image=img&address=Dhaka&zipcode=1200&country=Bangladesh&first_name=Hemayet2",
+					"raw": "http://localhost:8000/api/v1/students/1?last_name=Uddin&email=sk@nsl.com&address=Dhaka&country=Bangladesh",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -2271,21 +2275,21 @@
 						"api",
 						"v1",
 						"students",
-						"5"
+						"1"
 					],
 					"query": [
 						{
 							"key": "last_name",
-							"value": "Khan",
-							"disabled": true
+							"value": "Uddin"
 						},
 						{
 							"key": "email",
-							"value": "hk1@nsl.co"
+							"value": "sk@nsl.com"
 						},
 						{
 							"key": "phone",
-							"value": "1234567890"
+							"value": "1234567890",
+							"disabled": true
 						},
 						{
 							"key": "skype",
@@ -2294,15 +2298,18 @@
 						},
 						{
 							"key": "profession",
-							"value": "Teacher"
+							"value": "St",
+							"disabled": true
 						},
 						{
 							"key": "about",
-							"value": "n/a"
+							"value": "n/a",
+							"disabled": true
 						},
 						{
 							"key": "image",
-							"value": "img"
+							"value": "img",
+							"disabled": true
 						},
 						{
 							"key": "address",
@@ -2310,7 +2317,8 @@
 						},
 						{
 							"key": "zipcode",
-							"value": "1200"
+							"value": "1200",
+							"disabled": true
 						},
 						{
 							"key": "country",
@@ -2318,7 +2326,8 @@
 						},
 						{
 							"key": "first_name",
-							"value": "Hemayet2"
+							"value": "Hemayet",
+							"disabled": true
 						}
 					]
 				}
@@ -2556,6 +2565,343 @@
 						"v1",
 						"get-student-all-assessment",
 						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Institute List",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYjg0OWEwYWE2MGUzNjExMzlmNDViYWM1MjAxOGI2YzM1N2QwMDgzZTAxZmEyMDY3MjU1NmY1ZmUyYWQyMjZhYjA4NGY1NWEwNGI0Y2IxMjgiLCJpYXQiOjE2MDQ5ODUxMjgsIm5iZiI6MTYwNDk4NTEyOCwiZXhwIjoxNjM2NTIxMTI4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Ybi-mxhSR3ysR9cm-0_CpKx4OTrjo9aKJXLxFZMiOJkBWQYm5I_GnAf5CAuALdPupkL6-8DIiGbuAWmOK2QvP7Bwx8O7QntuPB4gg61DrDlPOVkoBktdVHYJOchW5WW7kStKR1DVZ44QuIN-JwMlJfRnxbtpUy6vfQGl6ELr4xK8rGozX6SVwx1OaCNLcsJHNrN36PvIhSc41_c_y4np8S2LEfVlV5sIJT6uV8_zgfbELbKrVhnJjvvbe8FbguLK37xbodJG-yPLdC4G7E2cz63lIz6kki6MnROBCAVa2JtDhVnAgqTDu47t9zzWV1LcG2G4Z_J-z_ytK_yRWoGTYxpgAEAbYpc-UBk_zjMTh3OjcsvTZVO6rlgJhAIk9Tq_4zUG6qofNkHZs1FQTDax712prdYVXWfDRrsI3wNEI-6u-GLAE3M8VN3tw1A2NDv4smq2a-Qa1DOnlJmy0Q7z-l_rB8SgPywUZL6Jz9w6n1cq5sVpaqMBymdEq4MaYOtYuWl67i1Gi8Xf18zfBGF457nLh3vRtnPSLOae0rZhnXtQ3-2X2bMNEjfuY9eH8g6W0VgxCHSAObTZbXmmIA3ychTnXQzgo3zpumpYVHzw3Rtgo0ufAJUMyuJwLlQ0bWpbamiAzzB0n-XRy_0GmKyYVAx3luWxJySppWggH1SykJU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "NSL",
+							"type": "text"
+						},
+						{
+							"key": "contact_no",
+							"value": "01672837623",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "website",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/institutes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"institutes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Institute Add",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYjg0OWEwYWE2MGUzNjExMzlmNDViYWM1MjAxOGI2YzM1N2QwMDgzZTAxZmEyMDY3MjU1NmY1ZmUyYWQyMjZhYjA4NGY1NWEwNGI0Y2IxMjgiLCJpYXQiOjE2MDQ5ODUxMjgsIm5iZiI6MTYwNDk4NTEyOCwiZXhwIjoxNjM2NTIxMTI4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Ybi-mxhSR3ysR9cm-0_CpKx4OTrjo9aKJXLxFZMiOJkBWQYm5I_GnAf5CAuALdPupkL6-8DIiGbuAWmOK2QvP7Bwx8O7QntuPB4gg61DrDlPOVkoBktdVHYJOchW5WW7kStKR1DVZ44QuIN-JwMlJfRnxbtpUy6vfQGl6ELr4xK8rGozX6SVwx1OaCNLcsJHNrN36PvIhSc41_c_y4np8S2LEfVlV5sIJT6uV8_zgfbELbKrVhnJjvvbe8FbguLK37xbodJG-yPLdC4G7E2cz63lIz6kki6MnROBCAVa2JtDhVnAgqTDu47t9zzWV1LcG2G4Z_J-z_ytK_yRWoGTYxpgAEAbYpc-UBk_zjMTh3OjcsvTZVO6rlgJhAIk9Tq_4zUG6qofNkHZs1FQTDax712prdYVXWfDRrsI3wNEI-6u-GLAE3M8VN3tw1A2NDv4smq2a-Qa1DOnlJmy0Q7z-l_rB8SgPywUZL6Jz9w6n1cq5sVpaqMBymdEq4MaYOtYuWl67i1Gi8Xf18zfBGF457nLh3vRtnPSLOae0rZhnXtQ3-2X2bMNEjfuY9eH8g6W0VgxCHSAObTZbXmmIA3ychTnXQzgo3zpumpYVHzw3Rtgo0ufAJUMyuJwLlQ0bWpbamiAzzB0n-XRy_0GmKyYVAx3luWxJySppWggH1SykJU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "NSL 2",
+							"type": "text"
+						},
+						{
+							"key": "contact_no",
+							"value": "0127238372627",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "website",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/institutes",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"institutes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Institute Details",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYjg0OWEwYWE2MGUzNjExMzlmNDViYWM1MjAxOGI2YzM1N2QwMDgzZTAxZmEyMDY3MjU1NmY1ZmUyYWQyMjZhYjA4NGY1NWEwNGI0Y2IxMjgiLCJpYXQiOjE2MDQ5ODUxMjgsIm5iZiI6MTYwNDk4NTEyOCwiZXhwIjoxNjM2NTIxMTI4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Ybi-mxhSR3ysR9cm-0_CpKx4OTrjo9aKJXLxFZMiOJkBWQYm5I_GnAf5CAuALdPupkL6-8DIiGbuAWmOK2QvP7Bwx8O7QntuPB4gg61DrDlPOVkoBktdVHYJOchW5WW7kStKR1DVZ44QuIN-JwMlJfRnxbtpUy6vfQGl6ELr4xK8rGozX6SVwx1OaCNLcsJHNrN36PvIhSc41_c_y4np8S2LEfVlV5sIJT6uV8_zgfbELbKrVhnJjvvbe8FbguLK37xbodJG-yPLdC4G7E2cz63lIz6kki6MnROBCAVa2JtDhVnAgqTDu47t9zzWV1LcG2G4Z_J-z_ytK_yRWoGTYxpgAEAbYpc-UBk_zjMTh3OjcsvTZVO6rlgJhAIk9Tq_4zUG6qofNkHZs1FQTDax712prdYVXWfDRrsI3wNEI-6u-GLAE3M8VN3tw1A2NDv4smq2a-Qa1DOnlJmy0Q7z-l_rB8SgPywUZL6Jz9w6n1cq5sVpaqMBymdEq4MaYOtYuWl67i1Gi8Xf18zfBGF457nLh3vRtnPSLOae0rZhnXtQ3-2X2bMNEjfuY9eH8g6W0VgxCHSAObTZbXmmIA3ychTnXQzgo3zpumpYVHzw3Rtgo0ufAJUMyuJwLlQ0bWpbamiAzzB0n-XRy_0GmKyYVAx3luWxJySppWggH1SykJU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "NSL",
+							"type": "text"
+						},
+						{
+							"key": "contact_no",
+							"value": "01672837623",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "website",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/institutes/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"institutes",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Institute Update",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYjg0OWEwYWE2MGUzNjExMzlmNDViYWM1MjAxOGI2YzM1N2QwMDgzZTAxZmEyMDY3MjU1NmY1ZmUyYWQyMjZhYjA4NGY1NWEwNGI0Y2IxMjgiLCJpYXQiOjE2MDQ5ODUxMjgsIm5iZiI6MTYwNDk4NTEyOCwiZXhwIjoxNjM2NTIxMTI4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Ybi-mxhSR3ysR9cm-0_CpKx4OTrjo9aKJXLxFZMiOJkBWQYm5I_GnAf5CAuALdPupkL6-8DIiGbuAWmOK2QvP7Bwx8O7QntuPB4gg61DrDlPOVkoBktdVHYJOchW5WW7kStKR1DVZ44QuIN-JwMlJfRnxbtpUy6vfQGl6ELr4xK8rGozX6SVwx1OaCNLcsJHNrN36PvIhSc41_c_y4np8S2LEfVlV5sIJT6uV8_zgfbELbKrVhnJjvvbe8FbguLK37xbodJG-yPLdC4G7E2cz63lIz6kki6MnROBCAVa2JtDhVnAgqTDu47t9zzWV1LcG2G4Z_J-z_ytK_yRWoGTYxpgAEAbYpc-UBk_zjMTh3OjcsvTZVO6rlgJhAIk9Tq_4zUG6qofNkHZs1FQTDax712prdYVXWfDRrsI3wNEI-6u-GLAE3M8VN3tw1A2NDv4smq2a-Qa1DOnlJmy0Q7z-l_rB8SgPywUZL6Jz9w6n1cq5sVpaqMBymdEq4MaYOtYuWl67i1Gi8Xf18zfBGF457nLh3vRtnPSLOae0rZhnXtQ3-2X2bMNEjfuY9eH8g6W0VgxCHSAObTZbXmmIA3ychTnXQzgo3zpumpYVHzw3Rtgo0ufAJUMyuJwLlQ0bWpbamiAzzB0n-XRy_0GmKyYVAx3luWxJySppWggH1SykJU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "NSL",
+							"type": "text"
+						},
+						{
+							"key": "contact_no",
+							"value": "01672837623",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "website",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/institutes/1?Add &contact_no&email&website",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"institutes",
+						"1"
+					],
+					"query": [
+						{
+							"key": "Add ",
+							"value": null
+						},
+						{
+							"key": "contact_no",
+							"value": null
+						},
+						{
+							"key": "email",
+							"value": null
+						},
+						{
+							"key": "website",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Institute Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYjg0OWEwYWE2MGUzNjExMzlmNDViYWM1MjAxOGI2YzM1N2QwMDgzZTAxZmEyMDY3MjU1NmY1ZmUyYWQyMjZhYjA4NGY1NWEwNGI0Y2IxMjgiLCJpYXQiOjE2MDQ5ODUxMjgsIm5iZiI6MTYwNDk4NTEyOCwiZXhwIjoxNjM2NTIxMTI4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Ybi-mxhSR3ysR9cm-0_CpKx4OTrjo9aKJXLxFZMiOJkBWQYm5I_GnAf5CAuALdPupkL6-8DIiGbuAWmOK2QvP7Bwx8O7QntuPB4gg61DrDlPOVkoBktdVHYJOchW5WW7kStKR1DVZ44QuIN-JwMlJfRnxbtpUy6vfQGl6ELr4xK8rGozX6SVwx1OaCNLcsJHNrN36PvIhSc41_c_y4np8S2LEfVlV5sIJT6uV8_zgfbELbKrVhnJjvvbe8FbguLK37xbodJG-yPLdC4G7E2cz63lIz6kki6MnROBCAVa2JtDhVnAgqTDu47t9zzWV1LcG2G4Z_J-z_ytK_yRWoGTYxpgAEAbYpc-UBk_zjMTh3OjcsvTZVO6rlgJhAIk9Tq_4zUG6qofNkHZs1FQTDax712prdYVXWfDRrsI3wNEI-6u-GLAE3M8VN3tw1A2NDv4smq2a-Qa1DOnlJmy0Q7z-l_rB8SgPywUZL6Jz9w6n1cq5sVpaqMBymdEq4MaYOtYuWl67i1Gi8Xf18zfBGF457nLh3vRtnPSLOae0rZhnXtQ3-2X2bMNEjfuY9eH8g6W0VgxCHSAObTZbXmmIA3ychTnXQzgo3zpumpYVHzw3Rtgo0ufAJUMyuJwLlQ0bWpbamiAzzB0n-XRy_0GmKyYVAx3luWxJySppWggH1SykJU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "NSL",
+							"type": "text"
+						},
+						{
+							"key": "contact_no",
+							"value": "01672837623",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "website",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/v1/institutes/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"institutes",
+						"1"
 					]
 				}
 			},

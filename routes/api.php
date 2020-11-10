@@ -36,6 +36,8 @@ Route::group(['prefix' => 'v1'], function() {
 
         Route::post('change-password', 'API\Auth\ChangePasswordController@updateAPIUserPassword')->name('change.password');
 
+        Route::resource('institutes','API\Setup\InstituteController');
+
         Route::resource('contributors','API\User\ContributorController');
         Route::get('get-contributor/{id}', 'API\User\ContributorController@getContributor')->name('get-contributor');
 
