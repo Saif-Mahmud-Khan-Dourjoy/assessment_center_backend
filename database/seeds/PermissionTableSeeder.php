@@ -27,8 +27,8 @@ class PermissionTableSeeder extends Seeder
             'user-create',
             'user-edit',
             'user-delete',
-            'user-academic-history',
-            'user-employment-history',
+            //'user-academic-history',
+            //'user-employment-history',
             'institute-list',
             'institute-create',
             'institute-edit',
@@ -55,8 +55,6 @@ class PermissionTableSeeder extends Seeder
             'question-set-delete',
             'question-set-answer-list',
             'question-set-answer-create',
-            'question-set-answer-edit',
-            'question-set-answer-delete'
         ];
 
 

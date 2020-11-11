@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\API\Auth;
 
+use App\Contributor;
 use App\Http\Controllers\Controller;
 use App\RoleSetup;
+use App\Student;
 use App\User;
 use App\UserProfile;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -48,17 +50,23 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
-        request()->validate([
+        /*request()->validate([
             'email' => 'required|email|unique:users',
             'password' => 'required',
             'c_password' => 'required|same:password',
-        ]);
+        ]);*/
+        $input = $request->all();
+
+        $check_email = User::where('email', $input['email'])->first();
+        if($check_email){
+            return response()->json(['success' => false, 'message' => 'Email already exist'], $this->failedStatus);
+        }
+
         $role = RoleSetup::first();
         if( !$role ){
             return response()->json(['success' => false, 'message' => 'Role not found for this user'], $this->failedStatus);
         }
 
-        $input = $request->all();
         $login_data = [
             'name' => $input['first_name'] .' '. $input['last_name'],
             'email' => $input['email'],
@@ -71,13 +79,37 @@ class RegisterController extends Controller
             $user->assignRole([$role->new_register_user_role_id]);
 
             // Add User Profile
-            UserProfile::create([
+            $user_profile = UserProfile::create([
                 'user_id' => $user['id'],
                 'first_name' => $input['first_name'],
                 'last_name' => $input['last_name'],
                 'email' => $input['email'],
                 'phone' => $input['phone'],
             ]);
+
+            // Add Contributor Info
+            $contributor_data = [
+                'profile_id' => $user_profile['id'],
+                'completing_percentage' => 100,
+                'total_question' => 0,
+                'average_rating' => 0,
+                'approve_status' => 0,
+                'active_status' => 0,
+                'guard_name' => 'web',
+            ];
+            $contributor = Contributor::create( $contributor_data );
+
+            // Add Student Info
+            $student_data = [
+                'profile_id' => $user_profile['id'],
+                'completing_percentage' => 100,
+                'total_complete_assessment' => 0,
+                'approve_status' => 0,
+                'active_status' => 0,
+                'guard_name' => 'web',
+            ];
+            $student = Student::create( $student_data );
+
 
             $responseData['name'] =  $user->name;
             $responseData['token'] =  $user->createToken('NSLAssessmentCenter')-> accessToken;
@@ -86,6 +118,15 @@ class RegisterController extends Controller
         else{
             return response()->json(['success' => false, 'message' => 'User added fail'], $this->failedStatus);
         }
+    }
+
+    function checkEmail(Request $request){
+        $input = $request->all();
+        $check_email = User::where('email', $input['email'])->first();
+        if($check_email){
+            return response()->json(['success' => true, 'message' => 'Email already exist'], $this->successStatus);
+        }
+        return response()->json(['success' => false], $this->failedStatus);
     }
 
 }

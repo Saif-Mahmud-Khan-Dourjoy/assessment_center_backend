@@ -18,6 +18,8 @@ Route::group(['prefix' => 'v1'], function() {
     Route::post('login', 'API\Auth\LoginController@login');
     Route::post('forgot-password', 'API\Auth\ForgotPasswordController@sendResetLink')->name('forgot.password');
 
+    Route::post('check-email', 'API\Auth\RegisterController@checkEmail')->name('check-email');
+
     Route::middleware('auth:api')->group( function () {
         Route::resource('permission-list', 'API\Setup\PermissionListController');
         Route::resource('roles', 'API\Setup\RoleController');

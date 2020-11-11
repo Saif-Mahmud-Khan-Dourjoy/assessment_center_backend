@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\User;
 
 use App\RoleSetup;
+use App\Student;
 use App\User;
 use App\UserProfile;
 use App\Http\Controllers\Controller;
@@ -106,6 +107,18 @@ class ContributorController extends Controller
                 'guard_name' => 'web',
             ];
             $contributor = Contributor::create( $contributor_data );
+
+            // Add Student Info
+            $student_data = [
+                'profile_id' => $user_profile['id'],
+                'completing_percentage' => 100,
+                'total_complete_assessment' => 0,
+                'approve_status' => 0,
+                'active_status' => 0,
+                'guard_name' => 'web',
+            ];
+            $student = Student::create( $student_data );
+
             $user =Contributor::with(['user_profile'])->where('id', $contributor->id)->get();
 
             if( $contributor ){

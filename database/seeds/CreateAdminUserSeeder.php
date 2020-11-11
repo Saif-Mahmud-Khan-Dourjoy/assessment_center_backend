@@ -1,5 +1,7 @@
 <?php
 
+use App\Contributor;
+use App\Student;
 use Illuminate\Database\Seeder;
 use App\User;
 use App\UserProfile;
@@ -16,17 +18,43 @@ class CreateAdminUserSeeder extends Seeder
      */
     public function run()
     {
+        // Add user credential
         $user = User::create([
             'name' => 'Admin',
             'email' => 'admin@nsl.com',
             'password' => bcrypt('123456789')
         ]);
 
-        UserProfile::create([
+        // Add User Profile
+        $user_profile = UserProfile::create([
             'user_id' => $user['id'],
             'first_name' => 'Admin',
+            'last_name' => 'Admin',
             'email' => 'admin@nsl.com',
         ]);
+
+        // Add Contributor Info
+        $contributor_data = [
+            'profile_id' => $user_profile['id'],
+            'completing_percentage' => 100,
+            'total_question' => 0,
+            'average_rating' => 0,
+            'approve_status' => 0,
+            'active_status' => 0,
+            'guard_name' => 'web',
+        ];
+        $contributor = Contributor::create( $contributor_data );
+
+        // Add Student Info
+        $student_data = [
+            'profile_id' => $user_profile['id'],
+            'completing_percentage' => 100,
+            'total_complete_assessment' => 0,
+            'approve_status' => 0,
+            'active_status' => 0,
+            'guard_name' => 'web',
+        ];
+        $student = Student::create( $student_data );
 
         $role = Role::create(['name' => 'Admin']);
 

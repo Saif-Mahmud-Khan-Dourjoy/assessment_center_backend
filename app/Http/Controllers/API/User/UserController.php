@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API\User;
 
 
 use App\Contributor;
+use App\RoleSetup;
+use App\Student;
 use App\User;
 use App\UserAcademicHistory;
 use App\UserEmploymentHistory;
@@ -52,36 +54,65 @@ class UserController extends Controller
     public function store(Request $request)
     {
         request()->validate([
-            'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required',
             'c_password' => 'required|same:password',
         ]);
         $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $user = User::create($input);
+        $login_data = [
+            'name' => $input['first_name'] .' '. $input['last_name'],
+            'email' => $input['email'],
+            'password' => bcrypt($input['password']),
+        ];
+        $user = User::create($login_data);
+
         if( $user ){
 
             // Assign Role
-            $role_id = 2;
+            $role = RoleSetup::first();
+            if( $role ){
+                $role_id = $role->new_register_user_role_id;
+            }
             if( $input['role_id'] ){
                 $role_id = $input['role_id'];
-            }
-            if( !Role::find($role_id) ){
-                $role_id = 2;
             }
             $user->assignRole([$role_id]);
 
             // Add User Profile
-            UserProfile::create([
+            $user_profile = UserProfile::create([
                 'user_id' => $user['id'],
-                'first_name' => $input['name'],
-                'email' => $input['email']
+                'first_name' => $input['first_name'],
+                'last_name' => $input['last_name'],
+                'email' => $input['email'],
+                'phone' => $input['phone'],
             ]);
+
+            // Add Contributor Info
+            $contributor_data = [
+                'profile_id' => $user_profile['id'],
+                'completing_percentage' => 100,
+                'total_question' => 0,
+                'average_rating' => 0,
+                'approve_status' => 0,
+                'active_status' => 0,
+                'guard_name' => 'web',
+            ];
+            $contributor = Contributor::create( $contributor_data );
+
+            // Add Student Info
+            $student_data = [
+                'profile_id' => $user_profile['id'],
+                'completing_percentage' => 100,
+                'total_complete_assessment' => 0,
+                'approve_status' => 0,
+                'active_status' => 0,
+                'guard_name' => 'web',
+            ];
+            $student = Student::create( $student_data );
 
             $responseData['name'] =  $user->name;
             $responseData['token'] =  $user->createToken('NSLAssessmentCenter')-> accessToken;
-            return response()->json(['success' => true, 'user' => $responseData], $this->successStatus);
+            return response()->json(['success' => true, 'message' => 'User added', 'user' => $responseData], $this->successStatus);
         }
         else{
             return response()->json(['success' => false, 'message' => 'User added fail'], $this->failedStatus);
