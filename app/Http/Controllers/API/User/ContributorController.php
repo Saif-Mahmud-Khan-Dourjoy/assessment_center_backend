@@ -74,6 +74,7 @@ class ContributorController extends Controller
         // Add User Profile
         $data = [
             'user_id' => $user->id,
+            'institute_id' => $input['institute_id'],
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'email' => $input['email'],

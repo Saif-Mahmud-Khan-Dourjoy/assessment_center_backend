@@ -17,10 +17,11 @@ class CreateUserProfilesTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users');
+            $table->bigInteger('institute_id')->nullable();
             $table->char('first_name', 100);
             $table->char('last_name', 100)->nullable();
             $table->char('email', 100)->unique();
-            $table->bigInteger('phone')->nullable();
+            $table->char('phone', 50)->nullable();
             $table->char('skype', 100)->nullable();
             $table->char('profession', 100)->nullable();
             $table->char('skill', 200)->nullable();
