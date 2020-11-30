@@ -53,8 +53,9 @@ class ContributorController extends Controller
             //'phone' => 'required|unique:user_profiles',
         ]);
         $input = $request->all();
-        if($input['role_id']){
-            $contributor_role_id = $input['role_id'];
+        $roleID = (!empty($_POST["role_id"])) ? $input['role_id'] : 0;
+        if($roleID){
+            $contributor_role_id = $roleID;
         }else{
             $role = RoleSetup::first();
             if( !$role ){
@@ -67,6 +68,7 @@ class ContributorController extends Controller
         $login_data = [
             'name' => $input['first_name'] .' '. $input['last_name'],
             'email' => $input['email'],
+            'status' => 1,
             'password' => Hash::make('123456789'),
         ];
         $user = User::create($login_data);
