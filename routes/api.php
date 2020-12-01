@@ -21,6 +21,9 @@ Route::group(['prefix' => 'v1'], function() {
     Route::post('check-email', 'API\Auth\RegisterController@checkEmail')->name('check-email');
 
     Route::middleware('auth:api')->group( function () {
+
+        Route::get('dashboard/{id}', 'API\DashboardController@index')->name('dashboard');
+
         Route::resource('permission-list', 'API\Setup\PermissionListController');
         Route::resource('roles', 'API\Setup\RoleController');
         Route::resource('role-setup', 'API\Setup\RoleSetupController');
