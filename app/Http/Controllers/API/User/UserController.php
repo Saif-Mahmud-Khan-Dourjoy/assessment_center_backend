@@ -301,4 +301,44 @@ class UserController extends Controller
         return response()->json(['success' => true, 'permissions' => $permissions], $this->successStatus);
 
     }
+
+    /**
+     * Show a newly created resource in storage.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getRoleWiseUsersList(Request $request)
+    {
+        $input = $request->all();
+        $users = User::with(['user_profile', 'roles'])->get();
+        if (!empty($_POST["role_name"]) && $input['role_name']){
+            $users = User::with(['user_profile'])->role($input['role_name'])->get();
+        }
+        return response()->json(['success' => true, 'users' => $users], $this->successStatus);
+    }
+
+
+    /**
+     * Update resource in storage.
+     *
+     * @param $id
+     * @return JsonResponse
+     */
+    public function updateStatus($id)
+    {
+        $profile = UserProfile::where('id', $id)->first();
+        // Check profile
+        if ( !$profile )
+            return response()->json(['success' => false, 'message' => 'Profile not found'], $this->invalidStatus);
+        $user = User::where('id', $profile->user_id)->first();
+        if ( !$user )
+            return response()->json(['success' => false, 'message' => 'Profile not found'], $this->invalidStatus);
+        $data = [
+            'status' => ($user->status == '0') ? '1' : '0',
+        ];
+        $user->update($data);
+        return response()->json(['success' => true, 'message' => 'User updated'], $this->successStatus);
+    }
+
 }

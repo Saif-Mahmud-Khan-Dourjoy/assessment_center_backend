@@ -28,6 +28,7 @@ Route::group(['prefix' => 'v1'], function() {
 
         Route::get('get-profile/{id}', 'API\User\UserController@getUser')->name('get-profile');
         Route::post('update-profile', 'API\User\UserController@updateProfile')->name('update-profile');
+        Route::get('update-status/{id}', 'API\User\UserController@updateStatus')->name('update-status');
 
         Route::get('get-permission', 'API\User\UserController@getPermissionList')->name('get-permission');
 
