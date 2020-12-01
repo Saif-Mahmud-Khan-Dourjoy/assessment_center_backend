@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class QuestionSetAnswer extends Model
@@ -25,9 +26,16 @@ class QuestionSetAnswer extends Model
     }
 
     /**
-     * @return HasMany
+     * @return BelongsTo
      */
     public function user_profile(){
         return $this->belongsTo('App\UserProfile', 'profile_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function question_set(){
+        return $this->belongsTo('App\QuestionSet', 'question_set_id');
     }
 }

@@ -134,7 +134,7 @@ class QuestionSetAnswerController extends Controller
      */
     public function getAllStudent($id)
     {
-        $question_answer = QuestionSetAnswer::with(['user_profile', 'question_set_answer_details'])
+        $question_answer = QuestionSetAnswer::with(['user_profile', 'question_set', 'question_set_answer_details'])
             ->where('question_set_id', $id)
             ->get();
 
