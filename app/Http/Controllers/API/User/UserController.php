@@ -13,6 +13,7 @@ use App\UserProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Validator;
 use Spatie\Permission\Models\Role;
 
@@ -53,16 +54,17 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        request()->validate([
+        /*request()->validate([
             'email' => 'required|email|unique:users',
             'password' => 'required',
             'c_password' => 'required|same:password',
-        ]);
+        ]);*/
         $input = $request->all();
         $login_data = [
             'name' => $input['first_name'] .' '. $input['last_name'],
             'email' => $input['email'],
-            'password' => bcrypt($input['password']),
+            'status' => 1,
+            'password' => Hash::make('123456789'),
         ];
         $user = User::create($login_data);
 
