@@ -28,6 +28,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::resource('roles', 'API\Setup\RoleController');
         Route::resource('role-setup', 'API\Setup\RoleSetupController');
         Route::resource('users', 'API\User\UserController');
+        Route::post('get-role-wise-user', 'API\User\UserController@getRoleWiseUsersList')->name('get-role-wise-user');
 
         Route::get('get-profile/{id}', 'API\User\UserController@getUser')->name('get-profile');
         Route::post('update-profile', 'API\User\UserController@updateProfile')->name('update-profile');
