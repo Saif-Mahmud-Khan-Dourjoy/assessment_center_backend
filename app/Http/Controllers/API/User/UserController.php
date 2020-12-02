@@ -147,7 +147,7 @@ class UserController extends Controller
      */
     public function getUser($id)
     {
-        $profile = User::with('user_profile')->where('id', $id)->get();
+        $profile = User::with(['user_profile', 'roles'])->where('id', $id)->get();
         if ( !$profile )
             return response()->json(['success' => false, 'message' => 'User not found'], $this->invalidStatus);
         else
