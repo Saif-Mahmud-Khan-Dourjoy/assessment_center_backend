@@ -73,7 +73,6 @@ class QuestionSetController extends Controller
             'title' => 'required',
         ]);
         $input = $request->all();
-
         $institute_id = NULL;
         $privacy = (!empty($_POST["privacy"])) ? $input['privacy'] : 0;
         if($privacy == 1 && $userProfile->institute_id){
@@ -121,6 +120,76 @@ class QuestionSetController extends Controller
 
 
     /**
+     * Update the specified resource in storage.
+     *
+     * @param Request $request
+     * @param $id
+     * @return JsonResponse
+     */
+    public function update(Request $request, $id)
+    {
+        $user = Auth::user();
+        $userProfile = UserProfile::where('user_id', $user->id)->first();
+        request()->validate([
+            'title' => 'required',
+        ]);
+        $input = $request->all();
+        //dd($input);
+        $institute_id = NULL;
+        $privacy = (!empty($_POST["privacy"])) ? $input['privacy'] : 0;
+        if($privacy == 1 && $userProfile->institute_id){
+            $institute_id = $userProfile->institute_id;
+        }
+
+        // Add question set
+        $questionsetData = [
+            'title' => $input['title'],
+            'type' => $input['type'],
+            'institute' => (!empty($_POST["institute"])) ? $input['institute'] : '',
+            'institute_id' => $institute_id,
+            'assessment_time' => $input['assessment_time'],
+            'total_question' => $input['total_question'],
+            'total_mark' => $input['total_mark'],
+            'status' => $input['status'],
+            'privacy' => $privacy,
+            'created_by' => $userProfile->id,//Profile ID
+            'approved_by' => $userProfile->id,//Profile ID
+        ];
+        $questionset = QuestionSet::find($id);
+        // if( ! UserAcademicHistory::where(['profile_id' => $input['profile_id'], 'check_status' => $input['check_status']])->first() )
+        // UserAcademicHistory::where('profile_id', $input['profile_id'])->delete();
+        $questionset_status =  $questionset->update($questionsetData);
+        if($questionset_status){
+        //remove question set details
+        $questionsetdetail = QuestionSetDetail::where(['question_set_id'=>$id])->delete();
+
+        // Add question set detail
+        $questionOptionData = [];
+        $question_id = explode( ',', $input['question_id']);
+        $mark = explode( ',', $input['mark']);
+        $partial_marking_status = explode( ',', $input['partial_marking_status']);
+        for($i = 0; $i < count($question_id); $i++){
+            $questionOptionData = [
+                'question_set_id' => $questionset->id,
+                'question_id' => $question_id[$i],
+                'mark' => $mark[$i],
+                'partial_marking_status' => $partial_marking_status[$i],
+            ];
+            QuestionSetDetail::create($questionOptionData);
+            // Increment question total no of use
+            Question::find($question_id[$i])->increment('no_of_used');
+        }
+        $question_sets = QuestionSet::with(['question_set_details'])->where('id', $questionset->id)->get();
+        if( $questionset )
+            return response()->json(['success' => true, 'question_set' => $question_sets], $this->successStatus);
+        else
+            return response()->json(['success' => false, 'message' => 'Question set update fail'], $this->failedStatus);
+
+        }
+    }
+
+
+    /**
      * Display the specified resource.
      *
      * @param $id
@@ -137,27 +206,6 @@ class QuestionSetController extends Controller
             return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
         else
             return response()->json(['success' => true, 'question_set' => $question], $this->successStatus);
-    }
-
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @param $id
-     * @return JsonResponse
-     */
-    public function update(Request $request, $id)
-    {
-        $question = Question::find($id);
-        request()->validate([
-            'name' => 'required|unique:questions,name,'.$id,
-        ]);
-        $question = $question->update($request->all());
-        if( $question )
-            return response()->json(['success' => true, 'message' => 'Question update successfully'], $this->successStatus);
-        else
-            return response()->json(['success' => false, 'message' => 'Question update failed'], $this->failedStatus);
     }
 
 
