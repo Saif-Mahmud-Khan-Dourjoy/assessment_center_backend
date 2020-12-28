@@ -22,7 +22,9 @@ class CreateAdminUserSeeder extends Seeder
         $user = User::create([
             'name' => 'Admin',
             'email' => 'admin@nsl.com',
-            'password' => bcrypt('123456789')
+            'password' => bcrypt('123456789'),
+            'status' => '1'
+
         ]);
 
         // Add User Profile

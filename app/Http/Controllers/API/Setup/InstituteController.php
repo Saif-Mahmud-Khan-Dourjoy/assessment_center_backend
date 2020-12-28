@@ -49,6 +49,8 @@ class InstituteController extends Controller
             'email' => (!empty($_POST["email"])) ? $input['email'] : '',
             'website' => (!empty($_POST["website"])) ? $input['website'] : '',
             'address' => (!empty($_POST["address"])) ? $input['address'] : '',
+            'logo' => (!empty($_POST["logo"]))? $input['logo']:'',
+            'icon' => (!empty($_POST["icon"]))? $input["icon"]:'',
         ];
         $institute = Institute::create($data);
         if( $institute )

@@ -12,6 +12,9 @@
 */
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
+
+use App\Mail\WelcomeMail;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,4 +31,12 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('change-password', 'Auth\ChangePasswordController@index');
     Route::post('change-password', 'Auth\ChangePasswordController@updateWebUserPassword')->name('change.password');
     Route::resource('roles','RoleController');
+
+    Route::get('/email', function(){
+        Mail::to('shakir.zaman@neural-semiconductor.com')
+        ->cc('hemayet.nirjhoy@gmail.com')
+        ->send(new WelcomeMail());
+        echo "Mail has been sent";
+        return new WelcomeMail();
+    });
 });

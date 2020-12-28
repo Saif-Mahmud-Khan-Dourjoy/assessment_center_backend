@@ -24,6 +24,14 @@ Route::group(['prefix' => 'v1'], function() {
 
         Route::get('dashboard/{id}', 'API\DashboardController@index')->name('dashboard');
 
+        Route::post('notice','API\Setup\InstituteNoticeController@store')->name('notice');
+        Route::get('notice', 'API\Setup\InstituteNoticeController@index')->name('all-notice');
+        Route::get('get-notice/{id}', 'API\Setup\InstituteNoticeController@getNotice')->name('get-notice');
+        Route::get('institute-notice/{id}','API\Setup\InstituteNoticeController@instituteNotice')->name('institute-notice');
+        Route::post('update-notice','API\Setup\InstituteNoticeController@update')->name('update-notice');
+        Route::delete('delete-notice/{id}','API\Setup\InstituteNoticeController@delete')->name('delete-notice');
+        Route::get('status-notice/{id}','API\Setup\InstituteNoticeController@status')->name('status-notice');
+
         Route::resource('permission-list', 'API\Setup\PermissionListController');
         Route::resource('roles', 'API\Setup\RoleController');
         Route::resource('role-setup', 'API\Setup\RoleSetupController');

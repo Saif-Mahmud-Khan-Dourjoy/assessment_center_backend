@@ -13,6 +13,6 @@ class Institute extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'contact_no', 'email', 'website', 'address'
+        'name', 'contact_no', 'email', 'website', 'address','logo','icon'
     ];
 }
