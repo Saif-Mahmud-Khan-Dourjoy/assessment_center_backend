@@ -14,8 +14,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Mail\Mailable;
 use Illuminate\Validation\Validator;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Str;
+use App\Mail\UserCredentials;
 
 
 class UserController extends Controller
@@ -23,6 +27,7 @@ class UserController extends Controller
     public $successStatus = 200;
     public $failedStatus = 500;
     public $invalidStatus = 400;
+    public $out;                            //for printing any message into console
 
     public function __construct(){
         //$this->middleware(['api_role'])->only('index');
@@ -30,6 +35,7 @@ class UserController extends Controller
         $this->middleware('api_permission:user-create', ['only' => ['store']]);
         $this->middleware('api_permission:user-edit', ['only' => ['update']]);
         $this->middleware('api_permission:user-delete', ['only' => ['destroy']]);*/
+        $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();                 // for printing message to console
     }
 
 
@@ -45,6 +51,25 @@ class UserController extends Controller
         return response()->json(['success' => true, 'users' => $users], $this-> successStatus);
     }
 
+    /**
+     * Sen User his credential to his email
+     * @param $username, $user_password, $user_email
+     * @return True/False
+     */
+
+    public function emailCredential($username, $user_password, $user_email){
+        $this->out->writeln('Emailing user credentials');
+        try{
+            // $email = env('TO_EMAIL');
+            $this->out->writeln('Email: '.$user_email);
+            Mail::to($user_email)
+            ->send(new UserCredentials($username, $user_password, $user_email));
+            return true;
+        }catch(Throwable $e){
+            $this->out->writeln('Unable to email user credentials, for '.$e);
+            return false;
+        }
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -54,22 +79,25 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        /*request()->validate([
+        
+        request()->validate([
             'email' => 'required|email|unique:users',
-            'password' => 'required',
-            'c_password' => 'required|same:password',
-        ]);*/
+        ]);
         $input = $request->all();
+        $rand_pass = Str::random(8);
+        $hashed_random_password = Hash::make($rand_pass);
         $login_data = [
             'name' => $input['first_name'] .' '. $input['last_name'],
             'email' => $input['email'],
             'status' => 1,
-            'password' => Hash::make('123456789'),
+            'password' => $hashed_random_password,
         ];
         $user = User::create($login_data);
 
         if( $user ){
 
+            //Send Email
+            $this->emailCredential($user->email, $rand_pass, $user->email);
             // Assign Role
             $role = RoleSetup::first();
             if( $role ){
