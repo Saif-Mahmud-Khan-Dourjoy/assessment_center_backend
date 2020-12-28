@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Passport\HasApiTokens;
+use App\Notifications\ResetPassword as ResetPasswordNotification;
 
 class User extends Authenticatable //implements MustVerifyEmail
 {
@@ -44,7 +45,14 @@ class User extends Authenticatable //implements MustVerifyEmail
     /**
      * @return HasOne
      */
-    public function user_profile(){
+    public function user_profile(): HasOne
+    {
         return $this->hasOne('App\UserProfile', 'user_id');
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        // Your your own implementation.
+        $this->notify(new ResetPasswordNotification($token));
     }
 }
