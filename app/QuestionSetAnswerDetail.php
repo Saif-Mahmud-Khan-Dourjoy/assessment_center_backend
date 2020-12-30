@@ -14,7 +14,7 @@ class QuestionSetAnswerDetail extends Model
      * @var array
      */
     protected $fillable = [
-        'question_set_answer_id', 'question_id', 'answer', 'mark'
+        'question_set_answer_id', 'question_id', 'answer', 'mark','served',
     ];
 
     /**
