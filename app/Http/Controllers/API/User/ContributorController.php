@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\User;
 
+use App\Mail\UserCredentials;
 use App\RoleSetup;
 use App\Student;
 use App\User;
@@ -11,18 +12,23 @@ use App\Contributor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class ContributorController extends Controller
 {
     public $successStatus = 200;
     public $failedStatus = 500;
     public $invalidStatus = 400;
+
+    public $out;
     function __construct()
     {
         /*$this->middleware('api_permission:contributor-list|contributor-create|contributor-edit|contributor-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:contributor-create', ['only' => ['store']]);
         $this->middleware('api_permission:contributor-edit', ['only' => ['update']]);
         $this->middleware('api_permission:contributor-delete', ['only' => ['destroy']]);*/
+        $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();                 // for printing message to console
     }
 
 
@@ -39,6 +45,26 @@ class ContributorController extends Controller
 
 
     /**
+     * Sen User his credential to his email
+     * @param $username, $user_password, $user_email
+     * @return True/False
+     */
+
+    public function emailCredential($username, $user_password, $user_email){
+        $this->out->writeln('Emailing user credentials');
+        try{
+            // $email = env('TO_EMAIL');
+            $this->out->writeln('Email: '.$user_email);
+            Mail::to($user_email)
+                ->send(new UserCredentials($username, $user_password, $user_email));
+            return true;
+        }catch(Throwable $e){
+            $this->out->writeln('Unable to email user credentials, for '.$e);
+            return false;
+        }
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param Request $request
@@ -49,7 +75,8 @@ class ContributorController extends Controller
         request()->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required|unique:user_profiles',
+            'username'=> 'required|unique:users',
+            'email' => 'required|email',
             //'phone' => 'required|unique:user_profiles',
         ]);
         $input = $request->all();
@@ -64,14 +91,25 @@ class ContributorController extends Controller
             $contributor_role_id = $role->contributor_role_id;
         }
 
+        // Auto generate password
+        $rand_pass = Str::random(8);
+        $hashed_random_password = Hash::make($rand_pass);
+
         // Add Login Info
         $login_data = [
             'name' => $input['first_name'] .' '. $input['last_name'],
+            'username'=> $input['username'],
             'email' => $input['email'],
             'status' => 1,
-            'password' => Hash::make('123456789'),
+            'password' => $hashed_random_password,
         ];
         $user = User::create($login_data);
+        if(!$user){
+            return response()->json(['success'=>false, 'message'=>'Unable to register student'],$this->failedStatus);
+        }
+
+        //Send Email
+        $this->emailCredential($user->username, $rand_pass, $user->email);
 
         // Add User Profile
         $data = [

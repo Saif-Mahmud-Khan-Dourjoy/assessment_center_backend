@@ -3,27 +3,34 @@
 namespace App\Http\Controllers\API\User;
 
 use App\Contributor;
+use App\Mail\UserCredentials;
 use App\QuestionSetAnswer;
 use App\Student;
 use App\Http\Controllers\Controller;
 use App\RoleSetup;
 use App\User;
 use App\UserProfile;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
     public $successStatus = 200;
     public $failedStatus = 500;
     public $invalidStatus = 400;
+
+    public $out;
     function __construct()
     {
         /*$this->middleware('api_permission:student-list|student-create|student-edit|student-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:student-create', ['only' => ['store']]);
         $this->middleware('api_permission:student-edit', ['only' => ['update']]);
         $this->middleware('api_permission:student-delete', ['only' => ['destroy']]);*/
+        $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();                 // for printing message to console
     }
 
 
@@ -38,6 +45,47 @@ class StudentController extends Controller
         return response()->json(['success' => true, 'students' => $students], $this-> successStatus);
     }
 
+    /**
+     * Sen User his credential to his email
+     * @param $username, $user_password, $user_email
+     * @return True/False
+     */
+
+    public function emailCredential($username, $user_password, $user_email){
+        $this->out->writeln('Emailing user credentials');
+        try{
+            // $email = env('TO_EMAIL');
+            $this->out->writeln('Email: '.$user_email);
+            Mail::to($user_email)
+                ->send(new UserCredentials($username, $user_password, $user_email));
+            return true;
+        }catch(Throwable $e){
+            $this->out->writeln('Unable to email user credentials, for '.$e);
+            return false;
+        }
+    }
+
+    /**
+     * Storing a unique username for student
+     *
+     * @param $first_name, $lastname
+     * @return $unique_username
+     */
+
+    public function uniqueUser($firstName, $lastName)
+    {
+        $username = $firstName[0] . $lastName;
+
+        $i = 0;
+        while(User::whereUsername($username)->exists())
+        {
+            $i++;
+            $username = $firstName[0] . $lastName . $i;
+        }
+
+//        $this->attributes['username'] = $username;
+        return $username;
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -50,7 +98,8 @@ class StudentController extends Controller
         request()->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required|unique:user_profiles',
+//            'username'=>'required|unique:users',
+            'email' => 'required|email',
             //'phone' => 'required|unique:user_profiles',
         ]);
         $input = $request->all();
@@ -64,15 +113,25 @@ class StudentController extends Controller
             }
             $student_role_id = $role->student_role_id;
         }
-
+        // Auto generate password
+        $rand_pass = Str::random(8);
+        $hashed_random_password = Hash::make($rand_pass);
+        $username = $this->uniqueUser($input['first_name'], $input['last_name']);
         // Add Login Info
         $login_data = [
             'name' => $input['first_name'] .' '. $input['last_name'],
+            'username'=>$username,
             'email' => $input['email'],
             'status' => 1,
-            'password' => Hash::make('123456789'),
+            'password' => $hashed_random_password
         ];
         $user = User::create($login_data);
+        if(!$user){
+            return response()->json(['success'=>false, 'message'=>'Unable to register student'],$this->failedStatus);
+        }
+
+        //Send Email
+        $this->emailCredential($user->username, $rand_pass, $user->email);
 
         // Add User Profile
         $data = [

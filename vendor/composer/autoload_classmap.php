@@ -72,6 +72,7 @@ return array(
     'App\\Student' => $baseDir . '/app/Student.php',
     'App\\User' => $baseDir . '/app/User.php',
     'App\\UserAcademicHistory' => $baseDir . '/app/UserAcademicHistory.php',
+    'App\\UserAccessToken' => $baseDir . '/app/UserAccessToken.php',
     'App\\UserEmploymentHistory' => $baseDir . '/app/UserEmploymentHistory.php',
     'App\\UserProfile' => $baseDir . '/app/UserProfile.php',
     'ArithmeticError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/ArithmeticError.php',

@@ -20,6 +20,8 @@ class CreateInstitutesTable extends Migration
             $table->char('email', 200)->nullable();
             $table->char('website', 200)->nullable();
             $table->text('address')->nullable();
+            $table->char('logo',100)->nullable();
+            $table->char('icon',100)->nullable();
             $table->timestamps();
         });
     }

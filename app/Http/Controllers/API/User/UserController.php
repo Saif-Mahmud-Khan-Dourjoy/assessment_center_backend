@@ -79,15 +79,16 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        
         request()->validate([
-            'email' => 'required|email|unique:users',
+            'username'=>'required|unique:users',
+            'email' => 'required|email',
         ]);
         $input = $request->all();
         $rand_pass = Str::random(8);
         $hashed_random_password = Hash::make($rand_pass);
         $login_data = [
             'name' => $input['first_name'] .' '. $input['last_name'],
+            'username'=>$input['username'],
             'email' => $input['email'],
             'status' => 1,
             'password' => $hashed_random_password,
@@ -97,7 +98,7 @@ class UserController extends Controller
         if( $user ){
 
             //Send Email
-            $this->emailCredential($user->email, $rand_pass, $user->email);
+            $this->emailCredential($user->username, $rand_pass, $user->email);
             // Assign Role
             $role = RoleSetup::first();
             if( $role ){

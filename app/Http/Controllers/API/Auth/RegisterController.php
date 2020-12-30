@@ -42,6 +42,7 @@ class RegisterController extends Controller
         $this->middleware('guest');
     }
 
+
     /**
      * Store a newly created resource in storage.
      *
@@ -50,17 +51,18 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
-        /*request()->validate([
-            'email' => 'required|email|unique:users',
+        request()->validate([
+            'username'=>'required|unique:users',
+            'email' => 'required|email',
             'password' => 'required',
             'c_password' => 'required|same:password',
-        ]);*/
+        ]);
         $input = $request->all();
 
-        $check_email = User::where('email', $input['email'])->first();
-        if($check_email){
-            return response()->json(['success' => false, 'message' => 'Email already exist'], $this->failedStatus);
-        }
+//        $check_email = User::where('email', $input['email'])->first();
+//        if($check_email){
+//            return response()->json(['success' => false, 'message' => 'Email already exist'], $this->failedStatus);
+//        }
 
         $role = RoleSetup::first();
         if( !$role ){
@@ -69,6 +71,7 @@ class RegisterController extends Controller
 
         $login_data = [
             'name' => $input['first_name'] .' '. $input['last_name'],
+            'username'=>$input['username'],
             'email' => $input['email'],
             'password' => bcrypt($input['password']),
         ];
