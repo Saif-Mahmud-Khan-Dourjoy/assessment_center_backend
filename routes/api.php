@@ -17,7 +17,10 @@ Route::group(['prefix' => 'v1'], function() {
     Route::post('register', 'API\Auth\RegisterController@register')->name('register');
     Route::post('login', 'API\Auth\LoginController@login');
     Route::post('password/forgot-password', 'API\Auth\ForgotPasswordController@forgotPassword');
-    Route::post('password/reset', 'API\Auth\ForgotPasswordController@passwordReset'); 
+    Route::post('password/reset', 'API\Auth\ForgotPasswordController@passwordReset');
+    Route::get('validate-token', function () {
+        return ['data' => 'Token is valid'];
+    })->middleware('auth:api');
 
     Route::post('check-email', 'API\Auth\RegisterController@checkEmail')->name('check-email');
 
