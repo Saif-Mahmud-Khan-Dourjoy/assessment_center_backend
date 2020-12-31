@@ -62,6 +62,18 @@ class QuestionSetController extends Controller
     }
 
 
+    public function assessmentTimeValidator($start_time, $end_time, $duration){
+        //calculate start and end time in terms of duration 
+        $startTime = Carbon::parse($start_time);
+        $endTime = Carbon::parse($end_time);
+        if ($startTime>$endTime){
+            $endTime = $startTime+ $duration;
+        }else if($startTime+$duration>$endTime){
+            $endTime = $startTime+ $duration;
+        }
+    }
+
+
     /**
      * Store a newly created resource in storage.
      *
@@ -82,6 +94,7 @@ class QuestionSetController extends Controller
             $institute_id = $userProfile->institute_id;
         }
         // Time calculations
+        $assessment_time = $input['assessment_time'];
         $start_time = (!empty($input['start_time']) || !is_null($input['start_time'])? $input['start_time'] : '');
         $end_time = (!empty('end_time') || !is_null($input['end_time'])? $input['end_time']: '');
         $this->out->writeln('Start time: '.$start_time." End time: ". $end_time." lLaravel timestamp: ".now());
@@ -159,6 +172,9 @@ class QuestionSetController extends Controller
             'institute' => (!empty($_POST["institute"])) ? $input['institute'] : '',
             'institute_id' => $institute_id,
             'assessment_time' => $input['assessment_time'],
+            'start_time' => (!empty($input['start_time']) || !is_null($input['start_time'])? $input['start_time'] : ''),
+            'end_time'=>(!empty('end_time') || !is_null($input['end_time'])? $input['end_time']: ''),
+            'each_question_time' => (!empty('each_question_time') || !is_null($input['each_question_time'])? $input['each_question_time']: 0),
             'total_question' => $input['total_question'],
             'total_mark' => $input['total_mark'],
             'status' => $input['status'],
@@ -179,11 +195,13 @@ class QuestionSetController extends Controller
         $question_id = explode( ',', $input['question_id']);
         $mark = explode( ',', $input['mark']);
         $partial_marking_status = explode( ',', $input['partial_marking_status']);
+        $question_time = explode(',',$input['question_time']);
         for($i = 0; $i < count($question_id); $i++){
             $questionOptionData = [
                 'question_set_id' => $questionset->id,
                 'question_id' => $question_id[$i],
                 'mark' => $mark[$i],
+                'question_time'=>$question_time[$i],
                 'partial_marking_status' => $partial_marking_status[$i],
             ];
             QuestionSetDetail::create($questionOptionData);
