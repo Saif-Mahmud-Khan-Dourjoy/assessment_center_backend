@@ -20,6 +20,9 @@ class CreateQuestionSetsTable extends Migration
             $table->text('institute')->nullable();
             $table->bigInteger('institute_id')->nullable();
             $table->float('assessment_time')->comment('in min');
+            $table->dateTime('start_time')->nullable();
+            $table->dateTime('end_time')->nullable();
+            $table->smallInteger('each_question_time');
             $table->float('total_mark');
             $table->integer('total_question')->default(0);
             $table->tinyInteger('privacy')->default(0)->comment('0 for public, 1 for private, 2 for protected');

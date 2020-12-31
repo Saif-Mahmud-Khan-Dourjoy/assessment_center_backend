@@ -20,12 +20,15 @@ class QuestionSetController extends Controller
     public $successStatus = 200;
     public $failedStatus = 500;
     public $invalidStatus = 400;
+
+    public $out;
     function __construct()
     {
         /*$this->middleware('api_permission:question-set-list|question-set-create|question-set-edit|question-set-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:question-set-create', ['only' => ['store']]);
         $this->middleware('api_permission:question-set-edit', ['only' => ['update']]);
         $this->middleware('api_permission:question-set-delete', ['only' => ['destroy']]);*/
+        $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
 
 
@@ -78,7 +81,10 @@ class QuestionSetController extends Controller
         if($privacy == 1 && $userProfile->institute_id){
             $institute_id = $userProfile->institute_id;
         }
-
+        // Time calculations
+        $start_time = (!empty($input['start_time']) || !is_null($input['start_time'])? $input['start_time'] : '');
+        $end_time = (!empty('end_time') || !is_null($input['end_time'])? $input['end_time']: '');
+        $this->out->writeln('Start time: '.$start_time." End time: ". $end_time." lLaravel timestamp: ".now());
         // Add question set
         $questionData = [
             'title' => $input['title'],
@@ -86,6 +92,9 @@ class QuestionSetController extends Controller
             'institute' => (!empty($_POST["institute"])) ? $input['institute'] : '',
             'institute_id' => $institute_id,
             'assessment_time' => $input['assessment_time'],
+            'start_time' => (!empty($input['start_time']) || !is_null($input['start_time'])? $input['start_time'] : ''),
+            'end_time'=>(!empty('end_time') || !is_null($input['end_time'])? $input['end_time']: ''),
+            'each_question_time' => (!empty('each_question_time') || !is_null($input['each_question_time'])? $input['each_question_time']: 0),
             'total_question' => $input['total_question'],
             'total_mark' => $input['total_mark'],
             'status' => $input['status'],
@@ -100,11 +109,13 @@ class QuestionSetController extends Controller
         $question_id = explode( ',', $input['question_id']);
         $mark = explode( ',', $input['mark']);
         $partial_marking_status = explode( ',', $input['partial_marking_status']);
+        $question_time = explode(',',$input['question_time']);
         for($i = 0; $i < count($question_id); $i++){
             $questionOptionData = [
                 'question_set_id' => $question->id,
                 'question_id' => $question_id[$i],
                 'mark' => $mark[$i],
+                'question_time'=>$question_time[$i],
                 'partial_marking_status' => $partial_marking_status[$i],
             ];
             QuestionSetDetail::create($questionOptionData);
