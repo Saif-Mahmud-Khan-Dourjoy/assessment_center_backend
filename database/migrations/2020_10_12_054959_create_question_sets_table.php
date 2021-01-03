@@ -29,7 +29,8 @@ class CreateQuestionSetsTable extends Migration
             $table->tinyInteger('status')->comment('available or not 0/1');
             $table->integer('created_by')->comment('user profile id');
             $table->integer('approved_by')->comment('user profile id');
-
+//            $table->unsignedBigInteger('round_id')->unsigned()->comment('For tracking the assessment, in which round it will be served');
+//            $table->foreign('round_id')->references('id')->on('rounds')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -7,6 +7,7 @@ use Illuminate\Redis\Connections\PhpRedisClusterConnection;
 use Illuminate\Redis\Connections\PhpRedisConnection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redis as RedisFacade;
+use Illuminate\Support\Str;
 use LogicException;
 use Redis;
 use RedisCluster;
@@ -127,6 +128,12 @@ class PhpRedisConnector implements Connector
             $parameters[] = Arr::get($config, 'read_timeout', 0.0);
         }
 
+        if (version_compare(phpversion('redis'), '5.3.0', '>=')) {
+            if (! is_null($context = Arr::get($config, 'context'))) {
+                $parameters[] = $context;
+            }
+        }
+
         $client->{($persistent ? 'pconnect' : 'connect')}(...$parameters);
     }
 
@@ -149,6 +156,12 @@ class PhpRedisConnector implements Connector
 
         if (version_compare(phpversion('redis'), '4.3.0', '>=')) {
             $parameters[] = $options['password'] ?? null;
+        }
+
+        if (version_compare(phpversion('redis'), '5.3.2', '>=')) {
+            if (! is_null($context = Arr::get($options, 'context'))) {
+                $parameters[] = $context;
+            }
         }
 
         return tap(new RedisCluster(...$parameters), function ($client) use ($options) {
@@ -175,7 +188,7 @@ class PhpRedisConnector implements Connector
     protected function formatHost(array $options)
     {
         if (isset($options['scheme'])) {
-            return "{$options['scheme']}://{$options['host']}";
+            return Str::start($options['host'], "{$options['scheme']}://");
         }
 
         return $options['host'];

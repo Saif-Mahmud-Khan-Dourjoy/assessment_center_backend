@@ -33,16 +33,16 @@ class UserCredentials extends Mailable
      */
     public function build()
     {
-        $this->out = new \Symfony\Component\Console\Output\ConsoleOutput(); 
+        $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
         $this->out->writeln([
             'username'=> $this->username,
             'password'=> $this->userpass,
-            'url'=>env('FRONT_END_HOME'),
+            'url'=>env('FRONT_END_HOME').'/login',
         ]);
         return $this->markdown('emails.userCredentials',[
             'username'=> $this->username,
             'password'=> $this->userpass,
-            'url'=>env('FRONT_END_HOME'),
+            'url'=>env('FRONT_END_HOME').'/login',
         ]);
     }
 }

@@ -1,7 +1,7 @@
 @component('mail::message')
-# Introduction
-
-The body of your message.
+## Hello
+Welcome to NSL-ASSESSMENT CENTER! We are glad you've joined
+ the biggest educational community.
 
 @component('mail::button', ['url' => ''])
 Button Text
