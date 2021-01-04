@@ -64,9 +64,10 @@ class UserController extends Controller
             $this->out->writeln('Email: '.$user_email);
             Mail::to($user_email)
             ->send(new UserCredentials($username, $user_password, $user_email));
+            $this->out->writeln('Mail sent scuccessfully');
             return true;
-        }catch(Throwable $e){
-            $this->out->writeln('Unable to email user credentials, for '.$e);
+        }catch(\Swift_TransportException $e){
+            $this->out->writeln('Unable to email user credentials, for '.$e->getMessage());
             return false;
         }
     }
@@ -98,7 +99,11 @@ class UserController extends Controller
         if( $user ){
 
             //Send Email
-            $this->emailCredential($user->username, $rand_pass, $user->email);
+            if(!($this->emailCredential($user->username, $rand_pass, $user->email))){
+                $user->delete();
+                $this->out->writeln('User deleted successfully due to unsend email');
+                return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);
+            }
             // Assign Role
             $role = RoleSetup::first();
             if( $role ){

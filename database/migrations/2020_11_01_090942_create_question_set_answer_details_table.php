@@ -21,7 +21,7 @@ class CreateQuestionSetAnswerDetailsTable extends Migration
             $table->foreign('question_id')->references('id')->on('questions');
             $table->char('answer', 100);
             $table->float('mark');
-            $table->smallInteger('served');
+            $table->smallInteger('served')->default('1');
             $table->integer('time_taken')->nullable();
             $table->timestamps();
         });

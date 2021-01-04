@@ -33,7 +33,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('roles','RoleController');
 
     Route::get('/email', function(){
-        Mail::to('shakir.zaman@neural-semiconductor.com')
+        Mail::to('mohammad.hemayet@neural-semiconductor.com')
         ->cc('hemayet.nirjhoy@gmail.com')
         ->send(new WelcomeMail());
         echo "Mail has been sent";

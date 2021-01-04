@@ -16,7 +16,7 @@ class CreateNoticesTable extends Migration
         Schema::create('notices', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->text('title');
-            $table->string('body',200);
+            $table->text('body');
             $table->unsignedBigInteger('created_by')->unsigned();
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('updated_by')->unsigned();
