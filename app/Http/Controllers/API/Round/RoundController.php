@@ -33,10 +33,12 @@ class RoundController extends Controller
         request()->validate([
             'name'=>'required',
             'passing_criteria'=>'required',
-            'number'=>'number',
+            'number'=>'required',
         ]);
         $input = $request->all();
-        $user = UserProfile::where('user_id',Auth::id())->find();
+        $user = UserProfile::where('user_id',Auth::id());
+        dd($user);
+        $this->out->writeln($user);
         $data = [
             'name'=>$input['name'],
             'institute_id'=>$user->institute_id,
@@ -63,13 +65,13 @@ class RoundController extends Controller
         return response()->json(['success'=>false, 'message'=>'Unable to fetch rounds'], $this->failedStatus);
     }
 
-    public function getRound($id){
+    public function show($id){
         $this->out->writeln('Fetching round, whose id is: '.$id);
         $round = Round::find($id);
         if($round){
             return response()->json(['success'=>true, 'round'=>$round],$this->successStatus);
         }
-        return response()->json(['success'=>false, 'message'=>'Unable to find this round!'], $this->failedStatus);
+        return response()->json(['success'=>false, 'message'=>'Unable to find this round!'], $this->invalidStatus);
     }
 
     public function update(Request $request){
@@ -80,5 +82,32 @@ class RoundController extends Controller
             'passing_criteria'=>'required',
             'number'=>'number',
         ]);
+        $input = $request->all();
+        $user_id = Auth::id();
+        $data = [
+            'name'=> $input['name'],
+            'passing_criteria'=> $input['passing_criteria'],
+            'number'=>$input['number'],
+            'updated_by'=>$user_id,
+        ];
+        $round = Round::find($input['id']);
+        $round->update($data);
+        $round->save();
+        if($round){
+            return response()->json(['success'=>true, 'round'=>$round], $this->successStatus);
+        }
+        return response()->json(['success'=>false, 'message'=>'Unable to update Round!'], $this->failedStatus);
+    }
+
+    public function destroy($id){
+        $this->out->writeln('Deleting Round: '.$id);
+        $round = Round::find($id);
+        if(!$round){
+            return response()->json(['success'=>false, 'message'=>'Round not found, id: '.$id],$this->invalidStatus);
+        }
+        if($round->delete()){
+            return response()->json(['success'=>true, 'message'=>'Round is deleted, id: '.$id], $this->successStatus);
+        }
+        return reponse()->json(['success'=>false, 'message'=>'Unable to delete round, id: '.$id], $this->failedStatus);
     }
 }

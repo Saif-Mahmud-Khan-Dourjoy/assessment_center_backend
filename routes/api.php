@@ -70,6 +70,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::resource('question-sets','API\Question\QuestionSetController');
         Route::resource('question-set-answer','API\Question\QuestionSetAnswerController');
 
+        Route::resource('rounds','API\Round\RoundController');
     });
     Route::fallback(function(){
         return response()->json(['message' => 'Not Found.'], 404);
