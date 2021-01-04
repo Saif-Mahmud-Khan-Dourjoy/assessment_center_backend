@@ -1,5 +1,5 @@
 <?php
-
+use \App\Institute;
 use App\Contributor;
 use App\Student;
 use Illuminate\Database\Seeder;
@@ -18,6 +18,12 @@ class CreateAdminUserSeeder extends Seeder
      */
     public function run()
     {
+        //Institution addition
+        Institute::create([
+            'name'=>'Neural Semiconductor',
+            'email'=>'nsl@nsl.com',
+            'contact_no'=>'01233276827',
+        ]);
         // Add user credential
         $user = User::create([
             'name' => 'Admin',
@@ -31,6 +37,7 @@ class CreateAdminUserSeeder extends Seeder
         // Add User Profile
         $user_profile = UserProfile::create([
             'user_id' => $user['id'],
+            'institute_id'=>'1',
             'first_name' => 'Admin',
             'last_name' => 'Admin',
             'email' => 'admin@nsl.com',

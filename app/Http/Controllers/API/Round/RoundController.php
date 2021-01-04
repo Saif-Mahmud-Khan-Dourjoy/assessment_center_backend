@@ -36,17 +36,21 @@ class RoundController extends Controller
             'number'=>'required',
         ]);
         $input = $request->all();
-        $user = UserProfile::where('user_id',Auth::id());
-        dd($user);
+        $user = UserProfile::where('user_id',Auth::id())->first();
+//        dd($user);
+//        return response()->json(['user'=>$user]);
         $this->out->writeln($user);
         $data = [
             'name'=>$input['name'],
-            'institute_id'=>$user->institute_id,
+            'institute_id'=> $user->institute_id,
             'passing_criteria'=>$input['passing_criteria'],
             'number'=>$input['number'],
             'created_by'=>$user->user_id,
             'updated_by'=>$user->user_id,
         ];
+        if(Round::where('name',$input['name'])->where('institute_id','=',$user->institute_id)->exists()){
+            return response()->json(['success'=>false, 'message'=>'Round Name is already available for this institution!'],$this->invalidStatus);
+        }
         $round = Round::create($data);
         if($round){
             return response()->json(['success'=>true, 'round'=>$round], $this->successStatus);
