@@ -63,13 +63,11 @@ class QuestionSetController extends Controller
 
 
     public function assessmentTimeValidator($start_time, $end_time, $duration){
-        //calculate start and end time in terms of duration 
+        //calculate start and end time in terms of duration
         $startTime = Carbon::parse($start_time);
         $endTime = Carbon::parse($end_time);
-        if ($startTime>$endTime){
-            $endTime = $startTime+ $duration;
-        }else if($startTime+$duration>$endTime){
-            $endTime = $startTime+ $duration;
+        if (($startTime>$endTime ) || ($startTime+$duration>$endTime)){
+            return false;
         }
     }
 
