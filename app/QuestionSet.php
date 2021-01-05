@@ -14,7 +14,7 @@ class QuestionSet extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'type', 'institute_id', 'institute', 'assessment_time', 'start_time', 'end_time' , 'each_question_time' , 'total_question', 'total_mark', 'status', 'privacy', 'created_by', 'approved_by'
+        'title', 'type', 'institute_id', 'institute', 'assessment_time', 'start_time', 'end_time' , 'each_question_time' , 'total_question', 'total_mark', 'status', 'privacy', 'created_by', 'approved_by', 'round_id', 'published_id',
     ];
 
     /**
