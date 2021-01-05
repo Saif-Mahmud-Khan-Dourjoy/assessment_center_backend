@@ -120,13 +120,15 @@ class QuestionSetController extends Controller
         $question_id = explode( ',', $input['question_id']);
         $mark = explode( ',', $input['mark']);
         $partial_marking_status = explode( ',', $input['partial_marking_status']);
-        $question_time = explode(',',$input['question_time']);
+        if(!(is_null($input['question_time']) && $questionData['each_question_time']==0)){
+            $question_time = explode(',',$input['question_time']);
+        }
         for($i = 0; $i < count($question_id); $i++){
             $questionOptionData = [
                 'question_set_id' => $question->id,
                 'question_id' => $question_id[$i],
                 'mark' => $mark[$i],
-                'question_time'=>$question_time[$i],
+                'question_time'=>($questionData['each_question_time']==0?0:$question_time[$i]),
                 'partial_marking_status' => $partial_marking_status[$i],
             ];
             QuestionSetDetail::create($questionOptionData);

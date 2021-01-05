@@ -20,7 +20,7 @@ class CreateQuestionSetDetailsTable extends Migration
             $table->unsignedBigInteger('question_id')->unsigned();
             $table->foreign('question_id')->references('id')->on('questions');
             $table->float('mark');
-            $table->integer('question_time')->nullable();
+            $table->integer('question_time')->nullable()->comment('For each question time');
             $table->tinyInteger('partial_marking_status')->comment('1 for true, 0 for false');
             $table->timestamps();
         });
