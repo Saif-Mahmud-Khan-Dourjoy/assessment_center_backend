@@ -71,6 +71,12 @@ Route::group(['prefix' => 'v1'], function() {
         Route::resource('question-set-answer','API\Question\QuestionSetAnswerController');
 
         Route::resource('rounds','API\Round\RoundController');
+        Route::get('institute-rounds/{id}', 'API\Round\RoundController@getInstituteRound');
+        Route::get('round-status/{id}', 'API\Round\RoundController@status');
+
+        Route::resource('round-candidates','API\Round\RoundCandidatesController');
+        Route::get('each-round-candidates/{id}','API\Round\RoundCandidatesController@eachRoundCandidates');
+
     });
     Route::fallback(function(){
         return response()->json(['message' => 'Not Found.'], 404);

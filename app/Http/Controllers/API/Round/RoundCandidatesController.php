@@ -23,19 +23,19 @@ class RoundCandidatesController extends Controller
         $this->out->writeln('Fetching Round Candidates...');
         $roundCandidates = RoundCandidates::all();
         if($roundCandidates){
-            return reponse()->json(['success'=>true, 'round-candidates'=>$roundCandidates].$this->successStatus);
+            return response()->json(['success'=>true, 'round-candidates'=>$roundCandidates],$this->successStatus);
         }
         return response()->json(['success'=>false, 'message'=>'Unable to fetch round with candidates'], $this->failedStatus);
     }
 
     public function store(Request $request){
         $this->out->writeln('Storing Candidates based on the round');
-        reqeest()->validate([
+        request()->validate([
             'round_id'=> 'required',
-            'candidate_student'=>'required',
+            'candidate_students'=>'required',
         ]);
         $input= $request->all();
-        $students = explode(' ',$input);
+        $students = explode('|',$input['candidate_students']);
         $confirm_candidates=null;
         $failed_candidates = null;
         foreach ($students as $student){
@@ -44,7 +44,8 @@ class RoundCandidatesController extends Controller
               'student_id'=>$student,
 //                'mark'=>0 "mark have assigned default value = 0"
             ];
-            if(RoundCandidates::firstOrCreate()($data)){
+            $this->out->writeln('Round Candidates: '.$student);
+            if(RoundCandidates::firstOrCreate($data)){
                 $confirm_candidates=$confirm_candidates.$student.'|';
             }
             else{
@@ -57,21 +58,26 @@ class RoundCandidatesController extends Controller
         return response()->json(['success'=>false, 'confirmed_candidates'=>$confirm_candidates, 'failed_candidates'=>$failed_candidates], $this->failedStatus);
     }
 
-    public function update(Request $request){
+    public function update(Request $request, $id){
         $this->out->writeln('Updating Round Candidates...');
         request()->validate([
-            'id'=>'require',
-            'round_id'=>'require',
-            'student_id'=>'require',
+            'round_id'=>'required',
+            'student_id'=>'required',
         ]);
         $input = $request->all();
         $data=[
             'round_id'=>$input['round_id'],
             'student_id'=>$input['student_id']
         ];
-        $round_candidate =RoundCandidates::find($input['id']);
+        if(RoundCandidates::where('round_id',$input['round_id'])->where('student_id','=',$input['student_id'])->exists()){
+            return response()->json(['success'=>false, 'message'=>'Student is already valid candidate for this round!'],$this->invalidStatus);
+        }
+        $round_candidate =RoundCandidates::find($id);
+        if(!$round_candidate){
+            return response()->json(['success'=>false, 'message'=>'Round & candidate combination are not found with this id: '.$id],$this->invalidStatus);
+        }
         $round_candidate->update($data);
-        if($round_candidate){
+        if($round_candidate->save()){
             return response()->json(['success'=>true, 'round_candidate'=>$round_candidate],$this->successStatus);
         }
         return response()->json(['success'=>false, 'message'=>'unable to update round candidates, id: '.$input['id']], $this->failedStatus);
@@ -95,6 +101,16 @@ class RoundCandidatesController extends Controller
             return response()->json(['success'=>true, 'message'=>'Round with candidate is deleted, id: '.$id], $this->successStatus);
         }
         return response()->json(['success'=>false, 'message'=>'Unable to delete round candidate, id: '.$id],$this->failedStatus);
+    }
+
+    public function eachRoundCandidates($round_id){
+        $this->out->writeln('Fetching candidates based on the round-id: '.$round_id);
+        $round_candidates = RoundCandidates::where('round_id',$round_id)->get();
+        if($round_candidates){
+            return response()->json(['success'=>true, 'round_candidates'=>$round_candidates],$this->successStatus);
+        }
+        return response()->json(['success'=>false, 'message'=>'Unable to find candidates with this round-id: '.$round_id],$this->invalidStatus);
+
     }
 
 }
