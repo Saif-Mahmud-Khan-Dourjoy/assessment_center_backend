@@ -18,7 +18,7 @@ class CreateRoundsTable extends Migration
             $table->timestamps();
             $table->string('name', 200);
             $table->unsignedBigInteger('institute_id')->unsigned();
-            $table->foreign('institute_id')->references('id')->on('institutes')->onDelete('cascade');
+            $table->foreign('institute_id')->references('id')->on('institutes')->onDelete('cascade')->nullable();
             $table->string('passing_criteria')->default('sort');                            // alternate value could be 'pass'
             $table->integer('number')->default('10');                                       // if passing criteria is pass then number will be pass mark otherwise it will sort top 10
             $table->integer('status')->default('1')->comment('Active:1, Inactive:0');

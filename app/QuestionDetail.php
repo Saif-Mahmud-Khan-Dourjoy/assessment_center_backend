@@ -20,7 +20,7 @@ class QuestionDetail extends Model
     /**
      * @return BelongsTo
      */
-    public function question(){
+    public function questions(){
         return $this->belongsTo('App\Question', 'question_id');
     }
 

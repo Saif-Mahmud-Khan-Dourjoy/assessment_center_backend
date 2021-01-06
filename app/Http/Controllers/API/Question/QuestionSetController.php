@@ -64,11 +64,16 @@ class QuestionSetController extends Controller
 
     public function assessmentTimeValidator($start_time, $end_time, $duration){
         //calculate start and end time in terms of duration
+        $this->out->writeln('Validating time....');
         $startTime = Carbon::parse($start_time);
         $endTime = Carbon::parse($end_time);
         if (($startTime>$endTime ) || ($startTime+$duration>$endTime)){
             return false;
         }
+//        if($start_time<$start_time){
+//
+//        }
+
     }
 
 
@@ -112,6 +117,7 @@ class QuestionSetController extends Controller
             'privacy' => $privacy,
             'created_by' => $userProfile->id,//Profile ID
             'approved_by' => $userProfile->id,//Profile ID
+            'round_id'=>$input['round_id'],
         ];
         $question = QuestionSet::create($questionData);
 
@@ -181,6 +187,7 @@ class QuestionSetController extends Controller
             'privacy' => $privacy,
             'created_by' => $userProfile->id,//Profile ID
             'approved_by' => $userProfile->id,//Profile ID
+            'round_id'=>$input['round_id'],
         ];
         $questionset = QuestionSet::find($id);
         // if( ! UserAcademicHistory::where(['profile_id' => $input['profile_id'], 'check_status' => $input['check_status']])->first() )
@@ -227,15 +234,28 @@ class QuestionSetController extends Controller
      */
     public function show($id)
     {
-        $question = QuestionSet::with(['question_set_details'])
+        $this->out->writeln('Fetching Question set with all questions, question-set id: '.$id);
+        $question_set = QuestionSet::with(['question_set_details'])
             ->where('id', $id)
             ->get();
         //->with(['question_details', 'question_answer', 'question_tag']);
+        $i = 0;
+        foreach ($question_set[0]->question_set_details as $question_detail){
+            $this->out-> writeln('Question set details: '.$question_detail);
+            $this->out->writeln('Question ID: '.$question_detail->question_id);
+            $question = Question::with(['question_details', 'question_answer', 'question_tag'])
+                ->where('id', $question_detail->question_id)
+                ->get();
+            $question_set[0]->question_set_details[$i++]['question']=$question;
+//            $this->out->writeln('Question: '.$question);
 
+        }
+//        [0]->question_set_details[0]->question_id
+//        return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
         if ( !$question )
             return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
         else
-            return response()->json(['success' => true, 'question_set' => $question], $this->successStatus);
+            return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
     }
 
 
@@ -256,6 +276,20 @@ class QuestionSetController extends Controller
             return response()->json(['success' => true, 'message' => 'Question set deleted'], $this->successStatus);
         else
             return response()->json(['success' => false, 'message' => 'Question set can not be deleted'], $this->failedStatus);
+
+    }
+
+    public function status($id){
+        $this->out->write('Publish or Un-Publish status of Assessments!');
+        $question_st = QuestionSet::find($id);
+        if(!$question_st){
+            return response()->json(['success'=>false, 'message'=>'Question Set Not Found, id: '.$id],$this->invalidStatus);
+        }
+        $question_st->status = ($question_st['status']==0 ? 1:0);
+        if($question_st->save()){
+            return response()->json(['success'=>true, 'question_set'=>$question_st],$this->successStatus);
+        }
+        return response()->json(['success'=>false, 'message'=>'Failed to change question set publish status'],$this->failedStatus);
 
     }
 }

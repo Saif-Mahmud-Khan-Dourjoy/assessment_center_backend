@@ -18,9 +18,13 @@ class QuestionSetDetail extends Model
     ];
 
     /**
-     * @return HasMany
+     * @return HasMany`
      */
     public function question_set(){
         return $this->hasMany('App\QuestionSet', 'question_set_id');
+    }
+
+    public function question(){
+        return $this->hasMany('APP\Question', 'question_id');
     }
 }

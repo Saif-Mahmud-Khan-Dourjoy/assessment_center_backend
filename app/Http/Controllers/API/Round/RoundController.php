@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Round;
 
 use App\Http\Controllers\Controller;
+use App\QuestionSet;
 use App\Round;
 use App\UserProfile;
 use http\Env\Response;
@@ -112,6 +113,9 @@ class RoundController extends Controller
         $round = Round::find($id);
         if(!$round){
             return response()->json(['success'=>false, 'message'=>'Round not found, id: '.$id],$this->invalidStatus);
+        }
+        if(QuestionSet::where('round_id',$id)->exists()){
+            return response()->json(['success'=>false, 'message'=>'Round is already in Use!'],$this->invalidStatus);
         }
         if($round->delete()){
             return response()->json(['success'=>true, 'message'=>'Round is deleted, id: '.$id], $this->successStatus);
