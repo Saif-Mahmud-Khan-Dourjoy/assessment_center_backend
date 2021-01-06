@@ -11,6 +11,7 @@ use App\QuestionSetDetail;
 use App\QuestionSetAnswer;
 use App\QuestionSetAnswerDetail;
 use App\UserProfile;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,12 +68,12 @@ class QuestionSetController extends Controller
         $this->out->writeln('Validating time....');
         $startTime = Carbon::parse($start_time);
         $endTime = Carbon::parse($end_time);
-        if (($startTime>$endTime ) || ($startTime+$duration>$endTime)){
+        $this->out->writeln('Start time: '.$startTime." ****** End time: ".$endTime);
+        if ($startTime->addMinutes($duration)>$endTime){
+            $this->out->writeln('Invalid time: ');
             return false;
         }
-//        if($start_time<$start_time){
-//
-//        }
+        return true;
 
     }
 
@@ -101,6 +102,9 @@ class QuestionSetController extends Controller
         $start_time = (!empty($input['start_time']) || !is_null($input['start_time'])? $input['start_time'] : '');
         $end_time = (!empty('end_time') || !is_null($input['end_time'])? $input['end_time']: '');
         $this->out->writeln('Start time: '.$start_time." End time: ". $end_time." lLaravel timestamp: ".now());
+        if(!($this->assessmentTimeValidator($start_time, $end_time, $input['assessment_time']))){
+            return response()->json(['success'=>false, 'message'=>'Invalid Exam time and duration!'], $this->invalidStatus);
+        }
         // Add question set
         $questionData = [
             'title' => $input['title'],
@@ -108,8 +112,8 @@ class QuestionSetController extends Controller
             'institute' => (!empty($_POST["institute"])) ? $input['institute'] : '',
             'institute_id' => $institute_id,
             'assessment_time' => $input['assessment_time'],
-            'start_time' => (!empty($input['start_time']) || !is_null($input['start_time'])? $input['start_time'] : ''),
-            'end_time'=>(!empty('end_time') || !is_null($input['end_time'])? $input['end_time']: ''),
+            'start_time' => $start_time,
+            'end_time'=>$end_time,
             'each_question_time' => (!empty('each_question_time') || !is_null($input['each_question_time'])? $input['each_question_time']: 0),
             'total_question' => $input['total_question'],
             'total_mark' => $input['total_mark'],
