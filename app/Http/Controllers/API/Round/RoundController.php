@@ -96,7 +96,7 @@ class RoundController extends Controller
             'number'=>$input['number'],
             'updated_by'=>$user_id,
         ];
-        if(Round::where('name',$input['name'])->where('institute_id','=',$input['institute_id'])->exists()){
+        if(Round::where('name',$input['name'])->where('institute_id','=',$input['institute_id'])->where('id','!=',$id)->exists()){
             return response()->json(['success'=>false, 'message'=>'Round Name is already available for this institution!'],$this->invalidStatus);
         }
         $round = Round::find($id);

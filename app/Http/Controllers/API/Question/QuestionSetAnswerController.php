@@ -10,6 +10,7 @@ use App\QuestionSet;
 use App\QuestionSetAnswer;
 use App\QuestionSetAnswerDetail;
 use App\QuestionSetDetail;
+use App\Round;
 use App\RoundCandidates;
 use App\Student;
 use Illuminate\Http\JsonResponse;
@@ -20,12 +21,15 @@ class QuestionSetAnswerController extends Controller
     public $successStatus = 200;
     public $failedStatus = 500;
     public $invalidStatus = 400;
+
+    public $out;
     function __construct()
     {
         /*$this->middleware('api_permission:question-set-answer-list|question-set-answer-create|question-set-answer-edit|question-set-answer-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:question-set-answer-create', ['only' => ['store']]);
         $this->middleware('api_permission:question-set-answer-edit', ['only' => ['update']]);
         $this->middleware('api_permission:question-set-answer-delete', ['only' => ['destroy']]);*/
+        $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
 
 
@@ -125,6 +129,11 @@ class QuestionSetAnswerController extends Controller
             return response()->json(['success' => true, 'question_set_answer' => $question_answer], $this->successStatus);
     }
 
+    public function studentPromotion($question_set, $mark, $student){
+        $questionSet = QuestionSet::find($question_set);
+        $round = Round::find($questionSet->round_id);
+        $this->out->writeln('Round: '.$round);
+    }
 
     /**
      * Display the specified resource.
@@ -134,10 +143,34 @@ class QuestionSetAnswerController extends Controller
      */
     public function getAllStudent($id)
     {
+        $this->out->writeln('Fetching students attended!');
         $question_answer = QuestionSetAnswer::with(['user_profile', 'question_set', 'question_set_answer_details'])
             ->where('question_set_id', $id)
+            ->orderByDesc('total_mark')
             ->get();
+        $questionSet = QuestionSet::find($id);
+        $round = Round::find($questionSet->round_id);
+        $this->out->writeln($round);
+        $i=0;
+        foreach($question_answer as $question_ans){
+            $total_mark = $question_ans->total_mark;
+            $student = $question_ans->user_profile->id;
 
+            if($round->passing_criteria=='pass' && $total_mark>=$round->number){
+                $this->out->writeln('Student is promoted, i: '.$i);
+                $this->out->writeln('Student id: '.$student);
+                $this->out->writeln('Total Mark: '.$total_mark);
+                $question_answer[$i]->user_profile['promoted']=1;
+            }else if($round->passing_criteria=='sort' && $i<=$round->number){
+                $question_answer[$i]->user_profile['promoted']=1;
+            }else{
+                $this->out->writeln('Student is not promoted, i: '.$i);
+                $this->out->writeln('Student id: '.$student);
+                $this->out->writeln('Total Mark: '.$total_mark);
+                $question_answer[$i]->user_profile['promoted']=0;
+            }
+            $i++;
+        }
         if ( !$question_answer )
             return response()->json(['success' => false, 'message' => 'Question set answer not found'], $this->invalidStatus);
         else

@@ -10,4 +10,5 @@ class Round extends Model
     protected $fillable =[
         'name', 'institute_id', 'passing_criteria', 'number', 'created_by', 'updated_by',
     ];
+
 }

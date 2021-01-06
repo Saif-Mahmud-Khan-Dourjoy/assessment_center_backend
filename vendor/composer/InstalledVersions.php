@@ -29,7 +29,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => 'ca8111765b463cadbe04b0696b17b70074447c09',
+    'reference' => '15a1b539bb28fbcea410d299518a13880ef91069',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
@@ -187,196 +187,196 @@ private static $installed = array (
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/broadcasting' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/bus' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/cache' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/config' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/console' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/container' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/contracts' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/cookie' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/database' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/encryption' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/events' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/filesystem' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/hashing' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/http' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/log' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/mail' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/notifications' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/pagination' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/pipeline' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/queue' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/redis' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/routing' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/session' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/support' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/translation' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/validation' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'illuminate/view' => 
     array (
       'replaced' => 
       array (
-        0 => 'v6.20.8',
+        0 => 'v6.20.9',
       ),
     ),
     'jakub-onderka/php-console-color' => 
@@ -424,12 +424,12 @@ private static $installed = array (
     ),
     'laravel/framework' => 
     array (
-      'pretty_version' => 'v6.20.8',
-      'version' => '6.20.8.0',
+      'pretty_version' => 'v6.20.9',
+      'version' => '6.20.9.0',
       'aliases' => 
       array (
       ),
-      'reference' => '3d95575f4688e53e46d8d9a10f748a87698709f4',
+      'reference' => '4686f22eaaddca3fd71f99290e833413cfcf8f4c',
     ),
     'laravel/laravel' => 
     array (
@@ -438,7 +438,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => 'ca8111765b463cadbe04b0696b17b70074447c09',
+      'reference' => '15a1b539bb28fbcea410d299518a13880ef91069',
     ),
     'laravel/passport' => 
     array (

@@ -69,7 +69,7 @@ class RoundCandidatesController extends Controller
             'round_id'=>$input['round_id'],
             'student_id'=>$input['student_id']
         ];
-        if(RoundCandidates::where('round_id',$input['round_id'])->where('student_id','=',$input['student_id'])->exists()){
+        if(RoundCandidates::where('round_id',$input['round_id'])->where('student_id','=',$input['student_id'])->where('id','!=',$id)->exists()){
             return response()->json(['success'=>false, 'message'=>'Student is already valid candidate for this round!'],$this->invalidStatus);
         }
         $round_candidate =RoundCandidates::find($id);
