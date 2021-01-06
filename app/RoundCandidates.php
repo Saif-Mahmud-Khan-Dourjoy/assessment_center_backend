@@ -11,4 +11,5 @@ class RoundCandidates extends Model
     protected $fillable=[
         'round_id','student_id', 'mark',
     ];
+
 }

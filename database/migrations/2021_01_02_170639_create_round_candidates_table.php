@@ -19,7 +19,7 @@ class CreateRoundCandidatesTable extends Migration
             $table->unsignedBigInteger('round_id')->unsigned();
             $table->foreign('round_id')->references('id')->on('rounds')->onDelete('cascade');
             $table->unsignedBigInteger('student_id')->unsigned();
-            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+            $table->foreign('student_id')->references('id')->on('user_profiles')->onDelete('cascade');
             $table->integer('mark')->default('0');
             $table->unique(['round_id','student_id']);
         });

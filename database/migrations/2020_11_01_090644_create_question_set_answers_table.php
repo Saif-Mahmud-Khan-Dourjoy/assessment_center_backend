@@ -21,7 +21,7 @@ class CreateQuestionSetAnswersTable extends Migration
             $table->foreign('profile_id')->references('id')->on('user_profiles');
             $table->float('time_taken');
             $table->float('total_mark');
-            $table->smallInteger('served');
+            $table->smallInteger('served')->nullable();
             $table->timestamps();
         });
     }

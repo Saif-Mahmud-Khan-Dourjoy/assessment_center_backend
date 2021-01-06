@@ -10,6 +10,7 @@ use App\QuestionSet;
 use App\QuestionSetAnswer;
 use App\QuestionSetAnswerDetail;
 use App\QuestionSetDetail;
+use App\RoundCandidates;
 use App\Student;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -97,7 +98,6 @@ class QuestionSetAnswerController extends Controller
         }
         $question_answer_data = QuestionSetAnswer::find($question_answer->id);
         $question_answer_data->update(['total_mark' => $t_mark]);
-
 
         $question_sets_answer = QuestionSetAnswer::with(['question_set_answer_details'])->where('id', $question_answer->id)->get();
         if( $question_answer )
