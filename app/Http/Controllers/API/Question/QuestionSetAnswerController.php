@@ -160,14 +160,17 @@ class QuestionSetAnswerController extends Controller
                 $this->out->writeln('Student is promoted, i: '.$i);
                 $this->out->writeln('Student id: '.$student);
                 $this->out->writeln('Total Mark: '.$total_mark);
-                $question_answer[$i]->user_profile['promoted']=1;
-            }else if($round->passing_criteria=='sort' && $i<=$round->number){
-                $question_answer[$i]->user_profile['promoted']=1;
+                $question_answer[$i]['promoted']=1;
+            }else if($round->passing_criteria=='sort' && $i<$round->number){
+                $this->out->writeln('Student is promoted, i: '.$i);
+                $this->out->writeln('Student id: '.$student);
+                $this->out->writeln('Total Mark: '.$total_mark);
+                $question_answer[$i]['promoted']=1;
             }else{
                 $this->out->writeln('Student is not promoted, i: '.$i);
                 $this->out->writeln('Student id: '.$student);
                 $this->out->writeln('Total Mark: '.$total_mark);
-                $question_answer[$i]->user_profile['promoted']=0;
+                $question_answer[$i]['promoted']=0;
             }
             $i++;
         }

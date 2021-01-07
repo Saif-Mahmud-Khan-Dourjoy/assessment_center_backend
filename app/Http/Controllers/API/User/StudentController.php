@@ -136,7 +136,6 @@ class StudentController extends Controller
         // Add User Profile
         $data = [
             'user_id' => $user->id,
-            'institute_id' => (!empty($_POST["institute_id"])) ? $input['institute_id'] : NULL,
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'email' => $input['email'],
@@ -147,6 +146,7 @@ class StudentController extends Controller
             'about' => (!empty($_POST["about"])) ? $input['about'] : 'n/a',
             'image' => (!empty($_POST["image"])) ? $input['image'] : '',
             'address' => (!empty($_POST["address"])) ? $input['address'] : 'n/a',
+            'institute_id'=>(!(empty($input['institute_id'] or is_null($input['institute_id'])))? $input['institute_id']:null),
             'zipcode' => $input['zipcode'],
             'country' => $input['country'],
             'guard_name' => 'web',
