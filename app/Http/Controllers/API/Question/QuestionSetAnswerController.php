@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Question;
 
 use App\Http\Controllers\Controller;
+use App\Mail\WelcomeMail;
 use App\Question;
 use App\QuestionAnswer;
 use App\QuestionDetail;
@@ -13,8 +14,12 @@ use App\QuestionSetDetail;
 use App\Round;
 use App\RoundCandidates;
 use App\Student;
+use App\UserProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use PDF;
+use Illuminate\Support\Facades\Mail;
 
 class QuestionSetAnswerController extends Controller
 {
@@ -179,7 +184,30 @@ class QuestionSetAnswerController extends Controller
         else
             return response()->json(['success' => true, 'question_set_answer' => $question_answer], $this->successStatus);
     }
+    /**
+     * Generate PDF and Send email.
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function getCertificate(Request $request)
+    {
+        $profile = UserProfile::where('id', $request->profile_id);
+        $data = [
+            'name' => 'Test'
+        ];
+        $pdf = PDF::loadView('assessment.certificate', $data)->setPaper('a4', 'landscape');
+        Storage::put('certificate/1.pdf', $pdf->output());
 
+        mail::to('mohammad.hemayet@neural-semiconductor.com')
+            ->cc('hemayet.nirjhoy@gmail.com')
+            ->send(new WelcomeMail());
+
+        if ( !$profile )
+            return response()->json(['success' => false, 'message' => 'Profile not found'], $this->invalidStatus);
+        else
+            return response()->json(['success' => true, 'message' => "Certificate generated"], $this->successStatus);
+    }
 
 
 }

@@ -20,7 +20,7 @@ class CreateQuestionDetailsTable extends Migration
             $table->integer('serial_no');
             $table->text('option');
             $table->text('description')->nullable()->default(null);
-            $table->text('image')->nullable();
+            $table->text('img')->nullable();
             $table->timestamps();
         });
     }

@@ -15,7 +15,7 @@ class Question extends Model
      * @var array
      */
     protected $fillable = [
-        'profile_id', 'institute_id', 'category_id', 'privacy', 'publish_status', 'question_type', 'question_text', 'description', 'option_type', 'no_of_option', 'no_of_answer', 'no_of_used', 'no_of_comments', 'average_rating', 'image', 'active'
+        'profile_id', 'institute_id', 'category_id', 'privacy', 'publish_status', 'question_type', 'question_text', 'description', 'option_type', 'no_of_option', 'no_of_answer', 'no_of_used', 'no_of_comments', 'average_rating', 'img', 'active'
     ];
 
     /**

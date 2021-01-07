@@ -14,7 +14,7 @@ class QuestionDetail extends Model
      * @var array
      */
     protected $fillable = [
-        'question_id', 'serial_no', 'option', 'description', 'image'
+        'question_id', 'serial_no', 'option', 'description', 'img'
     ];
 
     /**

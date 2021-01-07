@@ -71,6 +71,8 @@ Route::group(['prefix' => 'v1'], function() {
         Route::get('question-set-status/{id}', 'API\Question\QuestionSetController@status');
         Route::resource('question-set-answer','API\Question\QuestionSetAnswerController');
 
+        Route::post('get-certificate', 'API\Question\QuestionSetAnswerController@getCertificate')->name('get-certificate');
+
         Route::resource('rounds','API\Round\RoundController');
         Route::get('institute-rounds/{id}', 'API\Round\RoundController@getInstituteRound');
         Route::get('round-status/{id}', 'API\Round\RoundController@status');

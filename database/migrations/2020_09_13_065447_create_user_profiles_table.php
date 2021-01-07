@@ -26,7 +26,7 @@ class CreateUserProfilesTable extends Migration
             $table->char('profession', 100)->nullable();
             $table->char('skill', 200)->nullable();
             $table->text('about')->nullable();
-            $table->char('image', 200)->nullable();
+            $table->char('img', 200)->nullable();
             $table->text('address', 200)->nullable();
             $table->integer('zipcode')->nullable();
             $table->char('country', 100)->nullable();

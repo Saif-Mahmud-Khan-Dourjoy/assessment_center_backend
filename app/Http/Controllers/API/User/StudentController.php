@@ -144,7 +144,7 @@ class StudentController extends Controller
             'profession' => (!empty($_POST["profession"])) ? $input['profession'] : 'n/a',
             'skill' => (!empty($_POST["skill"])) ? $input['skill'] : 'n/a',
             'about' => (!empty($_POST["about"])) ? $input['about'] : 'n/a',
-            'image' => (!empty($_POST["image"])) ? $input['image'] : '',
+            'img' => (!empty($_POST["img"])) ? $input['img'] : '',
             'address' => (!empty($_POST["address"])) ? $input['address'] : 'n/a',
             'institute_id'=>(!(empty($input['institute_id'] or is_null($input['institute_id'])))? $input['institute_id']:null),
             'zipcode' => $input['zipcode'],

@@ -28,6 +28,6 @@ class WelcomeMail extends Mailable
      */
     public function build()
     {
-        return $this->markdown('emails.welcome');
+        return $this->markdown('emails.welcome')->attachFromStorage('certificate/1.pdf');
     }
 }

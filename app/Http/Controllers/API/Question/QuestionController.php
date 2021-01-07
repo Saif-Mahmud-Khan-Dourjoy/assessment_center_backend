@@ -111,7 +111,7 @@ class QuestionController extends Controller
             'no_of_used' => $input['no_of_used'],
             'no_of_comments' => $input['no_of_comments'],
             'average_rating' => $input['average_rating'],
-            'image' => $input['image'],
+            'img' => $input['img'],
 
             'active' => $input['active'],
         ];
@@ -123,14 +123,14 @@ class QuestionController extends Controller
         $serial_no_data = explode( '|', $input['serial_no']);
         $option_data = explode( '|', $input['option']);
         $description_data = explode( '|', $input['description']);
-        $image_data = explode( '|', $input['image']);
+        $image_data = explode( '|', $input['img']);
         for($i = 0; $i < $input['no_of_option']; $i++){
             $questionOptionData = [
                 'question_id' => $question->id,
                 'serial_no' => $serial_no_data[$i],
                 'option' => $option_data[$i],
                 //'description' => $description_data[$i],
-                //'image' => $image_data[$i],
+                //'img' => $image_data[$i],
             ];
             QuestionDetail::create($questionOptionData);
         }

@@ -31,7 +31,7 @@ class CreateQuestionsTable extends Migration
             $table->integer('no_of_used');
             $table->integer('no_of_comments');
             $table->integer('average_rating');
-            $table->text('image')->nullable();
+            $table->text('img')->nullable();
             $table->tinyInteger('active')->comment('0 for inactive and 1 for active');
             $table->timestamps();
         });

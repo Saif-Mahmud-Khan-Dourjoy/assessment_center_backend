@@ -123,7 +123,7 @@ class ContributorController extends Controller
             'profession' => (!empty($_POST["profession"])) ? $input['profession'] : 'n/a',
             'skill' => (!empty($_POST["skill"])) ? $input['skill'] : 'n/a',
             'about' => $input['about'],
-            'image' => $input['image'],
+            'img' => $input['img'],
             'address' => (!empty($_POST["address"])) ? $input['address'] : 'n/a',
             'zipcode' => $input['zipcode'],
             'country' => $input['country'],
