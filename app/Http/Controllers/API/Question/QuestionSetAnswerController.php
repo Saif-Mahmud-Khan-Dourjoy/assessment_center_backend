@@ -209,5 +209,4 @@ class QuestionSetAnswerController extends Controller
             return response()->json(['success' => true, 'message' => "Certificate generated"], $this->successStatus);
     }
 
-
 }
