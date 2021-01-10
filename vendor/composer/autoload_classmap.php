@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Broadcast' => $baseDir . '/app/Broadcast.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
     'App\\Contributor' => $baseDir . '/app/Contributor.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
@@ -13,6 +14,7 @@ return array(
     'App\\Http\\Controllers\\API\\Auth\\ForgotPasswordController' => $baseDir . '/app/Http/Controllers/API/Auth/ForgotPasswordController.php',
     'App\\Http\\Controllers\\API\\Auth\\LoginController' => $baseDir . '/app/Http/Controllers/API/Auth/LoginController.php',
     'App\\Http\\Controllers\\API\\Auth\\RegisterController' => $baseDir . '/app/Http/Controllers/API/Auth/RegisterController.php',
+    'App\\Http\\Controllers\\API\\Broadcast\\BroadcastController' => $baseDir . '/app/Http/Controllers/API/Broadcast/BroadcastController.php',
     'App\\Http\\Controllers\\API\\DashboardController' => $baseDir . '/app/Http/Controllers/API/DashboardController.php',
     'App\\Http\\Controllers\\API\\Question\\QuestionCategoryController' => $baseDir . '/app/Http/Controllers/API/Question/QuestionCategoryController.php',
     'App\\Http\\Controllers\\API\\Question\\QuestionController' => $baseDir . '/app/Http/Controllers/API/Question/QuestionController.php',

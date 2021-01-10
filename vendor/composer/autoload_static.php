@@ -567,6 +567,7 @@ class ComposerStaticInit437c2d0b698d777a9dcc91641da49e0e
     );
 
     public static $classMap = array (
+        'App\\Broadcast' => __DIR__ . '/../..' . '/app/Broadcast.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Contributor' => __DIR__ . '/../..' . '/app/Contributor.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
@@ -574,6 +575,7 @@ class ComposerStaticInit437c2d0b698d777a9dcc91641da49e0e
         'App\\Http\\Controllers\\API\\Auth\\ForgotPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/Auth/ForgotPasswordController.php',
         'App\\Http\\Controllers\\API\\Auth\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/Auth/LoginController.php',
         'App\\Http\\Controllers\\API\\Auth\\RegisterController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/Auth/RegisterController.php',
+        'App\\Http\\Controllers\\API\\Broadcast\\BroadcastController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/Broadcast/BroadcastController.php',
         'App\\Http\\Controllers\\API\\DashboardController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/DashboardController.php',
         'App\\Http\\Controllers\\API\\Question\\QuestionCategoryController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/Question/QuestionCategoryController.php',
         'App\\Http\\Controllers\\API\\Question\\QuestionController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/Question/QuestionController.php',
