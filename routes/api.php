@@ -80,6 +80,8 @@ Route::group(['prefix' => 'v1'], function() {
         Route::resource('round-candidates','API\Round\RoundCandidatesController');
         Route::get('each-round-candidates/{id}','API\Round\RoundCandidatesController@eachRoundCandidates');
 
+        Route::resource('broadcast','API\Broadcast\BroadcastController');
+
     });
     Route::fallback(function(){
         return response()->json(['message' => 'Not Found.'], 404);

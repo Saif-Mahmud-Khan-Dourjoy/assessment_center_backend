@@ -111,7 +111,6 @@ class RoundCandidatesController extends Controller
             return response()->json(['success'=>true, 'round_candidates'=>$round_candidates],$this->successStatus);
         }
         return response()->json(['success'=>false, 'message'=>'Unable to find candidates with this round-id: '.$round_id],$this->invalidStatus);
-
     }
 
 }
