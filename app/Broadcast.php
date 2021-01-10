@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Broadcast extends Model
 {
-    protected  $table='broadcasts';
+    protected $table = 'broadcasts';
+
     protected $fillable=[
-        'title', 'body', 'type', 'group', 'broadcast_to', 'broadcast_by'
+      'title', 'body','type', 'broadcast_group', 'broadcast_to', 'broadcasted_by'
     ];
 }

@@ -2,29 +2,32 @@
 
 namespace App\Http\Controllers\API\Broadcast;
 
-use App\Broadcast;
+=======
 use App\Http\Controllers\Controller;
+use App\UserProfile;
+>>>>>>> 8c1df042f9d231a43129829ea99c596145e35efc
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class BroadcastController extends Controller
 {
-    public $successStatus=200;
-    public $failedStatus =500;
-    public $invalidStatus=400;
 
-    protected $out;
-
-    protected $type=[
-      'notice'=>0,
-      'result'=>1,
-      'certificate'=>2,
+    protected $type = [
+        'notice'=>0,
+        'result'=>1,
+        'certificate'=>2,
     ];
     protected $group=[
-      'institute'=>0,
-      'round'=>1,
-      'question_set'=>2,
+        'institute'=>0,
+        'question_set'=>1,
+        'round'=>2,
     ];
+
+    public $successStatus = 200;
+    public $failedStatus = 500;
+    public $invalidStatus = 400;
+
+    public $out;
     function __construct(){
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }

@@ -42,6 +42,7 @@ class QuestionSetController extends Controller
     {
         $user = Auth::user();
         $userProfile = UserProfile::where('user_id', $user->id)->first();
+        $i=0;
         if($userProfile->institute_id){
             $question_sets = QuestionSet::with(['question_set_details'])
                 ->where('privacy', '=', 0)
@@ -51,6 +52,17 @@ class QuestionSetController extends Controller
                 ->where('created_by', '=', $userProfile->id)
                 ->orWhere('created_by', '=', $userProfile->id)
                 ->get();
+
+            foreach($question_sets as $question_set){
+                $question_set_id = $question_set->id;
+                if(QuestionSetAnswer::where('question_set_id','=',$question_set_id)->where('profile_id','=',$userProfile->id)->exists()){
+                    $question_sets[$i]['attended']=1;
+                }
+                else{
+                    $question_sets[$i]['attended']=0;
+                }
+                $i++;
+            }
         }else{
             $question_sets = QuestionSet::with(['question_set_details'])
                 ->where('privacy', '=', 0)
@@ -58,6 +70,16 @@ class QuestionSetController extends Controller
                 ->where('created_by', '=', $userProfile->id)
                 ->orWhere('created_by', '=', $userProfile->id)
                 ->get();
+            foreach($question_sets as $question_set){
+                $question_set_id = $question_set->id;
+                if(QuestionSetAnswer::where('question_set_id','=',$question_set_id)->where('profile_id','=',$userProfile->id)->exists()){
+                    $question_sets[$i]['attended']=1;
+                }
+                else{
+                    $question_sets[$i]['attended']=0;
+                }
+                $i++;
+            }
         }
         return response()->json(['success' => true, 'question_set' => $question_sets], $this-> successStatus);
     }
