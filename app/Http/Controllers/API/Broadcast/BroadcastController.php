@@ -4,12 +4,19 @@ namespace App\Http\Controllers\API\Broadcast;
 
 use App\Broadcast;
 use App\Http\Controllers\Controller;
+use App\Mail\BroadcastCertificate;
 use App\Mail\BroadcastNotice;
+use App\Mail\BroadcastResult;
+use App\Mail\WelcomeMail;
+use App\QuestionSet;
+use App\QuestionSetAnswer;
 use App\UserProfile;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-
+use Illuminate\Support\Facades\Storage;
+use PDF;
 class BroadcastController extends Controller
 {
 
@@ -73,5 +80,108 @@ class BroadcastController extends Controller
         return reponse()->json(['success'=>false, 'message'=>'Message broadcasting failed!'], $this->failedStatus);
     }
 
+    public function resultEmail($question_set, $question_set_answers){
+        $email_info=[
+            'question_set_title'=>$question_set->title,
+            'start_time'=>$question_set->start_time,
+            'end_time'=>$question_set->end_time,
+            'assessment_time'=>$question_set->assessment_time,
+        ];
+        foreach ($question_set_answers as $participant){
+            $this->out->writeln(
+                'user result with email'
+            );
+            $email_info ['user_email']= trim($participant->user_profile->email);
+            $email_info['time_taken'] = $participant->time_taken;
+            $email_info['marks']=$participant->total_mark;
+            $email_info['first_name']=$participant->user_profile->first_name;
+            $email_info['last_name']=$participant->user_profile->last_name;
+//            dd($email_info);
+//            $this->out->writeln('Email info: '.$email_info);
+            $email = Mail::to($email_info['user_email'])
+                ->send(new BroadcastResult($email_info));
+
+        }
+    }
+
+    public function broadcastResult(Request $request){
+        $this->out->writeln('Broadcasting result according to the Assessment-id');
+        request()->validate([
+            'institute_id'=>'required',
+            'question_set_id'=>'required',
+        ]);
+        $input = $request->all();
+        $user = Auth::id();
+        $data = [
+            'title'=>'Assessment Result',
+            'body'=>'Assessment Result',
+            'type'=>$this->type['result'],
+            'group'=>$this->group['question_set'],
+            'broadcast_to'=>$input['question_set_id'],
+            'broadcast_by'=>$user,
+        ];
+        $broadcast = Broadcast::create($data);
+        if($broadcast){
+            $this->out->writeln('Emailing result, Broadcast: '.$broadcast);
+            $question_set = QuestionSet::find($input['question_set_id']);
+            $question_set_answer = QuestionSetAnswer::with(['user_profile'])->where('question_set_id','=',$input['question_set_id'])->get();
+            $this->resultEmail($question_set, $question_set_answer);
+            return response()->json(['success'=>true, 'broadcast'=>$broadcast, 'question_set_answer'=>$question_set_answer], $this->successStatus);
+        }
+        return response()->json(['success'=>false, 'message'=>'Unable to broadcast Result'], $this->failedStatus);
+    }
+
+    public function certificateEmail($question_set, $question_set_answers){
+
+        $email_info=[
+            'question_set_title'=>$question_set->title,
+        ];
+        foreach ($question_set_answers as $participant){
+            $this->out->writeln(
+                'user certificate email'
+            );
+            $email_info ['user_email']= trim($participant->user_profile->email);
+            $email_info['first_name']=$participant->user_profile->first_name;
+            $email_info['last_name']=$participant->user_profile->last_name;
+            $data=[
+                'name'=>$email_info['first_name'].' '.$email_info['last_name'],
+            ];
+            $pdf = PDF::loadView('assessment.certificate', $data)->setPaper('a4', 'landscape');
+            Storage::put('certificate/1.pdf', $pdf->output());
+
+            mail::to($email_info['user_email'])
+                ->cc('hemayet.nirjhoy@icloud.com')
+                ->send(new BroadcastCertificate($email_info));
+
+        }
+
+    }
+
+    public function broadcastCertificate(Request $request){
+        $this->out->writeln('Broadcasting Certificate according to the Assessment-id');
+        request()->validate([
+            'institute_id'=>'required',
+            'question_set_id'=>'required',
+        ]);
+        $input = $request->all();
+        $user = Auth::id();
+        $data = [
+            'title'=>'Assessment Result',
+            'body'=>'Assessment Result',
+            'type'=>$this->type['result'],
+            'group'=>$this->group['question_set'],
+            'broadcast_to'=>$input['question_set_id'],
+            'broadcast_by'=>$user,
+        ];
+        $broadcast = Broadcast::create($data);
+        if($broadcast){
+            $this->out->writeln('Emailing result, Broadcast: '.$broadcast);
+            $question_set = QuestionSet::find($input['question_set_id']);
+            $question_set_answer = QuestionSetAnswer::with(['user_profile'])->where('question_set_id','=',$input['question_set_id'])->get();
+            $this->certificateEmail($question_set, $question_set_answer);
+            return response()->json(['success'=>true, 'broadcast'=>$broadcast, 'question_set_answer'=>$question_set_answer], $this->successStatus);
+        }
+        return response()->json(['success'=>false, 'message'=>'Unable to broadcast Result'], $this->failedStatus);
+    }
 }
 

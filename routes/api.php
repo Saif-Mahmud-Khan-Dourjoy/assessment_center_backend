@@ -81,6 +81,8 @@ Route::group(['prefix' => 'v1'], function() {
         Route::get('each-round-candidates/{id}','API\Round\RoundCandidatesController@eachRoundCandidates');
 
         Route::resource('broadcast','API\Broadcast\BroadcastController');
+        Route::post('broadcast-result','API\Broadcast\BroadcastController@broadcastResult');
+        Route::post('broadcast-certificate','API\Broadcast\BroadcastController@broadcastCertificate');
 
     });
     Route::fallback(function(){
