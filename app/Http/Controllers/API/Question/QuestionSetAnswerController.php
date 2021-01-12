@@ -149,7 +149,11 @@ class QuestionSetAnswerController extends Controller
     public function getAllStudent($id)
     {
         $this->out->writeln('Fetching students attended!');
-        $question_answer = QuestionSetAnswer::with(['user_profile', 'question_set', 'question_set_answer_details'])
+//        $question_answer = QuestionSetAnswer::with(['user_profile', 'question_set', 'question_set_answer_details'])
+//            ->where('question_set_id', $id)
+//            ->orderByDesc('total_mark')
+//            ->get();
+        $question_answer = QuestionSetAnswer::with(['user_profile','question_set_answer_details'])
             ->where('question_set_id', $id)
             ->orderByDesc('total_mark')
             ->get();
@@ -157,32 +161,36 @@ class QuestionSetAnswerController extends Controller
         $round = Round::find($questionSet->round_id);
         $this->out->writeln($round);
         $i=0;
+        $total_mark=$questionSet->total_mark;
         foreach($question_answer as $question_ans){
-            $total_mark = $question_ans->total_mark;
+            $mark_achieved = $question_ans->total_mark;
             $student = $question_ans->user_profile->id;
-
-            if($round->passing_criteria=='pass' && $total_mark>=$round->number){
+            $mark_percentage = ($mark_achieved/$total_mark)*100;
+            if($round->passing_criteria=='pass' && $mark_percentage>=$round->number){
                 $this->out->writeln('Student is promoted, i: '.$i);
                 $this->out->writeln('Student id: '.$student);
-                $this->out->writeln('Total Mark: '.$total_mark);
+                $this->out->writeln('Total Mark: '.$mark_achieved);
                 $question_answer[$i]['promoted']=1;
+                $question_answer[$i]['rank']=$i+1;
             }else if($round->passing_criteria=='sort' && $i<$round->number){
                 $this->out->writeln('Student is promoted, i: '.$i);
                 $this->out->writeln('Student id: '.$student);
-                $this->out->writeln('Total Mark: '.$total_mark);
+                $this->out->writeln('Total Mark: '.$mark_achieved);
                 $question_answer[$i]['promoted']=1;
+                $question_answer[$i]['rank']=$i+1;
             }else{
                 $this->out->writeln('Student is not promoted, i: '.$i);
                 $this->out->writeln('Student id: '.$student);
-                $this->out->writeln('Total Mark: '.$total_mark);
+                $this->out->writeln('Total Mark: '.$mark_achieved);
                 $question_answer[$i]['promoted']=0;
+                $question_answer[$i]['rank']=$i+1;
             }
             $i++;
         }
         if ( !$question_answer )
             return response()->json(['success' => false, 'message' => 'Question set answer not found'], $this->invalidStatus);
         else
-            return response()->json(['success' => true, 'question_set_answer' => $question_answer], $this->successStatus);
+            return response()->json(['success' => true, 'question_set'=>$questionSet , 'question_set_answer' => $question_answer], $this->successStatus);
     }
     /**
      * Generate PDF and Send email.
