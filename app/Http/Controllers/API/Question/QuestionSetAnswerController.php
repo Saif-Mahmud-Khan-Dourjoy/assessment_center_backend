@@ -209,4 +209,20 @@ class QuestionSetAnswerController extends Controller
             return response()->json(['success' => true, 'message' => "Certificate generated"], $this->successStatus);
     }
 
+    /**
+     * Show a specific Assessment Result to a specific student
+     * @param $student-id, $assessment-id
+     * @returns Specific assessment belongs to that student
+     */
+    public function eachStudentAssessment($question_set_id, $profile_id){
+        $this->out->writeln('Each Student Assessment.'.$profile_id.' Assessment id: '.$question_set_id);
+        $question_set_answer = QuestionSetAnswer::where('question_set_id','=',$question_set_id)
+                                                    ->where('profile_id','=',$profile_id)
+                                                    ->first();
+        if($question_set_answer){
+            return response()->json(['success'=>true, 'question_set_answer'=>$question_set_answer],$this->successStatus);
+        }
+        return response()->json(['success'=>false, 'message'=>'Assessment not found for this profile'],$this->failedStatus);
+    }
+
 }

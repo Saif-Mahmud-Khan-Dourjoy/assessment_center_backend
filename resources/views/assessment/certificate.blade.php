@@ -114,14 +114,14 @@
                 <td style="width: 30%;">
                     <img src="certificate/img/ts.png">
                     <hr/>
-                    <b>Shakir Uz Zaman Shuvo</b><br>
+                    <b>Md. Ismail Hossain Masum</b><br>
                     Organizer
                 </td>
                 <td style="width: 20%;"></td>
                 <td style="width: 30%;">
                     <img src="certificate/img/ts2.png">
                     <hr/>
-                    <b>Hemayet Ullah Nirjhoy</b><br>
+                    <b>Quazi Md. Mohebur Rahaman</b><br>
                     Certified
                 </td>
                 <td style="width: 10%;"></td>
