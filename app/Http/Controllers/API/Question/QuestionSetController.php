@@ -347,7 +347,7 @@ class QuestionSetController extends Controller
             $question_set = QuestionSet::where('round_id','=',$round_id)
                                         ->first();
             if(!$question_set){
-                return response()->json(['success'=>true, 'question_sets'=>$question_sets],$this->successStatus);
+                continue;
             }
             if(QuestionSetAnswer::where('profile_id','=',$question_set->id)->exists()){
                 $question_set['attended']=1;
