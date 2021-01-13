@@ -142,7 +142,35 @@ class QuestionSetAnswerController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * student ranking based on the mark and time-taken during exam
+     * @param $question_answers
+     * @return $question_answers
+     */
+    public function studentRank($question_answers){
+        for($i=0;$i<sizeof($question_answers)-1;$i++){
+            for($j=$i+1;$j<sizeof($question_answers);$j++){
+                if($question_answers[$i]->total_mark<$question_answers[$j]->total_mark){
+                    $temp = $question_answers[$i];
+                    $question_answers[$i]=$question_answers[$j];
+                    $question_answers[$j]=$temp;
+                }else if($question_answers[$i]->total_mark==$question_answers[$j]->total_mark  && $question_answers[$i]->time_taken>$question_answers[$j]->time_taken){
+                    $this->out->writeln('swap by time');
+                    $temp = $question_answers[$i];
+                    $question_answers[$i]=$question_answers[$j];
+                    $question_answers[$j]=$temp;
+                }
+            }
+        }
+        foreach ($question_answers as $qs){
+            $this->out->writeln('question set ans id: '.$qs->id);
+        }
+        return $question_answers;
+    }
+
+
+
+    /**
+     * Get all student based on the assessment.
      *
      * @param $id
      * @return JsonResponse
@@ -163,6 +191,7 @@ class QuestionSetAnswerController extends Controller
         $this->out->writeln($round);
         $i=0;
         $total_mark=$questionSet->total_mark;
+        $question_answer = $this->studentRank($question_answer);
         foreach($question_answer as $question_ans){
             $mark_achieved = $question_ans->total_mark;
             $student = $question_ans->user_profile->id;
