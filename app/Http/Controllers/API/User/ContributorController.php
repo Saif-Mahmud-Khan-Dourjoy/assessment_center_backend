@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\User;
 
 use App\Mail\UserCredentials;
+use App\Question;
 use App\RoleSetup;
 use App\Student;
 use App\User;
@@ -39,8 +40,22 @@ class ContributorController extends Controller
      */
     public function index()
     {
-        $contributors = Contributor::with(['user_profile'])->get();
-        return response()->json(['success' => true, 'contributors' => $contributors], $this-> successStatus);
+        $user = auth()->user();
+        $userProfile=UserProfile::find($user->id);
+        $permissions = $user->getAllPermissions();
+        if($user->can('super-admin')){
+            $contributors = Contributor::with(['user_profile'])->where('profile_id','!=',$userProfile->id)->get();
+            return response()->json(['success'=>true,'contributors'=>$contributors],$this->successStatus);
+        }
+        if($userProfile->institute_id){
+            $contributors = UserProfile::with(['contributor'])->where('id','!=',$userProfile->id)
+                ->where('institute_id','=',$userProfile->institute_id)
+                ->get();
+            return response()->json(['success'=>true,'contributors'=>$contributors],$this->successStatus);
+        }
+        return response()->json(['success'=>true,'contributors'=>[]],$this->successStatus);
+//        $contributors = Contributor::with(['user_profile'])->get();
+//        return response()->json(['success' => true, 'contributors' => $contributors], $this-> successStatus);
     }
 
 

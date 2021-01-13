@@ -46,9 +46,24 @@ class UserController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+        $userProfile=UserProfile::find($user->id);
+        $permissions = $user->getAllPermissions();
+//        return $permissions;
+        if($user->can('super-admin')){
+            $users = user::with(['user_profile'])->where('id','!=',$user->id)->get();
+            return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
+        }
+        if($userProfile->institute_id){
+            $users = UserProfile::with(['user'])->where('user_id','!=',$userProfile->id)
+                ->where('institute_id','=',$userProfile->institute_id)
+                ->get();
+            return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
+        }
+        return response()->json(['success'=>true,'users'=>[]],$this->successStatus);
         //$users = User::all();
-        $users = User::with('user_profile')->get();
-        return response()->json(['success' => true, 'users' => $users], $this-> successStatus);
+//        $users = User::with('user_profile')->get();
+//        return response()->json(['success' => true, 'users' => $users], $this-> successStatus);
     }
 
     /**

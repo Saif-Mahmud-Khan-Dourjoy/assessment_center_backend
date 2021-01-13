@@ -52,25 +52,25 @@ class QuestionController extends Controller
                                 ->get();
             return response()->json(['success'=>true,'questions'=>$questions],$this->successStatus);
         }
-        return response()->json(['permission'=>$permissions[10]->name]);
-        if($userProfile->institute_id){
-            $questions = Question::with(['question_details', 'question_answer', 'question_tag'])
-                ->where('privacy', '=', 0)
-                ->orWhere('privacy', '=', 1)
-                ->where('institute_id', '=', $userProfile->institute_id)
-                ->orWhere('privacy', '=', 2)
-                ->where('profile_id', '=', $userProfile->id)
-                ->orWhere('profile_id', '=', $userProfile->id)
-                ->get();
-        }else{
-            $questions = Question::with(['question_details', 'question_answer', 'question_tag'])
-                ->where('privacy', '=', 0)
-                ->orWhere('privacy', '=', 2)
-                ->where('profile_id', '=', $userProfile->id)
-                ->orWhere('profile_id', '=', $userProfile->id)
-                ->get();
-        }
-        return response()->json(['success' => true, 'questions' => $questions], $this-> successStatus);
+        return response()->json(['success'=>true,'questions'=>[]],$this->successStatus);
+//        if($userProfile->institute_id){
+//            $questions = Question::with(['question_details', 'question_answer', 'question_tag'])
+//                ->where('privacy', '=', 0)
+//                ->orWhere('privacy', '=', 1)
+//                ->where('institute_id', '=', $userProfile->institute_id)
+//                ->orWhere('privacy', '=', 2)
+//                ->where('profile_id', '=', $userProfile->id)
+//                ->orWhere('profile_id', '=', $userProfile->id)
+//                ->get();
+//        }else{
+//            $questions = Question::with(['question_details', 'question_answer', 'question_tag'])
+//                ->where('privacy', '=', 0)
+//                ->orWhere('privacy', '=', 2)
+//                ->where('profile_id', '=', $userProfile->id)
+//                ->orWhere('profile_id', '=', $userProfile->id)
+//                ->get();
+//        }
+//        return response()->json(['success' => true, 'questions' => $questions], $this-> successStatus);
     }
 
 

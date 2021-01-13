@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -27,6 +28,13 @@ class UserProfile extends Model
     }
 
     /**
+     * @return HasOne
+     */
+    public function student(){
+        return $this->hasOne('App\Student', 'profile_id');
+    }
+
+    /**
      * @return HasMany
      */
     public function user_academic_history(){
@@ -40,4 +48,10 @@ class UserProfile extends Model
         return $this->hasMany('App\UserEmploymentHistory', 'profile_id');
     }
 
+    /**
+     * @return BelongsTo
+     */
+    public function user(){
+        return $this->belongsTo('App\User', 'user_id');
+    }
 }

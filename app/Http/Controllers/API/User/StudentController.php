@@ -44,8 +44,22 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $students = Student::with(['user_profile'])->get();
-        return response()->json(['success' => true, 'students' => $students], $this-> successStatus);
+        $user = auth()->user();
+        $userProfile=UserProfile::find($user->id);
+        $permissions = $user->getAllPermissions();
+        if($user->can('super-admin')){
+            $students = Student::with(['user_profile'])->where('profile_id','!=',$userProfile->id)->get();
+            return response()->json(['success'=>true,'students'=>$students],$this->successStatus);
+        }
+        if($userProfile->institute_id){
+            $students = UserProfile::with(['student'])->where('id','!=',$userProfile->id)
+                ->where('institute_id','=',$userProfile->institute_id)
+                ->get();
+            return response()->json(['success'=>true,'students'=>$students],$this->successStatus);
+        }
+        return response()->json(['success'=>true,'students'=>[]],$this->successStatus);
+//        $students = Student::with(['user_profile'])->get();
+//        return response()->json(['success' => true, 'students' => $students], $this-> successStatus);
     }
 
     /**
