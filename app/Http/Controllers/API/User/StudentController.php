@@ -6,6 +6,7 @@ use App\Contributor;
 use App\Mail\UserCredentials;
 use App\QuestionSet;
 use App\QuestionSetAnswer;
+use App\RoundCandidates;
 use App\Student;
 use App\Http\Controllers\Controller;
 use App\RoleSetup;
@@ -247,58 +248,7 @@ class StudentController extends Controller
         }
     }
 
-    /**
-     * Get all assessment list for this student
-     * @param student_id (user-profile id)
-     * @return all assessment list (question set)
-     */
 
-    public function studentHaveAssessments(Request $request){
-        $this->out->writeln('Students permitted assessment list');
-        $input = $request->all();
-        $user = Auth::user();
-        $userProfile = UserProfile::where('user_id', $user->id)->first();
-        $i=0;
-        if($userProfile->institute_id  && !(is_null($input['is_student']) or empty($input['is_student']))){
-            $question_sets = QuestionSet::with(['question_set_details'])
-                ->where('privacy', '=', 0)
-                ->orWhere('privacy', '=', 1)
-                ->where('institute_id', '=', $userProfile->institute_id)
-                ->orWhere('privacy', '=', 2)
-                ->where('created_by', '=', $userProfile->id)
-                ->orWhere('created_by', '=', $userProfile->id)
-                ->get();
-
-            foreach($question_sets as $question_set){
-                $question_set_id = $question_set->id;
-                if(QuestionSetAnswer::where('question_set_id','=',$question_set_id)->where('profile_id','=',$userProfile->id)->exists()){
-                    $question_sets[$i]['attended']=1;
-                }
-                else{
-                    $question_sets[$i]['attended']=0;
-                }
-                $i++;
-            }
-        }else{
-            $question_sets = QuestionSet::with(['question_set_details'])
-                ->where('privacy', '=', 0)
-                ->orWhere('privacy', '=', 2)
-                ->where('created_by', '=', $userProfile->id)
-                ->orWhere('created_by', '=', $userProfile->id)
-                ->get();
-            foreach($question_sets as $question_set){
-                $question_set_id = $question_set->id;
-                if(QuestionSetAnswer::where('question_set_id','=',$question_set_id)->where('profile_id','=',$userProfile->id)->exists()){
-                    $question_sets[$i]['attended']=1;
-                }
-                else{
-                    $question_sets[$i]['attended']=0;
-                }
-                $i++;
-            }
-        }
-        return response()->json(['success' => true, 'question_set' => $question_sets], $this-> successStatus);
-    }
 
     /**
      * Update the specified resource in storage.

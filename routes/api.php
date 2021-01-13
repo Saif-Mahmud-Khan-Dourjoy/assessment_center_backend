@@ -72,6 +72,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::resource('question-set-answer','API\Question\QuestionSetAnswerController');
 
         Route::post('student-assessment','API\Question\QuestionSetAnswerController@eachStudentAssessment')->name('student-assessment');
+        Route::post('student-have-assessments','API\Question\QuestionSetController@studentHaveAssessments')->name('student-have-assessments');
 
         Route::post('get-certificate', 'API\Question\QuestionSetAnswerController@getCertificate')->name('get-certificate');
 

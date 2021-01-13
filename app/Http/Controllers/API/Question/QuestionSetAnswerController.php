@@ -17,6 +17,7 @@ use App\Student;
 use App\UserProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use PDF;
 use Illuminate\Support\Facades\Mail;
@@ -237,5 +238,6 @@ class QuestionSetAnswerController extends Controller
         }
         return response()->json(['success'=>false, 'message'=>'Assessment not found for this profile'],$this->invalidStatus);
     }
+
 
 }

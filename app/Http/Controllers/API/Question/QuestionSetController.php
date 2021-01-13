@@ -10,6 +10,7 @@ use App\QuestionSet;
 use App\QuestionSetDetail;
 use App\QuestionSetAnswer;
 use App\QuestionSetAnswerDetail;
+use App\RoundCandidates;
 use App\UserProfile;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -318,4 +319,45 @@ class QuestionSetController extends Controller
         return response()->json(['success'=>false, 'message'=>'Failed to change question set publish status'],$this->failedStatus);
 
     }
+
+    /**
+     * Get all assessment list for this student
+     * @param student_id (user-profile id)
+     * @return JsonResponse assessment list (question set)
+     */
+
+    public function studentHaveAssessments(Request $request){
+        $this->out->writeln('Students permitted assessment list');
+        $input = $request->all();
+        $user = Auth::user();
+        $userProfile = UserProfile::where('user_id', $user->id)->first();
+        $i=0;
+        $question_sets =[];
+        if(is_null($input['is_student']) or empty($input['is_student']) or !$input['is_student']){
+            return response()->json(['success'=>true, 'question_sets'=>$question_sets],$this->invalidStatus);
+        }
+        $rounds = RoundCandidates::where('student_id','=',$userProfile->id)->get(['round_id']);
+        if(!$rounds){
+            return response()->json(['success'=>true, 'question_sets'=>$question_sets],$this->invalidStatus);
+        }
+        $this->out->writeln('Rounds: '.$rounds. 'user id: '.$user->id);
+        foreach ($rounds as $round){
+            $round_id = $round->round_id;
+            $this->out->writeln('Round Id: '.$round_id);
+            $question_set = QuestionSet::where('round_id','=',$round_id)
+                                        ->first();
+            if(!$question_set){
+                return response()->json(['success'=>true, 'question_sets'=>$question_sets],$this->invalidStatus);
+            }
+            if(QuestionSetAnswer::where('profile_id','=',$question_set->id)->exists()){
+                $question_set['attended']=1;
+            }else{
+                $question_set['attended']=0;
+            }
+            array_push($question_sets,$question_set);
+        }
+        return response()->json(['success'=>true,'question_sets'=>$question_sets],200);
+    }
+
+
 }
