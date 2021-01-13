@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Question;
 
 use App\Contributor;
+use App\PermissionList;
 use App\Question;
 use App\QuestionAnswer;
 use App\QuestionCategory;
@@ -10,6 +11,7 @@ use App\QuestionCategoryTag;
 use App\QuestionDetail;
 use App\User;
 use App\UserProfile;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -38,6 +40,19 @@ class QuestionController extends Controller
     {
         $user = Auth::user();
         $userProfile = UserProfile::where('user_id', $user->id)->first();
+        $user = auth()->user();
+        $permissions = $user->getAllPermissions();
+        if($user->can('super-admin')){
+            $questions = Question::with(['question_details', 'question_answer', 'question_tag'])->get();
+            return response()->json(['success'=>true,'questions'=>$questions],$this->successStatus);
+        }
+        if($userProfile->institute_id){
+            $questions = Question::with(['question_details', 'question_answer', 'question_tag'])
+                                ->where('institute_id','=',$userProfile->institute_id)
+                                ->get();
+            return response()->json(['success'=>true,'questions'=>$questions],$this->successStatus);
+        }
+        return response()->json(['permission'=>$permissions[10]->name]);
         if($userProfile->institute_id){
             $questions = Question::with(['question_details', 'question_answer', 'question_tag'])
                 ->where('privacy', '=', 0)

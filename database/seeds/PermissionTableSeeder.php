@@ -55,7 +55,9 @@ class PermissionTableSeeder extends Seeder
             'question-set-delete',
             'question-set-answer-list',
             'question-set-answer-create',
-            'student-only'
+            'student-only',
+            'super-admin'
+
         ];
 
 
