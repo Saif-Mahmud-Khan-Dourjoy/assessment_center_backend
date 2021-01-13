@@ -334,11 +334,11 @@ class QuestionSetController extends Controller
         $i=0;
         $question_sets =[];
         if(is_null($input['is_student']) or empty($input['is_student']) or !$input['is_student']){
-            return response()->json(['success'=>true, 'question_sets'=>$question_sets],$this->invalidStatus);
+            return response()->json(['success'=>false, 'question_sets'=>$question_sets],$this->invalidStatus);
         }
         $rounds = RoundCandidates::where('student_id','=',$userProfile->id)->get(['round_id']);
         if(!$rounds){
-            return response()->json(['success'=>true, 'question_sets'=>$question_sets],$this->invalidStatus);
+            return response()->json(['success'=>true, 'question_sets'=>$question_sets],$this->successStatus);
         }
         $this->out->writeln('Rounds: '.$rounds. 'user id: '.$user->id);
         foreach ($rounds as $round){
@@ -347,7 +347,7 @@ class QuestionSetController extends Controller
             $question_set = QuestionSet::where('round_id','=',$round_id)
                                         ->first();
             if(!$question_set){
-                return response()->json(['success'=>true, 'question_sets'=>$question_sets],$this->invalidStatus);
+                return response()->json(['success'=>true, 'question_sets'=>$question_sets],$this->successStatus);
             }
             if(QuestionSetAnswer::where('profile_id','=',$question_set->id)->exists()){
                 $question_set['attended']=1;
@@ -356,7 +356,7 @@ class QuestionSetController extends Controller
             }
             array_push($question_sets,$question_set);
         }
-        return response()->json(['success'=>true,'question_sets'=>$question_sets],200);
+        return response()->json(['success'=>true,'question_sets'=>$question_sets],$this->successStatus);
     }
 
 
