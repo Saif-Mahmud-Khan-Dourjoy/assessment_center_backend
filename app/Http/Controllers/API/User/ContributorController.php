@@ -25,10 +25,10 @@ class ContributorController extends Controller
     public $out;
     function __construct()
     {
-        /*$this->middleware('api_permission:contributor-list|contributor-create|contributor-edit|contributor-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:contributor-list|contributor-create|contributor-edit|contributor-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:contributor-create', ['only' => ['store']]);
         $this->middleware('api_permission:contributor-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:contributor-delete', ['only' => ['destroy']]);*/
+        $this->middleware('api_permission:contributor-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();                 // for printing message to console
     }
 
@@ -231,12 +231,16 @@ class ContributorController extends Controller
     public function update(Request $request, $id)
     {
         $profile = Contributor::where('id', $id)->first();
-        $contributor = UserProfile::find($profile->profile_id);
+        $contributorProfile = UserProfile::find($profile->profile_id);
         request()->validate([
             //'email' => 'unique:user_profiles,email,'.$id,
             //'phone' => 'unique:user_profiles,phone,'.$id,
         ]);
-        $contributor = $contributor->update($request->all());
+        $contributor = $contributorProfile->update($request->all());
+        $input = request()->all();
+        $input['name']=$input['first_name'].' '.$input['last_name'];
+        $userUpdate = User::find($contributorProfile->user_id);
+        $userUpdate->update($input);
         if( $contributor )
             return response()->json(['success' => true, 'message' => 'Contributor update successfully'], $this->successStatus);
         else

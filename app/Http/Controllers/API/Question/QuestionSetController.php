@@ -26,10 +26,10 @@ class QuestionSetController extends Controller
     public $out;
     function __construct()
     {
-        /*$this->middleware('api_permission:question-set-list|question-set-create|question-set-edit|question-set-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:question-set-list|question-set-create|question-set-edit|question-set-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:question-set-create', ['only' => ['store']]);
         $this->middleware('api_permission:question-set-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:question-set-delete', ['only' => ['destroy']]);*/
+        $this->middleware('api_permission:question-set-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
 

@@ -16,7 +16,7 @@ class RoleController extends Controller
     public $invalidStatus = 400;
     function __construct()
     {
-        //$this->middleware('api_permission:role-list|role-create|role-edit|role-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:role-list|role-create|role-edit|role-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:role-create', ['only' => ['store']]);
         $this->middleware('api_permission:role-edit', ['only' => ['update']]);
         $this->middleware('api_permission:role-delete', ['only' => ['destroy']]);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Broadcast;
 
 use App\Broadcast;
 use App\Http\Controllers\Controller;
+use App\Institute;
 use App\Mail\BroadcastCertificate;
 use App\Mail\BroadcastNotice;
 use App\Mail\BroadcastResult;
@@ -80,22 +81,77 @@ class BroadcastController extends Controller
         return reponse()->json(['success'=>false, 'message'=>'Message broadcasting failed!'], $this->failedStatus);
     }
 
-    public function resultEmail($question_set, $question_set_answers){
+    /**
+     * student ranking based on the mark and time-taken during exam
+     * @param $question_answers
+     * @return $question_answers
+     */
+    public function studentRank($total_mark, $question_answers){
+        $position = 1;
+        $percentage=0;
+
+        for($i=0;$i<sizeof($question_answers)-1;$i++){
+            for($j=$i+1;$j<sizeof($question_answers);$j++){
+                if($question_answers[$i]->total_mark<$question_answers[$j]->total_mark){
+                    $temp = $question_answers[$i];
+                    $question_answers[$i]=$question_answers[$j];
+                    $question_answers[$j]=$temp;
+                }else if($question_answers[$i]->total_mark==$question_answers[$j]->total_mark  && $question_answers[$i]->time_taken>$question_answers[$j]->time_taken){
+                    $this->out->writeln('swap by time');
+                    $temp = $question_answers[$i];
+                    $question_answers[$i]=$question_answers[$j];
+                    $question_answers[$j]=$temp;
+                }
+            }
+            $this->out->writeln('Student rank list: '.$i);
+            $achieved_mark = $question_answers[$i]->total_mark;
+            $percentage= ($achieved_mark*100)/$total_mark;
+            $question_answers[$i]['rank']=$i+1;
+            $question_answers[$i]['percentage']=$percentage;
+            if($i>0 && $question_answers[$i-1]->total_mark==$question_answers[$i]->total_mark && $question_answers[$i-1]->time_taken==$question_answers[$i]->time_taken){
+                $this->out->writeln('Position must be same!');
+                $question_answers[$i]['position']=$position-1;
+            }else{
+                $question_answers[$i]['position']=$position++;
+            }
+        }
+        $question_answers[$i]['rank']=$i+1;
+        if($question_answers[$i-1]->total_mark==$question_answers[$i]->total_mark && $question_answers[$i-1]->time_taken==$question_answers[$i]->time_taken){
+            $question_answers[$i]['position']=$position-1;
+        }else{
+            $question_answers[$i]['position']=$position++;
+        }
+        foreach ($question_answers as $qs){
+            $this->out->writeln('question set ans id: '.$qs->id);
+        }
+        return $question_answers;
+    }
+    /**
+     * Broadcasting result
+     * @param $question_answers
+     * @return $question_answers
+     */
+    public function resultEmail($question_set, $question_set_answers , $institute_name){
         $email_info=[
-            'question_set_title'=>$question_set->title,
-            'start_time'=>$question_set->start_time,
-            'end_time'=>$question_set->end_time,
-            'assessment_time'=>$question_set->assessment_time,
+            'question_set_title'=>trim($question_set->title),
+            'start_time'=>trim($question_set->start_time),
+            'end_time'=>trim($question_set->end_time),
+            'assessment_time'=>trim($question_set->assessment_time),
+            'total_mark'=>trim($question_set->total_mark),
+            'number_of_participation'=>sizeof($question_set_answers),
+            'institute_name'=>trim($institute_name),
         ];
         foreach ($question_set_answers as $participant){
             $this->out->writeln(
                 'user result with email'
             );
             $email_info ['user_email']= trim($participant->user_profile->email);
-            $email_info['time_taken'] = $participant->time_taken;
-            $email_info['marks']=$participant->total_mark;
-            $email_info['first_name']=$participant->user_profile->first_name;
-            $email_info['last_name']=$participant->user_profile->last_name;
+            $email_info['time_taken'] = trim($participant->time_taken);
+            $email_info['marks']=trim($participant->total_mark);
+            $email_info['first_name']=trim($participant->user_profile->first_name);
+            $email_info['last_name']=trim($participant->user_profile->last_name);
+            $email_info['percentage']=trim($participant->percentage);
+            $email_info['position']=trim($participant->position);
 //            dd($email_info);
 //            $this->out->writeln('Email info: '.$email_info);
             $email = Mail::to($email_info['user_email'])
@@ -112,6 +168,7 @@ class BroadcastController extends Controller
         ]);
         $input = $request->all();
         $user = Auth::id();
+        $institution = Institute::find($input['institute_id']);
         $data = [
             'title'=>'Assessment Result',
             'body'=>'Assessment Result',
@@ -125,7 +182,8 @@ class BroadcastController extends Controller
             $this->out->writeln('Emailing result, Broadcast: '.$broadcast);
             $question_set = QuestionSet::find($input['question_set_id']);
             $question_set_answer = QuestionSetAnswer::with(['user_profile'])->where('question_set_id','=',$input['question_set_id'])->get();
-            $this->resultEmail($question_set, $question_set_answer);
+            $sorted_result = $this->studentRank($question_set->total_mark, $question_set_answer);
+            $this->resultEmail($question_set, $sorted_result, $institution->name);
             return response()->json(['success'=>true, 'broadcast'=>$broadcast, 'question_set_answer'=>$question_set_answer], $this->successStatus);
         }
         return response()->json(['success'=>false, 'message'=>'Unable to broadcast Result'], $this->failedStatus);

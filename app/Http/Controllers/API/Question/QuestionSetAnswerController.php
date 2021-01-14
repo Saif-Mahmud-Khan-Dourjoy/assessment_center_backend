@@ -31,10 +31,10 @@ class QuestionSetAnswerController extends Controller
     public $out;
     function __construct()
     {
-        /*$this->middleware('api_permission:question-set-answer-list|question-set-answer-create|question-set-answer-edit|question-set-answer-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:question-set-answer-list|question-set-answer-create|question-set-answer-edit|question-set-answer-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:question-set-answer-create', ['only' => ['store']]);
         $this->middleware('api_permission:question-set-answer-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:question-set-answer-delete', ['only' => ['destroy']]);*/
+        $this->middleware('api_permission:question-set-answer-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
 
@@ -135,6 +135,48 @@ class QuestionSetAnswerController extends Controller
             return response()->json(['success' => true, 'question_set_answer' => $question_answer], $this->successStatus);
     }
 
+    /**
+     * student ranking based on the mark and time-taken during exam
+     * @param $question_answers
+     * @return $question_answers
+     */
+    public function studentRank($question_answers){
+        $position = 1;
+        $previous_mark = 0;
+        $previous_time = 0;
+        for($i=0;$i<sizeof($question_answers)-1;$i++){
+            for($j=$i+1;$j<sizeof($question_answers);$j++){
+                if($question_answers[$i]->total_mark<$question_answers[$j]->total_mark){
+                    $temp = $question_answers[$i];
+                    $question_answers[$i]=$question_answers[$j];
+                    $question_answers[$j]=$temp;
+                }else if($question_answers[$i]->total_mark==$question_answers[$j]->total_mark  && $question_answers[$i]->time_taken>$question_answers[$j]->time_taken){
+                    $this->out->writeln('swap by time');
+                    $temp = $question_answers[$i];
+                    $question_answers[$i]=$question_answers[$j];
+                    $question_answers[$j]=$temp;
+                }
+            }
+            $question_answers[$i]['rank']=$i+1;
+            if($i>0 && $question_answers[$i-1]->total_mark==$question_answers[$i]->total_mark && $question_answers[$i-1]->time_taken==$question_answers[$i]->time_taken){
+                $this->out->writeln('Position must be same!');
+                $question_answers[$i]['position']=$position-1;
+            }else{
+                $question_answers[$i]['position']=$position++;
+            }
+        }
+        $question_answers[$i]['rank']=$i+1;
+        if($question_answers[$i-1]->total_mark==$question_answers[$i]->total_mark && $question_answers[$i-1]->time_taken==$question_answers[$i]->time_taken){
+            $question_answers[$i]['position']=$position-1;
+        }else{
+            $question_answers[$i]['position']=$position++;
+        }
+        foreach ($question_answers as $qs){
+            $this->out->writeln('question set ans id: '.$qs->id);
+        }
+        return $question_answers;
+    }
+
     public function studentPromotion($question_set, $mark, $student){
         $questionSet = QuestionSet::find($question_set);
         $round = Round::find($questionSet->round_id);
@@ -196,25 +238,27 @@ class QuestionSetAnswerController extends Controller
             $mark_achieved = $question_ans->total_mark;
             $student = $question_ans->user_profile->id;
             $mark_percentage = ($mark_achieved/$total_mark)*100;
+            $question_answer[$i]['percentage']=$mark_percentage;
             if($round->passing_criteria=='pass' && $mark_percentage>=$round->number){
                 $this->out->writeln('Student is promoted, i: '.$i);
                 $this->out->writeln('Student id: '.$student);
                 $this->out->writeln('Total Mark: '.$mark_achieved);
                 $question_answer[$i]['promoted']=1;
-                $question_answer[$i]['rank']=$i+1;
+//                $question_answer[$i]['rank']=$i+1;
             }else if($round->passing_criteria=='sort' && $i<$round->number){
                 $this->out->writeln('Student is promoted, i: '.$i);
                 $this->out->writeln('Student id: '.$student);
                 $this->out->writeln('Total Mark: '.$mark_achieved);
                 $question_answer[$i]['promoted']=1;
-                $question_answer[$i]['rank']=$i+1;
+//                $question_answer[$i]['rank']=$i+1;
             }else{
                 $this->out->writeln('Student is not promoted, i: '.$i);
                 $this->out->writeln('Student id: '.$student);
                 $this->out->writeln('Total Mark: '.$mark_achieved);
                 $question_answer[$i]['promoted']=0;
-                $question_answer[$i]['rank']=$i+1;
+//                $question_answer[$i]['rank']=$i+1;
             }
+
             $i++;
         }
         if ( !$question_answer )

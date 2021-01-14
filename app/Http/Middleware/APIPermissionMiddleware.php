@@ -33,11 +33,10 @@ class APIPermissionMiddleware
             : explode('|', $permission);
 
         foreach ($permissions as $permission) {
-            if (! app('auth')->user()->can($permission)) {
-                return response()->json(['error'=>'Unauthorised'], 401);
+            if (app('auth')->user()->can($permission)) {
+                return $next($request);
             }
         }
-
-        return $next($request);
+        return response()->json(['error'=>'Unauthorised'], 401);
     }
 }

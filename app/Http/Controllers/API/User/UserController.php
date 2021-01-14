@@ -31,10 +31,10 @@ class UserController extends Controller
 
     public function __construct(){
         //$this->middleware(['api_role'])->only('index');
-        /*$this->middleware('api_permission:user-list|user-create|user-edit|user-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:user-list|user-create|user-edit|user-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:user-create', ['only' => ['store']]);
         $this->middleware('api_permission:user-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:user-delete', ['only' => ['destroy']]);*/
+        $this->middleware('api_permission:user-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();                 // for printing message to console
     }
 
@@ -219,10 +219,14 @@ class UserController extends Controller
             return response()->json(['success' => true, 'message' => 'Profile not found'], $this->successStatus);
         }
         request()->validate([
-            'email' => 'unique:user_profiles,email,'.$input['profile_id'],
+//            'email' => 'unique:user_profiles,email,'.$input['profile_id'],
             //'phone' => 'unique:user_profiles,phone,'.$input['profile_id'],
         ]);
         $userProfile = $user->update($request->all());
+        $input = request()->all();
+        $input['name']=$input['first_name'].' '.$input['last_name'];
+        $userUpdate = User::find($user->user_id);
+        $userUpdate->update($input);
         if( $userProfile )
             return response()->json(['success' => true, 'message' => 'Profile update successfully'], $this->successStatus);
         else

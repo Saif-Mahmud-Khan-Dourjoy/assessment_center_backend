@@ -29,10 +29,10 @@ class StudentController extends Controller
     public $out;
     function __construct()
     {
-        /*$this->middleware('api_permission:student-list|student-create|student-edit|student-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:student-list|student-create|student-edit|student-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:student-create', ['only' => ['store']]);
         $this->middleware('api_permission:student-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:student-delete', ['only' => ['destroy']]);*/
+        $this->middleware('api_permission:student-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();                 // for printing message to console
     }
 
@@ -279,8 +279,12 @@ class StudentController extends Controller
             //'email' => 'unique:user_profiles,email,'.$id,
             //'phone' => 'unique:user_profiles,phone,'.$id,
         ]);
-        $student = $student->update($request->all());
-        if( $student )
+        $studentUpdate = $student->update($request->all());
+        $input = request()->all();
+        $input['name']=$input['first_name'].' '.$input['last_name'];
+        $userUpdate = User::find($student->user_id);
+        $userUpdate->update($input);
+        if( $studentUpdate )
             return response()->json(['success' => true, 'message' => 'Student update successfully'], $this->successStatus);
         else
             return response()->json(['success' => false, 'message' => 'Student update failed'], $this->failedStatus);
