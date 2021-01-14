@@ -14,7 +14,7 @@ class RoundCandidates extends Model
     ];
 
     public function user_profiles(){
-        return $this->hasMany('App\UserProfile','id');
+        return $this->belongsTo('App\UserProfile','student_id');
     }
 
 }

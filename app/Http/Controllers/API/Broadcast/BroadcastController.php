@@ -80,6 +80,52 @@ class BroadcastController extends Controller
         return reponse()->json(['success'=>false, 'message'=>'Message broadcasting failed!'], $this->failedStatus);
     }
 
+    /**
+     * student ranking based on the mark and time-taken during exam
+     * @param $question_answers
+     * @return $question_answers
+     */
+    public function studentRank($question_answers){
+        $position = 1;
+        $previous_mark = 0;
+        $previous_time = 0;
+        for($i=0;$i<sizeof($question_answers)-1;$i++){
+            for($j=$i+1;$j<sizeof($question_answers);$j++){
+                if($question_answers[$i]->total_mark<$question_answers[$j]->total_mark){
+                    $temp = $question_answers[$i];
+                    $question_answers[$i]=$question_answers[$j];
+                    $question_answers[$j]=$temp;
+                }else if($question_answers[$i]->total_mark==$question_answers[$j]->total_mark  && $question_answers[$i]->time_taken>$question_answers[$j]->time_taken){
+                    $this->out->writeln('swap by time');
+                    $temp = $question_answers[$i];
+                    $question_answers[$i]=$question_answers[$j];
+                    $question_answers[$j]=$temp;
+                }
+            }
+            $question_answers[$i]['rank']=$i+1;
+            if($i>0 && $question_answers[$i-1]->total_mark==$question_answers[$i]->total_mark && $question_answers[$i-1]->time_taken==$question_answers[$i]->time_taken){
+                $this->out->writeln('Position must be same!');
+                $question_answers[$i]['position']=$position-1;
+            }else{
+                $question_answers[$i]['position']=$position++;
+            }
+        }
+        $question_answers[$i]['rank']=$i+1;
+        if($question_answers[$i-1]->total_mark==$question_answers[$i]->total_mark && $question_answers[$i-1]->time_taken==$question_answers[$i]->time_taken){
+            $question_answers[$i]['position']=$position-1;
+        }else{
+            $question_answers[$i]['position']=$position++;
+        }
+        foreach ($question_answers as $qs){
+            $this->out->writeln('question set ans id: '.$qs->id);
+        }
+        return $question_answers;
+    }
+    /**
+     * Broadcasting result
+     * @param $question_answers
+     * @return $question_answers
+     */
     public function resultEmail($question_set, $question_set_answers){
         $email_info=[
             'question_set_title'=>$question_set->title,

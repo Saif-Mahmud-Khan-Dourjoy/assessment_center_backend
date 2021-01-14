@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Round;
 use App\Http\Controllers\Controller;
 use App\QuestionSet;
 use App\Round;
+use App\Student;
 use App\UserProfile;
 use http\Env\Response;
 use Illuminate\Http\Request;
@@ -25,13 +26,24 @@ class RoundController extends Controller
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
 
-    public function index(Request $request){
+    public function index(){
         $this->out->writeln('Fetching all the rounds');
-        $rounds = Round::all();
-        if($rounds){
-            return response()->json(['success'=>true, 'rounds'=>$rounds], $this->successStatus);
+        $user = Auth::user();
+        $user_profile = UserProfile::where('user_id','=',$user->id)->first();
+        if($user->can('super-admin')){
+            $rounds = Round::all();
+            return response()->json(['success'=>true,'rounds'=>$rounds],$this->successStatus);
         }
-        return response()->json(['success'=>false, 'message'=>'Unable to fetch rounds'], $this->failedStatus);
+        if($user_profile->institute_id){
+            $rounds = Round::where('institute_id','=',$user_profile->institute_id)->get();
+            return response()->json(['success'=>true,'rounds'=>$rounds],$this->successStatus);
+        }
+        return response()->json(['success'=>true,'rounds'=>[]],$this->successStatus);
+//        $rounds = Round::all();
+//        if($rounds){
+//            return response()->json(['success'=>true, 'rounds'=>$rounds], $this->successStatus);
+//        }
+//        return response()->json(['success'=>false, 'message'=>'Unable to fetch rounds'], $this->failedStatus);
     }
     public function store(Request $request){
         $this->out->writeln('Storing the rounds...');

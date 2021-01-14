@@ -31,10 +31,10 @@ class QuestionSetAnswerController extends Controller
     public $out;
     function __construct()
     {
-        /*$this->middleware('api_permission:question-set-answer-list|question-set-answer-create|question-set-answer-edit|question-set-answer-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:question-set-answer-list|question-set-answer-create|question-set-answer-edit|question-set-answer-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:question-set-answer-create', ['only' => ['store']]);
         $this->middleware('api_permission:question-set-answer-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:question-set-answer-delete', ['only' => ['destroy']]);*/
+        $this->middleware('api_permission:question-set-answer-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
 
@@ -210,6 +210,7 @@ class QuestionSetAnswerController extends Controller
             $mark_achieved = $question_ans->total_mark;
             $student = $question_ans->user_profile->id;
             $mark_percentage = ($mark_achieved/$total_mark)*100;
+            $question_answer[$i]['percentage']=$mark_percentage;
             if($round->passing_criteria=='pass' && $mark_percentage>=$round->number){
                 $this->out->writeln('Student is promoted, i: '.$i);
                 $this->out->writeln('Student id: '.$student);
@@ -229,6 +230,7 @@ class QuestionSetAnswerController extends Controller
                 $question_answer[$i]['promoted']=0;
 //                $question_answer[$i]['rank']=$i+1;
             }
+
             $i++;
         }
         if ( !$question_answer )
