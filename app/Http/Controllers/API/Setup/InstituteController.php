@@ -14,10 +14,10 @@ class InstituteController extends Controller
     public $invalidStatus = 400;
     function __construct()
     {
-        /*$this->middleware('api_permission:institute-list|institute-create|institute-edit|institute-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:institute-list|institute-create|institute-edit|institute-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:institute-create', ['only' => ['store']]);
         $this->middleware('api_permission:institute-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:institute-delete', ['only' => ['destroy']]);*/
+        $this->middleware('api_permission:institute-delete', ['only' => ['destroy']]);
     }
     /**
      * Display a listing of the resource.
