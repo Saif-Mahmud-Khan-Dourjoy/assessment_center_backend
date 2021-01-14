@@ -188,26 +188,26 @@ class QuestionSetAnswerController extends Controller
      * @param $question_answers
      * @return $question_answers
      */
-    public function studentRank($question_answers){
-        for($i=0;$i<sizeof($question_answers)-1;$i++){
-            for($j=$i+1;$j<sizeof($question_answers);$j++){
-                if($question_answers[$i]->total_mark<$question_answers[$j]->total_mark){
-                    $temp = $question_answers[$i];
-                    $question_answers[$i]=$question_answers[$j];
-                    $question_answers[$j]=$temp;
-                }else if($question_answers[$i]->total_mark==$question_answers[$j]->total_mark  && $question_answers[$i]->time_taken>$question_answers[$j]->time_taken){
-                    $this->out->writeln('swap by time');
-                    $temp = $question_answers[$i];
-                    $question_answers[$i]=$question_answers[$j];
-                    $question_answers[$j]=$temp;
-                }
-            }
-        }
-        foreach ($question_answers as $qs){
-            $this->out->writeln('question set ans id: '.$qs->id);
-        }
-        return $question_answers;
-    }
+//    public function studentRank($question_answers){
+//        for($i=0;$i<sizeof($question_answers)-1;$i++){
+//            for($j=$i+1;$j<sizeof($question_answers);$j++){
+//                if($question_answers[$i]->total_mark<$question_answers[$j]->total_mark){
+//                    $temp = $question_answers[$i];
+//                    $question_answers[$i]=$question_answers[$j];
+//                    $question_answers[$j]=$temp;
+//                }else if($question_answers[$i]->total_mark==$question_answers[$j]->total_mark  && $question_answers[$i]->time_taken>$question_answers[$j]->time_taken){
+//                    $this->out->writeln('swap by time');
+//                    $temp = $question_answers[$i];
+//                    $question_answers[$i]=$question_answers[$j];
+//                    $question_answers[$j]=$temp;
+//                }
+//            }
+//        }
+//        foreach ($question_answers as $qs){
+//            $this->out->writeln('question set ans id: '.$qs->id);
+//        }
+//        return $question_answers;
+//    }
 
 
 

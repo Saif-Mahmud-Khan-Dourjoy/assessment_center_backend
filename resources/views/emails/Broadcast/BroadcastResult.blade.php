@@ -15,6 +15,7 @@
     | Percentage               | {{$percentage}}                                   |
     | Rank Obtain              | {{$position}} out of {{$number_of_participation}} |
     @endcomponent
+    </div>
     Note:
     1. Rank is calculated based on the mark participant obtained.
     a. If two or more participant have same mark then lower time-taker will be top of them.
