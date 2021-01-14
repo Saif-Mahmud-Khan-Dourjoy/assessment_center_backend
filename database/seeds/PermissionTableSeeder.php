@@ -56,7 +56,11 @@ class PermissionTableSeeder extends Seeder
             'question-set-answer-list',
             'question-set-answer-create',
             'student-only',
-            'super-admin'
+            'super-admin',
+            'round-list',
+            'round-create',
+            'round-edit',
+            'round-delete',
 
         ];
 

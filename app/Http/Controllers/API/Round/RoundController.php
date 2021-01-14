@@ -18,6 +18,10 @@ class RoundController extends Controller
     public $out;
 
     function __construct(){
+        $this->middleware('api_permission:round-list|round-create|round-edit|round-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:round-create', ['only' => ['store']]);
+        $this->middleware('api_permission:round-edit', ['only' => ['update']]);
+        $this->middleware('api_permission:round-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
 
