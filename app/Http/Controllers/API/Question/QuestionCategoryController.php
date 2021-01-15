@@ -14,10 +14,10 @@ class QuestionCategoryController extends Controller
     public $invalidStatus = 400;
     function __construct()
     {
-        //$this->middleware('api_permission:question-category-list|question-category-create|question-category-edit|question-category-delete', ['only' => ['index','show']]);
+        /*$this->middleware('api_permission:question-category-list|question-category-create|question-category-edit|question-category-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:question-category-create', ['only' => ['store']]);
         $this->middleware('api_permission:question-category-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:question-category-delete', ['only' => ['destroy']]);
+        $this->middleware('api_permission:question-category-delete', ['only' => ['destroy']]);*/
     }
     /**
      * Display a listing of the resource.

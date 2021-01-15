@@ -105,7 +105,7 @@ class QuestionController extends Controller
         $userProfile = UserProfile::where('user_id', $user->id)->first();
 
         $institute_id = NULL;
-        if($input['privacy'] == 1 && $userProfile->institute_id){
+        if($userProfile->institute_id){
             $institute_id = $userProfile->institute_id;
         }
 
