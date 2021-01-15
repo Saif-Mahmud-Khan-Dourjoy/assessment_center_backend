@@ -121,6 +121,15 @@ class QuestionSetController extends Controller
     }
 
 
+    /**
+     * Assessment Time validator
+     * @param $start_time
+     * @param $end_time
+     * @param $duration
+     * @return bool
+     */
+
+
     public function assessmentTimeValidator($start_time, $end_time, $duration){
         //calculate start and end time in terms of duration
         $this->out->writeln('Validating time....');

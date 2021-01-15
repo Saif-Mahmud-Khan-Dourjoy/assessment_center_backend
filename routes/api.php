@@ -83,6 +83,7 @@ Route::group(['prefix' => 'v1'], function() {
 
         Route::resource('round-candidates','API\Round\RoundCandidatesController');
         Route::get('each-round-candidates/{id}','API\Round\RoundCandidatesController@eachRoundCandidates');
+        Route::get('fresher-candidates', 'API\Round\RoundCandidatesController@fresherCandidates');
 
         Route::resource('broadcast','API\Broadcast\BroadcastController');
         Route::post('broadcast-result','API\Broadcast\BroadcastController@broadcastResult');
