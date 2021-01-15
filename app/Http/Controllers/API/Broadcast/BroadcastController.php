@@ -177,11 +177,24 @@ class BroadcastController extends Controller
             'broadcast_to'=>$input['question_set_id'],
             'broadcast_by'=>$user,
         ];
+        if(!QuestionSetAnswer::where('question_set_id','=',$input['question_set_id'])->exists()){
+            return response()->json(['success'=>false, 'message'=>'No student attented to this Assessment!'], $this->failedStatus);
+        }
         $broadcast = Broadcast::create($data);
         if($broadcast){
             $this->out->writeln('Emailing result, Broadcast: '.$broadcast);
             $question_set = QuestionSet::find($input['question_set_id']);
             $question_set_answer = QuestionSetAnswer::with(['user_profile'])->where('question_set_id','=',$input['question_set_id'])->get();
+            if(sizeof($question_set_answer)==1){
+                $mark_achieved = $question_set_answer[0]->total_mark;
+                $total_mark = $question_set->total_mark;
+                $mark_percentage = ($mark_achieved/$total_mark)*100;
+                $question_set_answer[0]['rank']=1;
+                $question_set_answer[0]['position']=1;
+                $question_set_answer[0]['percentage']=$mark_percentage;
+                $this->resultEmail($question_set, $question_set_answer, $institution->name);
+                return response()->json(['success' => true, 'broadcast'=>$broadcast , 'question_set_answer' => $question_set_answer], $this->successStatus);
+            } 
             $sorted_result = $this->studentRank($question_set->total_mark, $question_set_answer);
             $this->resultEmail($question_set, $sorted_result, $institution->name);
             return response()->json(['success'=>true, 'broadcast'=>$broadcast, 'question_set_answer'=>$question_set_answer], $this->successStatus);
