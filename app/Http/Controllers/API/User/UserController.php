@@ -46,6 +46,7 @@ class UserController extends Controller
      */
     public function index()
     {
+            dd('1');
         $user = auth()->user();
         $userProfile=UserProfile::find($user->id);
         $permissions = $user->getAllPermissions();
@@ -55,6 +56,7 @@ class UserController extends Controller
             return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
         if($userProfile->institute_id){
+            dd($userProfile->institute_id);
             $users = UserProfile::with(['user'])->where('user_id','!=',$userProfile->id)
                 ->where('institute_id','=',$userProfile->institute_id)
                 ->get();
@@ -363,7 +365,7 @@ class UserController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function getRoleWiseUsersList(Request $request)
+    public function getRoleWiseUsersList_old(Request $request)
     {
         $input = $request->all();
         $users = User::with(['user_profile', 'roles'])->get();
@@ -371,6 +373,38 @@ class UserController extends Controller
             $users = User::with(['user_profile'])->role($input['role_name'])->get();
         }
         return response()->json(['success' => true, 'users' => $users], $this->successStatus);
+    }
+
+    public function getRoleWiseUsersList(Request $request)
+    {
+        $user = auth()->user();
+        $userProfile = UserProfile::where('user_id','=',$user->id)->first();
+        $input = $request->all();
+        $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();
+        $valid_users=[];
+        foreach ($users as $u) {
+            $up = UserProfile::where('user_id','=',$u->id)->first();
+            if($userProfile->institute_id==$up->institute_id){
+                array_push($valid_users, $u);
+            }
+            
+        }
+        if (!empty($_POST["role_name"]) && $input['role_name']){
+            
+             $user = auth()->user();
+            $userProfile = UserProfile::where('user_id','=',$user->id)->first();
+            $input = $request->all();
+            $users = User::with(['user_profile'])->role($input['role_name'])->get();;
+            $valid_users=[];
+            foreach ($users as $u) {
+                $up = UserProfile::where('user_id','=',$u->id)->first();
+                if($userProfile->institute_id==$up->institute_id){
+                    array_push($valid_users, $up);
+                }
+                
+            }
+        }
+        return response()->json(['success' => true, 'users' => $valid_users], $this->successStatus);
     }
 
 
