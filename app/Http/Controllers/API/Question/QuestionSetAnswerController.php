@@ -31,10 +31,10 @@ class QuestionSetAnswerController extends Controller
     public $out;
     function __construct()
     {
-        $this->middleware('api_permission:question-set-answer-list|question-set-answer-create|question-set-answer-edit|question-set-answer-delete', ['only' => ['index','show']]);
-        $this->middleware('api_permission:question-set-answer-create', ['only' => ['store']]);
-        $this->middleware('api_permission:question-set-answer-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:question-set-answer-delete', ['only' => ['destroy']]);
+//        $this->middleware('api_permission:question-set-answer-list|question-set-answer-create|question-set-answer-edit|question-set-answer-delete', ['only' => ['index','show']]);
+//        $this->middleware('api_permission:question-set-answer-create', ['only' => ['store']]);
+//        $this->middleware('api_permission:question-set-answer-edit', ['only' => ['update']]);
+//        $this->middleware('api_permission:question-set-answer-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
 

@@ -29,10 +29,10 @@ class StudentController extends Controller
     public $out;
     function __construct()
     {
-        $this->middleware('api_permission:student-list|student-create|student-edit|student-delete', ['only' => ['index','show']]);
-        $this->middleware('api_permission:student-create', ['only' => ['store']]);
-        $this->middleware('api_permission:student-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:student-delete', ['only' => ['destroy']]);
+//        $this->middleware('api_permission:student-list|student-create|student-edit|student-delete', ['only' => ['index','show']]);
+//        $this->middleware('api_permission:student-create', ['only' => ['store']]);
+//        $this->middleware('api_permission:student-edit', ['only' => ['update']]);
+//        $this->middleware('api_permission:student-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();                 // for printing message to console
     }
 
@@ -149,6 +149,12 @@ class StudentController extends Controller
 
         //Send Email
         $this->emailCredential($user->username,$user->name, $rand_pass, $user->email);
+        //Send Email
+        if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email)){
+            $user->delete();
+            $this->out->writeln('User deleted successfully due to unsend email');
+            return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);
+        }
 
         // Add User Profile
         $data = [
