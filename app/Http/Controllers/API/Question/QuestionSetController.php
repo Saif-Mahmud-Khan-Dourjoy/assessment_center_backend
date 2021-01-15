@@ -26,10 +26,10 @@ class QuestionSetController extends Controller
     public $out;
     function __construct()
     {
-        /*$this->middleware('api_permission:question-set-list|question-set-create|question-set-edit|question-set-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:question-set-list|question-set-create|question-set-edit|question-set-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:question-set-create', ['only' => ['store']]);
         $this->middleware('api_permission:question-set-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:question-set-delete', ['only' => ['destroy']]);*/
+        $this->middleware('api_permission:question-set-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
 
@@ -379,7 +379,8 @@ class QuestionSetController extends Controller
         foreach ($rounds as $round){
             $round_id = $round->round_id;
             $this->out->writeln('Round Id: '.$round_id);
-            $question_set = QuestionSet::where('round_id','=',$round_id)
+            $question_set = QuestionSet::with('rounds')
+                                        ->where('round_id','=',$round_id)
                                         ->first();
             if(!$question_set){
                 continue;

@@ -24,10 +24,10 @@ class QuestionController extends Controller
     public $invalidStatus = 400;
     function __construct()
     {
-        /*$this->middleware('api_permission:question-list|question-create|question-edit|question-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:question-list|question-create|question-edit|question-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:question-create', ['only' => ['store']]);
         $this->middleware('api_permission:question-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:question-delete', ['only' => ['destroy']]);*/
+        $this->middleware('api_permission:question-delete', ['only' => ['destroy']]);
     }
 
 

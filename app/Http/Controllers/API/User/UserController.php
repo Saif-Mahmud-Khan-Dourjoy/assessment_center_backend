@@ -31,10 +31,10 @@ class UserController extends Controller
 
     public function __construct(){
         //$this->middleware(['api_role'])->only('index');
-        /*$this->middleware('api_permission:user-list|user-create|user-edit|user-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:user-list|user-create|user-edit|user-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:user-create', ['only' => ['store']]);
         $this->middleware('api_permission:user-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:user-delete', ['only' => ['destroy']]);*/
+        $this->middleware('api_permission:user-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();                 // for printing message to console
     }
 
@@ -72,13 +72,13 @@ class UserController extends Controller
      * @return True/False
      */
 
-    public function emailCredential($username, $user_password, $user_email){
+    public function emailCredential($username,$name,  $user_password, $user_email){
         $this->out->writeln('Emailing user credentials');
         try{
             // $email = env('TO_EMAIL');
             $this->out->writeln('Email: '.$user_email);
             Mail::to($user_email)
-            ->send(new UserCredentials($username, $user_password, $user_email));
+            ->send(new UserCredentials($username, $name, $user_password, $user_email));
             $this->out->writeln('Mail sent scuccessfully');
             return true;
         }catch(\Swift_TransportException $e){
@@ -114,7 +114,7 @@ class UserController extends Controller
         if( $user ){
 
             //Send Email
-            if(!($this->emailCredential($user->username, $rand_pass, $user->email))){
+            if(!($this->emailCredential($user->username, $login_data['name'],  $rand_pass, $user->email))){
                 $user->delete();
                 $this->out->writeln('User deleted successfully due to unsend email');
                 return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);
@@ -219,10 +219,14 @@ class UserController extends Controller
             return response()->json(['success' => true, 'message' => 'Profile not found'], $this->successStatus);
         }
         request()->validate([
-            'email' => 'unique:user_profiles,email,'.$input['profile_id'],
+//            'email' => 'unique:user_profiles,email,'.$input['profile_id'],
             //'phone' => 'unique:user_profiles,phone,'.$input['profile_id'],
         ]);
         $userProfile = $user->update($request->all());
+        $input = request()->all();
+        $input['name']=$input['first_name'].' '.$input['last_name'];
+        $userUpdate = User::find($user->user_id);
+        $userUpdate->update($input);
         if( $userProfile )
             return response()->json(['success' => true, 'message' => 'Profile update successfully'], $this->successStatus);
         else

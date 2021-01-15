@@ -14,16 +14,19 @@ class UserCredentials extends Mailable
         private $username = '';
         private $userpass = '';
         private $useremail = '';
+        private $name='';
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($username, $userpass)
+    public function __construct($username, $name,  $userpass, $email)
     {
         $this->username = $username;
         $this->userpass= $userpass;
+        $this->name=$name;
+        $this->useremail=$email;
     }
 
     /**
@@ -37,12 +40,14 @@ class UserCredentials extends Mailable
         $this->out->writeln([
             'username'=> $this->username,
             'password'=> $this->userpass,
-            'url'=>env('FRONT_END_HOME').'/login',
+            'url'=>env('FRONT_END_HOME').'/login?username='.$this->username,
         ]);
         return $this->markdown('emails.userCredentials',[
+            'name'=>$this->name,
             'username'=> $this->username,
             'password'=> $this->userpass,
-            'url'=>env('FRONT_END_HOME').'/login',
+            'email'=>$this->useremail,
+            'url'=>env('FRONT_END_HOME').'/login?username='.$this->username,
         ]);
     }
 }

@@ -29,10 +29,10 @@ class StudentController extends Controller
     public $out;
     function __construct()
     {
-        /*$this->middleware('api_permission:student-list|student-create|student-edit|student-delete', ['only' => ['index','show']]);
+        $this->middleware('api_permission:student-list|student-create|student-edit|student-delete', ['only' => ['index','show']]);
         $this->middleware('api_permission:student-create', ['only' => ['store']]);
         $this->middleware('api_permission:student-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:student-delete', ['only' => ['destroy']]);*/
+        $this->middleware('api_permission:student-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();                 // for printing message to console
     }
 
@@ -68,13 +68,13 @@ class StudentController extends Controller
      * @return True/False
      */
 
-    public function emailCredential($username, $user_password, $user_email){
+    public function emailCredential($username,$name,  $user_password, $user_email){
         $this->out->writeln('Emailing user credentials');
         try{
             // $email = env('TO_EMAIL');
             $this->out->writeln('Email: '.$user_email);
             Mail::to($user_email)
-                ->send(new UserCredentials($username, $user_password, $user_email));
+                ->send(new UserCredentials($username, $name,  $user_password, $user_email));
             return true;
         }catch(Throwable $e){
             $this->out->writeln('Unable to email user credentials, for '.$e);
@@ -148,7 +148,7 @@ class StudentController extends Controller
         }
 
         //Send Email
-        $this->emailCredential($user->username, $rand_pass, $user->email);
+        $this->emailCredential($user->username,$user->name, $rand_pass, $user->email);
 
         // Add User Profile
         $data = [
@@ -279,8 +279,12 @@ class StudentController extends Controller
             //'email' => 'unique:user_profiles,email,'.$id,
             //'phone' => 'unique:user_profiles,phone,'.$id,
         ]);
-        $student = $student->update($request->all());
-        if( $student )
+        $studentUpdate = $student->update($request->all());
+        $input = request()->all();
+        $input['name']=$input['first_name'].' '.$input['last_name'];
+        $userUpdate = User::find($student->user_id);
+        $userUpdate->update($input);
+        if( $studentUpdate )
             return response()->json(['success' => true, 'message' => 'Student update successfully'], $this->successStatus);
         else
             return response()->json(['success' => false, 'message' => 'Student update failed'], $this->failedStatus);

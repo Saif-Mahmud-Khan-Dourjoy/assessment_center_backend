@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Round;
 use App\Http\Controllers\Controller;
 use App\QuestionSet;
 use App\Round;
+use App\Student;
 use App\UserProfile;
 use http\Env\Response;
 use Illuminate\Http\Request;
@@ -25,14 +26,57 @@ class RoundController extends Controller
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
 
-    public function index(Request $request){
+    public function index(){
         $this->out->writeln('Fetching all the rounds');
-        $rounds = Round::all();
-        if($rounds){
-            return response()->json(['success'=>true, 'rounds'=>$rounds], $this->successStatus);
+        $user = Auth::user();
+        $user_profile = UserProfile::where('user_id','=',$user->id)->first();
+        if($user->can('super-admin')){
+            $rounds = Round::all();
+            return response()->json(['success'=>true,'rounds'=>$rounds],$this->successStatus);
         }
-        return response()->json(['success'=>false, 'message'=>'Unable to fetch rounds'], $this->failedStatus);
+        if($user_profile->institute_id){
+            $rounds = Round::where('institute_id','=',$user_profile->institute_id)->get();
+            return response()->json(['success'=>true,'rounds'=>$rounds],$this->successStatus);
+        }
+        return response()->json(['success'=>true,'rounds'=>[]],$this->successStatus);
+//        $rounds = Round::all();
+//        if($rounds){
+//            return response()->json(['success'=>true, 'rounds'=>$rounds], $this->successStatus);
+//        }
+//        return response()->json(['success'=>false, 'message'=>'Unable to fetch rounds'], $this->failedStatus);
     }
+
+
+    /**
+     * Available round-list for Assessment
+     * Purpose: for preventing multiple assessments in same round.
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function availableRounds(){
+        $user= UserProfile::where('user_id','=',Auth::id())->first();
+        if(is_null($user->institute_id)){
+            $this->out->writeln('Institute id null');
+            $rounds =Round::all();
+        }else{
+            $rounds = Round::where('institute_id','=',$user->institute_id)->get();
+        }
+        if(empty($rounds)){
+            return response()->json(['success'=>true, 'rounds'=>$rounds],$this->successStatus);
+        }
+        $available_rounds = [];
+        foreach ($rounds as $round){
+            $this->out->writeln('rounds: '.$round->id);
+            if(QuestionSet::where('round_id','=',$round->id)->exists()){
+                continue;
+            }
+            array_push($available_rounds, $round);
+        }
+        return response()->json(['success'=>true, 'rounds'=>$available_rounds],$this->successStatus);
+    }
+
+
     public function store(Request $request){
         $this->out->writeln('Storing the rounds...');
         request()->validate([
