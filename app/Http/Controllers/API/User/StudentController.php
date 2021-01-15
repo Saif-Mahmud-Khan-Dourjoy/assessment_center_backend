@@ -149,6 +149,12 @@ class StudentController extends Controller
 
         //Send Email
         $this->emailCredential($user->username,$user->name, $rand_pass, $user->email);
+        //Send Email
+        if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email)){
+            $user->delete();
+            $this->out->writeln('User deleted successfully due to unsend email');
+            return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);
+        }
 
         // Add User Profile
         $data = [

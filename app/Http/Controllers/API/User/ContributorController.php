@@ -124,7 +124,11 @@ class ContributorController extends Controller
         }
 
         //Send Email
-        $this->emailCredential($user->username, $login_data['name'], $rand_pass, $user->email);
+        if(!($this->emailCredential($user->username, $login_data['name'],  $rand_pass, $user->email))){
+            $user->delete();
+            $this->out->writeln('User deleted successfully due to unsend email');
+            return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);
+        }
 
         // Add User Profile
         $data = [
