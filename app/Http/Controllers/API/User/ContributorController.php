@@ -25,10 +25,10 @@ class ContributorController extends Controller
     public $out;
     function __construct()
     {
-        $this->middleware('api_permission:contributor-list|contributor-create|contributor-edit|contributor-delete', ['only' => ['index','show']]);
-        $this->middleware('api_permission:contributor-create', ['only' => ['store']]);
-        $this->middleware('api_permission:contributor-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:contributor-delete', ['only' => ['destroy']]);
+//        $this->middleware('api_permission:contributor-list|contributor-create|contributor-edit|contributor-delete', ['only' => ['index','show']]);
+//        $this->middleware('api_permission:contributor-create', ['only' => ['store']]);
+//        $this->middleware('api_permission:contributor-edit', ['only' => ['update']]);
+//        $this->middleware('api_permission:contributor-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();                 // for printing message to console
     }
 

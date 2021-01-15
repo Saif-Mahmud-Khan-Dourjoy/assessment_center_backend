@@ -31,10 +31,10 @@ class UserController extends Controller
 
     public function __construct(){
         //$this->middleware(['api_role'])->only('index');
-        $this->middleware('api_permission:user-list|user-create|user-edit|user-delete', ['only' => ['index','show']]);
-        $this->middleware('api_permission:user-create', ['only' => ['store']]);
-        $this->middleware('api_permission:user-edit', ['only' => ['update']]);
-        $this->middleware('api_permission:user-delete', ['only' => ['destroy']]);
+//        $this->middleware('api_permission:user-list|user-create|user-edit|user-delete', ['only' => ['index','show']]);
+//        $this->middleware('api_permission:user-create', ['only' => ['store']]);
+//        $this->middleware('api_permission:user-edit', ['only' => ['update']]);
+//        $this->middleware('api_permission:user-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();                 // for printing message to console
     }
 
