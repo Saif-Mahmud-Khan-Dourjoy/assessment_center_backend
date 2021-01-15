@@ -38,7 +38,7 @@ class RoundCandidatesController extends Controller
 
     public function fresherCandidates(){
         $user= UserProfile::where('user_id','=',Auth::id())->first();
-        $students = UserProfile::with('student')->where('institute_id','=',$user->institute_id)->get();
+        $students = UserProfile::with('student')->where('institute_id','=',$user->institute_id)->where('id','!=',$user->id)->get();
         $new_student = [];
         foreach ($students as $student) {
             if(RoundCandidates::where('student_id','=',$student->id)->exists()){
