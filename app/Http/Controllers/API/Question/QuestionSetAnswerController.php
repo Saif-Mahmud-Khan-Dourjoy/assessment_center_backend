@@ -145,6 +145,7 @@ class QuestionSetAnswerController extends Controller
         $previous_mark = 0;
         $previous_time = 0;
         for($i=0;$i<sizeof($question_answers)-1;$i++){
+            $this->out->writeln('Question Answer set ranking: '.$question_answers[$i]);
             for($j=$i+1;$j<sizeof($question_answers);$j++){
                 if($question_answers[$i]->total_mark<$question_answers[$j]->total_mark){
                     $temp = $question_answers[$i];
@@ -233,6 +234,32 @@ class QuestionSetAnswerController extends Controller
         $this->out->writeln($round);
         $i=0;
         $total_mark=$questionSet->total_mark;
+        $this->out->writeln('checking....');
+        if(sizeof($question_answer)==0){
+            return response()->json(['success' => true, 'question_set'=>$questionSet , 'question_set_answer' => $question_answer], $this->successStatus);
+        }
+        if(sizeof($question_answer)==1){
+            $mark_achieved = $question_answer[0]->total_mark;
+            $total_mark = $questionSet->total_mark;
+            $mark_percentage = ($mark_achieved/$total_mark)*100;
+            if($round->passing_criteria=='pass' && $mark_percentage>=$round->number){
+                $this->out->writeln('Total Mark: '.$mark_achieved);
+                $question_answer[$i]['promoted']=1;
+//                $question_answer[$i]['rank']=$i+1;
+            }else if($round->passing_criteria=='sort' && 0<$round->number){
+                $this->out->writeln('Total Mark: '.$mark_achieved);
+                $question_answer[$i]['promoted']=1;
+//                $question_answer[$i]['rank']=$i+1;
+            }else{
+                $this->out->writeln('Total Mark: '.$mark_achieved);
+                $question_answer[$i]['promoted']=0;
+//                $question_answer[$i]['rank']=$i+1;
+            }
+            $question_answer[0]['rank']=1;
+            $question_answer[0]['position']=1;
+            $question_answer[0]['percentage']=$mark_percentage;
+            return response()->json(['success' => true, 'question_set'=>$questionSet , 'question_set_answer' => $question_answer], $this->successStatus);
+        }   
         $question_answer = $this->studentRank($question_answer);
         foreach($question_answer as $question_ans){
             $mark_achieved = $question_ans->total_mark;
