@@ -23,4 +23,8 @@ class QuestionSet extends Model
     public function question_set_details(){
         return $this->hasMany('App\QuestionSetDetail', 'question_set_id');
     }
+
+    public function rounds(){
+        return $this->belongsTo('App\Round','round_id');
+    }
 }

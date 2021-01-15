@@ -72,13 +72,13 @@ class UserController extends Controller
      * @return True/False
      */
 
-    public function emailCredential($username, $user_password, $user_email){
+    public function emailCredential($username,$name,  $user_password, $user_email){
         $this->out->writeln('Emailing user credentials');
         try{
             // $email = env('TO_EMAIL');
             $this->out->writeln('Email: '.$user_email);
             Mail::to($user_email)
-            ->send(new UserCredentials($username, $user_password, $user_email));
+            ->send(new UserCredentials($username, $name, $user_password, $user_email));
             $this->out->writeln('Mail sent scuccessfully');
             return true;
         }catch(\Swift_TransportException $e){
@@ -114,7 +114,7 @@ class UserController extends Controller
         if( $user ){
 
             //Send Email
-            if(!($this->emailCredential($user->username, $rand_pass, $user->email))){
+            if(!($this->emailCredential($user->username, $login_data['name'],  $rand_pass, $user->email))){
                 $user->delete();
                 $this->out->writeln('User deleted successfully due to unsend email');
                 return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);

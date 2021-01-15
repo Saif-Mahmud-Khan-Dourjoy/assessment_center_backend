@@ -65,13 +65,13 @@ class ContributorController extends Controller
      * @return True/False
      */
 
-    public function emailCredential($username, $user_password, $user_email){
+    public function emailCredential($username, $name,  $user_password, $user_email){
         $this->out->writeln('Emailing user credentials');
         try{
             // $email = env('TO_EMAIL');
             $this->out->writeln('Email: '.$user_email);
             Mail::to($user_email)
-                ->send(new UserCredentials($username, $user_password, $user_email));
+                ->send(new UserCredentials($username, $name, $user_password, $user_email));
             return true;
         }catch(Throwable $e){
             $this->out->writeln('Unable to email user credentials, for '.$e);
@@ -124,7 +124,7 @@ class ContributorController extends Controller
         }
 
         //Send Email
-        $this->emailCredential($user->username, $rand_pass, $user->email);
+        $this->emailCredential($user->username, $login_data['name'], $rand_pass, $user->email);
 
         // Add User Profile
         $data = [

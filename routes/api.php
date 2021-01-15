@@ -79,6 +79,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::resource('rounds','API\Round\RoundController');
         Route::get('institute-rounds/{id}', 'API\Round\RoundController@getInstituteRound');
         Route::get('round-status/{id}', 'API\Round\RoundController@status');
+        Route::get('available-rounds','API\Round\RoundController@availableRounds');
 
         Route::resource('round-candidates','API\Round\RoundCandidatesController');
         Route::get('each-round-candidates/{id}','API\Round\RoundCandidatesController@eachRoundCandidates');

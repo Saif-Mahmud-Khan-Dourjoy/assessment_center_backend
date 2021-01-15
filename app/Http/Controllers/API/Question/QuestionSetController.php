@@ -379,7 +379,8 @@ class QuestionSetController extends Controller
         foreach ($rounds as $round){
             $round_id = $round->round_id;
             $this->out->writeln('Round Id: '.$round_id);
-            $question_set = QuestionSet::where('round_id','=',$round_id)
+            $question_set = QuestionSet::with('rounds')
+                                        ->where('round_id','=',$round_id)
                                         ->first();
             if(!$question_set){
                 continue;

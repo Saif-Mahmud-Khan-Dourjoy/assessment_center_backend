@@ -45,6 +45,38 @@ class RoundController extends Controller
 //        }
 //        return response()->json(['success'=>false, 'message'=>'Unable to fetch rounds'], $this->failedStatus);
     }
+
+
+    /**
+     * Available round-list for Assessment
+     * Purpose: for preventing multiple assessments in same round.
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function availableRounds(){
+        $user= UserProfile::where('user_id','=',Auth::id())->first();
+        if(is_null($user->institute_id)){
+            $this->out->writeln('Institute id null');
+            $rounds =Round::all();
+        }else{
+            $rounds = Round::where('institute_id','=',$user->institute_id)->get();
+        }
+        if(empty($rounds)){
+            return response()->json(['success'=>true, 'rounds'=>$rounds],$this->successStatus);
+        }
+        $available_rounds = [];
+        foreach ($rounds as $round){
+            $this->out->writeln('rounds: '.$round->id);
+            if(QuestionSet::where('round_id','=',$round->id)->exists()){
+                continue;
+            }
+            array_push($available_rounds, $round);
+        }
+        return response()->json(['success'=>true, 'rounds'=>$available_rounds],$this->successStatus);
+    }
+
+
     public function store(Request $request){
         $this->out->writeln('Storing the rounds...');
         request()->validate([
