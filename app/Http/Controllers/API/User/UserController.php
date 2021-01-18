@@ -389,7 +389,7 @@ class UserController extends Controller
             }
             
         }
-        if (!empty($_POST["role_name"]) && $input['role_name']){
+        /*if (!empty($_POST["role_name"]) && $input['role_name']){
             
              $user = auth()->user();
             $userProfile = UserProfile::where('user_id','=',$user->id)->first();
@@ -403,7 +403,7 @@ class UserController extends Controller
                 }
                 
             }
-        }
+        }*/
         return response()->json(['success' => true, 'users' => $valid_users], $this->successStatus);
     }
 
