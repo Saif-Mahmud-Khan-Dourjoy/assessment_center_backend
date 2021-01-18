@@ -3,13 +3,18 @@
 namespace App\Http\Controllers\API\Round;
 
 use App\Http\Controllers\Controller;
+use App\Mail\BroadcastNotice;
+use App\RoleSetup;
 use App\Round;
 use App\RoundCandidates;
+use App\User;
 use App\UserProfile;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use phpDocumentor\Reflection\Types\Null_;
+use Spatie\Permission\Models\Role;
 
 class RoundCandidatesController extends Controller
 {
@@ -40,11 +45,18 @@ class RoundCandidatesController extends Controller
         $user= UserProfile::where('user_id','=',Auth::id())->first();
         $students = UserProfile::with('student')->where('institute_id','=',$user->institute_id)->where('id','!=',$user->id)->get();
         $new_student = [];
+        $roleList = RoleSetup::first();
+        $this->out->writeln('Rolename: '.$roleList->student_role_id);
+        $roleName = Role::where('id','=',$roleList->student_role_id)->first();
+        $this->out->writeln('role name: '.$roleName->name);
         foreach ($students as $student) {
-            if(RoundCandidates::where('student_id','=',$student->id)->exists()){
-                continue;
+            $this->out->writeln('Stuetn :'.$student);
+            if(User::with(['user_profile'])->where('id','=',$student->user_id)->role($roleName->name)->first()){
+                if(RoundCandidates::where('student_id','=',$student->id)->exists()){
+                    continue;
+                }
+                array_push($new_student, $student);
             }
-            array_push($new_student, $student);
         }
         return response()->json(['success'=>true, 'students'=>$new_student],$this->successStatus);
     }
@@ -59,6 +71,7 @@ class RoundCandidatesController extends Controller
         $students = explode('|',$input['candidate_students']);
         $confirm_candidates=null;
         $failed_candidates = null;
+        $candidate_profiles = [];
         foreach ($students as $student){
             $data=[
               'round_id'=>$input['round_id'],
@@ -68,15 +81,35 @@ class RoundCandidatesController extends Controller
             $this->out->writeln('Round Candidates: '.$student);
             if(RoundCandidates::firstOrCreate($data)){
                 $confirm_candidates=$confirm_candidates.$student.'|';
+                $userProfile = UserProfile::where('id',$student)->first();
+                array_push($candidate_profiles, $userProfile);
             }
             else{
                 $failed_candidates=$failed_candidates.$student.'|';
             }
         }
         if(!is_null($confirm_candidates)){
+            $round = Round::with('question_set')->where('id',$input['round_id'])->first();
+            $this->out->writeln('Rounds: '.$round);
+            $this->out->writeln('Round candidates: '.$candidate_profiles[0]);
+            $this->roundConfirmMail($round, $candidate_profiles);
             return response()->json(['success'=>true, 'confirmed_candidates'=>$confirm_candidates, 'failed_candidates'=>$failed_candidates],$this->successStatus);
         }
         return response()->json(['success'=>false, 'confirmed_candidates'=>$confirm_candidates, 'failed_candidates'=>$failed_candidates], $this->failedStatus);
+    }
+
+    public function roundConfirmMail($round, $users){
+//        $this->out->writeln('Round info: ')
+        $round_name = $round->name;
+        $assessment_name = $round->question_set['title'];
+        $assessment_start_time = $round->question_set->start_time;
+        $body= "You are promoted to next round **(".$round_name.")** Exam Title: **".$assessment_name."** Your Exam will start at: ".$assessment_start_time.".";
+        foreach ($users as $user){
+            $this->out->writeln('User email: '.$user->email);
+            $email = Mail::to(trim($user->email))
+                ->send(new BroadcastNotice($assessment_name, $body, $user->first_name, $user->last_name));
+            $this->out->writeln('Email confirm: '.$email);
+        }
     }
 
     public function update(Request $request, $id){
