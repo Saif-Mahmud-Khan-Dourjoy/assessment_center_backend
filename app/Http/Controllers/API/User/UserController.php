@@ -404,7 +404,7 @@ class UserController extends Controller
             foreach ($users as $u) {
                 $up = UserProfile::where('user_id','=',$u->id)->first();
                 if($userProfile->institute_id==$up->institute_id){
-                    array_push($valid_users, $up);
+                    array_push($valid_users, $u);
                 }
             }
             return response()->json(['success' => true, 'users' => $valid_users], $this->successStatus);
