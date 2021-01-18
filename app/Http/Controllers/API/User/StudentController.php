@@ -180,7 +180,7 @@ class StudentController extends Controller
         $user->assignRole($student_role_id);
 
         $user_profile = UserProfile::create( $data );
-        if( $user_profile ){
+        if($user_profile ){
 
             // Add Student Info
             $student_data = [
@@ -207,7 +207,7 @@ class StudentController extends Controller
 
             $user =Student::with(['user_profile'])->where('id', $student->id)->get();
 
-            if( $student ){
+            if($student ){
                 return response()->json(['success' => true, 'student' => $user], $this->successStatus);
             }
         }
