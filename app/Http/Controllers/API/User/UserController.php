@@ -392,14 +392,14 @@ class UserController extends Controller
         $input = $request->all();
         if($user->can('super-admin')){
             $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();
+            if (!empty($_POST["role_name"]) && $input['role_name']){
+                $users = User::with(['user_profile'])->role($input['role_name'])->get();
+            }
             return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
         if (!empty($_POST["role_name"]) && $input['role_name']){
             $this->out->writeln('Rolewise user list fetching.');
-            $user = auth()->user();
-            $userProfile = UserProfile::where('user_id','=',$user->id)->first();
-            $input = $request->all();
-            $users = User::with(['user_profile'])->role($input['role_name'])->get();;
+            $users = User::with(['user_profile'])->role($input['role_name'])->get();
             $valid_users=[];
             foreach ($users as $u) {
                 $up = UserProfile::where('user_id','=',$u->id)->first();
