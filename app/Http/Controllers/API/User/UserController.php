@@ -46,17 +46,17 @@ class UserController extends Controller
      */
     public function index()
     {
-            dd('1');
+//            dd('1');
         $user = auth()->user();
         $userProfile=UserProfile::find($user->id);
         $permissions = $user->getAllPermissions();
 //        return $permissions;
         if($user->can('super-admin')){
-            $users = user::with(['user_profile'])->where('id','!=',$user->id)->get();
+            $users = User::with(['user_profile'])->where('id','!=',$user->id)->get();
             return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
         if($userProfile->institute_id){
-            dd($userProfile->institute_id);
+//            dd($userProfile->institute_id);
             $users = UserProfile::with(['user'])->where('user_id','!=',$userProfile->id)
                 ->where('institute_id','=',$userProfile->institute_id)
                 ->get();
@@ -139,6 +139,15 @@ class UserController extends Controller
                 'last_name' => $input['last_name'],
                 'email' => $input['email'],
                 'phone' => $input['phone'],
+                'skype' => (!empty($_POST["skype"])) ? $input['skype'] : 0,
+                'profession' => (!empty($_POST["profession"])) ? $input['profession'] : 'n/a',
+                'skill' => (!empty($_POST["skill"])) ? $input['skill'] : 'n/a',
+                'about' => (!empty($_POST["about"])) ? $input['about'] : 'n/a',
+                'img' => (!empty($_POST["img"])) ? $input['img'] : '',
+                'address' => (!empty($_POST["address"])) ? $input['address'] : 0,
+                'zipcode' => $input['zipcode'],
+                'country' => $input['country'],
+                'guard_name' => 'web',
             ]);
 
             // Add Contributor Info
@@ -379,6 +388,10 @@ class UserController extends Controller
     {
         $user = auth()->user();
         $userProfile = UserProfile::where('user_id','=',$user->id)->first();
+        if($user->can('super-admin')){
+            $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();
+            return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
+        }
         $input = $request->all();
         $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();
         $valid_users=[];
@@ -387,10 +400,10 @@ class UserController extends Controller
             if($userProfile->institute_id==$up->institute_id){
                 array_push($valid_users, $u);
             }
-            
+
         }
         if (!empty($_POST["role_name"]) && $input['role_name']){
-            
+
              $user = auth()->user();
             $userProfile = UserProfile::where('user_id','=',$user->id)->first();
             $input = $request->all();
@@ -401,7 +414,7 @@ class UserController extends Controller
                 if($userProfile->institute_id==$up->institute_id){
                     array_push($valid_users, $up);
                 }
-                
+
             }
         }
         return response()->json(['success' => true, 'users' => $valid_users], $this->successStatus);
