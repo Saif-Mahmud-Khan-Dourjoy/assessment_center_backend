@@ -4,20 +4,25 @@ namespace App\Http\Controllers\API\Setup;
 
 use App\Http\Controllers\Controller;
 use App\Institute;
+use App\Round;
+use App\UserProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class InstituteController extends Controller
 {
     public $successStatus = 200;
     public $failedStatus = 500;
     public $invalidStatus = 400;
+    public $out;
     function __construct()
     {
 //        $this->middleware('api_permission:institute-list|institute-create|institute-edit|institute-delete', ['only' => ['index','show']]);
 //        $this->middleware('api_permission:institute-create', ['only' => ['store']]);
 //        $this->middleware('api_permission:institute-edit', ['only' => ['update']]);
 //        $this->middleware('api_permission:institute-delete', ['only' => ['destroy']]);
+        $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
     /**
      * Display a listing of the resource.
@@ -26,8 +31,21 @@ class InstituteController extends Controller
      */
     public function index()
     {
-        $institutes = Institute::all();
-        return response()->json(['success' => true, 'institutes' => $institutes], $this-> successStatus);
+
+        $this->out->writeln('Fetching all the Institutes');
+        $user = Auth::user();
+        $user_profile = UserProfile::where('user_id','=',$user->id)->first();
+        if($user->can('super-admin')){
+            $institutes = Institute::all();
+            return response()->json(['success'=>true,'rounds'=>$institutes],$this->successStatus);
+        }
+        if($user_profile->institute_id){
+            $institutes = Institute::where('id','=',$user_profile->institute_id)->get();
+            return response()->json(['success'=>true,'rounds'=>$institutes],$this->successStatus);
+        }
+        return response()->json(['success'=>true,'rounds'=>[]],$this->successStatus);
+//        $institutes = Institute::all();
+//        return response()->json(['success' => true, 'institutes' => $institutes], $this-> successStatus);
     }
 
 
