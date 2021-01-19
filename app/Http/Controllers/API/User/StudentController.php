@@ -148,8 +148,6 @@ class StudentController extends Controller
         }
 
         //Send Email
-        $this->emailCredential($user->username,$user->name, $rand_pass, $user->email);
-        //Send Email
         if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email)){
             $user->delete();
             $this->out->writeln('User deleted successfully due to unsend email');

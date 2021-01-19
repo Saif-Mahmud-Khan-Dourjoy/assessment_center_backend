@@ -92,7 +92,8 @@ img {
 /* Layout */
 
 .wrapper {
-    background-color: #f8fafc;
+    background-color: #3c8dbd;
+    color:#2E4053;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -115,12 +116,12 @@ img {
 .header {
     padding: 25px 0;
     text-align: center;
-    color:#3c8dbd;
+    color:#ffff;
 }
 
 .header a {
     /*color: #bbbfc3;*/
-    color:#3c8dbd;
+    color:#ffff;
     font-size: 19px;
     font-weight: bold;
     text-decoration: none;
@@ -174,10 +175,11 @@ img {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
     -premailer-width: 570px;
+    color:#ffff;
 }
 
 .footer p {
-    color: #aeaeae;
+    color: #ffff;
     font-size: 12px;
     text-align: center;
 }
@@ -233,11 +235,11 @@ img {
 
 .button-blue,
 .button-primary {
-    background-color: #3490dc;
-    border-top: 10px solid #3490dc;
-    border-right: 18px solid #3490dc;
-    border-bottom: 10px solid #3490dc;
-    border-left: 18px solid #3490dc;
+    background-color: #3c8dbd;
+    border-top: 10px solid #3c8dbd;
+    border-right: 18px solid #3c8dbd;
+    border-bottom: 10px solid #3c8dbd;
+    border-left: 18px solid #3c8dbd;
 }
 
 .button-green,
@@ -265,7 +267,7 @@ img {
 }
 
 .panel-content {
-    background-color: #f1f5f8;
+    background-color: #3c8dbd;
     padding: 16px;
 }
 
