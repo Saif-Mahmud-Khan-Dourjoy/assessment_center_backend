@@ -16,7 +16,7 @@ Greetings from Assessment Center for your participation on {{$question_set_title
 | Percentage               | {{$percentage}}                                   |
 | Rank Obtain              | {{$position}} out of {{$number_of_participation}} |
 @endcomponent
-Note:
+**Note:
 Rank is calculated based on the mark participant obtained.<br>
 1. If two or more participant have same mark then lower time-taker will be top of them.<br>
 2. In case of similar marks and time both participant will have same rank.<br><br>
