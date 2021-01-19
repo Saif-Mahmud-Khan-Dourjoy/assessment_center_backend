@@ -37,13 +37,13 @@ class InstituteController extends Controller
         $user_profile = UserProfile::where('user_id','=',$user->id)->first();
         if($user->can('super-admin')){
             $institutes = Institute::all();
-            return response()->json(['success'=>true,'rounds'=>$institutes],$this->successStatus);
+            return response()->json(['success'=>true,'institutes'=>$institutes],$this->successStatus);
         }
         if($user_profile->institute_id){
             $institutes = Institute::where('id','=',$user_profile->institute_id)->get();
-            return response()->json(['success'=>true,'rounds'=>$institutes],$this->successStatus);
+            return response()->json(['success'=>true,'institutes'=>$institutes],$this->successStatus);
         }
-        return response()->json(['success'=>true,'rounds'=>[]],$this->successStatus);
+        return response()->json(['success'=>true,'institutes'=>[]],$this->successStatus);
 //        $institutes = Institute::all();
 //        return response()->json(['success' => true, 'institutes' => $institutes], $this-> successStatus);
     }
