@@ -40,11 +40,6 @@ class RoundController extends Controller
             return response()->json(['success'=>true,'rounds'=>$rounds],$this->successStatus);
         }
         return response()->json(['success'=>true,'rounds'=>[]],$this->successStatus);
-//        $rounds = Round::all();
-//        if($rounds){
-//            return response()->json(['success'=>true, 'rounds'=>$rounds], $this->successStatus);
-//        }
-//        return response()->json(['success'=>false, 'message'=>'Unable to fetch rounds'], $this->failedStatus);
     }
 
 
@@ -119,8 +114,6 @@ class RoundController extends Controller
         ]);
         $input = $request->all();
         $user = UserProfile::where('user_id',Auth::id())->first();
-//        dd($user);
-//        return response()->json(['user'=>$user]);
         $this->out->writeln($user);
         $data = [
             'name'=>$input['name'],
@@ -205,7 +198,6 @@ class RoundController extends Controller
     public function status($id){
         $this->out->writeln('Updating Status, id: '.$id);
         $round = Round::find($id);
-//        return response()->json(['success'=>true, 'round'=>$round],$this->successStatus);
         if(!$round){
             return response()->json(['success'=>false, 'message'=>'Round not found, id: '.$id], $this->invalidStatus);
         }

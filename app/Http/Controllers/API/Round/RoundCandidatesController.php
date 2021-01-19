@@ -76,7 +76,6 @@ class RoundCandidatesController extends Controller
             $data=[
               'round_id'=>$input['round_id'],
               'student_id'=>$student,
-//                'mark'=>0 "mark have assigned default value = 0"
             ];
             $this->out->writeln('Round Candidates: '.$student);
             if(RoundCandidates::firstOrCreate($data)){
@@ -99,7 +98,6 @@ class RoundCandidatesController extends Controller
     }
 
     public function roundConfirmMail($round, $users){
-//        $this->out->writeln('Round info: ')
         $round_name = $round->name;
         $assessment_name = $round->question_set['title'];
         $assessment_start_time = $round->question_set->start_time;
@@ -159,8 +157,7 @@ class RoundCandidatesController extends Controller
 
     public function eachRoundCandidates($round_id){
         $this->out->writeln('Fetching candidates based on the round-id: '.$round_id);
-        $round_candidates = RoundCandidates::with('user_profiles')
-                                            ->where('round_id',$round_id)->get();
+        $round_candidates = RoundCandidates::with('user_profiles')->where('round_id',$round_id)->get();
         if($round_candidates){
             return response()->json(['success'=>true, 'round_candidates'=>$round_candidates],$this->successStatus);
         }

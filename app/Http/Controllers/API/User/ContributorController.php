@@ -54,8 +54,6 @@ class ContributorController extends Controller
             return response()->json(['success'=>true,'contributors'=>$contributors],$this->successStatus);
         }
         return response()->json(['success'=>true,'contributors'=>[]],$this->successStatus);
-//        $contributors = Contributor::with(['user_profile'])->get();
-//        return response()->json(['success' => true, 'contributors' => $contributors], $this-> successStatus);
     }
 
 

@@ -43,7 +43,6 @@ class QuestionSetController extends Controller
     {
         $user = Auth::user();
         $userProfile = UserProfile::where('user_id', $user->id)->first();
-        $permissions = $user->getAllPermissions();
         $i=0;
         if($user->can('super-admin')){
             $question_sets = QuestionSet::with(['question_set_details'])->get();
@@ -77,47 +76,51 @@ class QuestionSetController extends Controller
             return response()->json(['success' => true, 'question_set' => $question_sets], $this-> successStatus);
         }
         return response()->json(['success' => true, 'question_set' => []], $this-> successStatus);
-//        $i=0;
-//
-//        if($userProfile->institute_id){
-//            $question_sets = QuestionSet::with(['question_set_details'])
-//                ->where('privacy', '=', 0)
-//                ->orWhere('privacy', '=', 1)
-//                ->where('institute_id', '=', $userProfile->institute_id)
-//                ->orWhere('privacy', '=', 2)
-//                ->where('created_by', '=', $userProfile->id)
-//                ->orWhere('created_by', '=', $userProfile->id)
-//                ->get();
-//
-//            foreach($question_sets as $question_set){
-//                $question_set_id = $question_set->id;
-//                if(QuestionSetAnswer::where('question_set_id','=',$question_set_id)->where('profile_id','=',$userProfile->id)->exists()){
-//                    $question_sets[$i]['attended']=1;
-//                }
-//                else{
-//                    $question_sets[$i]['attended']=0;
-//                }
-//                $i++;
-//            }
-//        }else{
-//            $question_sets = QuestionSet::with(['question_set_details'])
-//                ->where('privacy', '=', 0)
-//                ->orWhere('privacy', '=', 2)
-//                ->where('created_by', '=', $userProfile->id)
-//                ->orWhere('created_by', '=', $userProfile->id)
-//                ->get();
-//            foreach($question_sets as $question_set){
-//                $question_set_id = $question_set->id;
-//                if(QuestionSetAnswer::where('question_set_id','=',$question_set_id)->where('profile_id','=',$userProfile->id)->exists()){
-//                    $question_sets[$i]['attended']=1;
-//                }
-//                else{
-//                    $question_sets[$i]['attended']=0;
-//                }
-//                $i++;
-//            }
-//        }
-//        return response()->json(['success' => true, 'question_set' => $question_sets], $this-> successStatus);
+    }
+
+    public function index_old(){
+        $user = Auth::user();
+        $userProfile = UserProfile::where('user_id', $user->id)->first();
+        $i=0;
+        if($userProfile->institute_id){
+            $question_sets = QuestionSet::with(['question_set_details'])
+                ->where('privacy', '=', 0)
+                ->orWhere('privacy', '=', 1)
+                ->where('institute_id', '=', $userProfile->institute_id)
+                ->orWhere('privacy', '=', 2)
+                ->where('created_by', '=', $userProfile->id)
+                ->orWhere('created_by', '=', $userProfile->id)
+                ->get();
+
+            foreach($question_sets as $question_set){
+                $question_set_id = $question_set->id;
+                if(QuestionSetAnswer::where('question_set_id','=',$question_set_id)->where('profile_id','=',$userProfile->id)->exists()){
+                    $question_sets[$i]['attended']=1;
+                }
+                else{
+                    $question_sets[$i]['attended']=0;
+                }
+                $i++;
+            }
+        }else{
+            $question_sets = QuestionSet::with(['question_set_details'])
+                ->where('privacy', '=', 0)
+                ->orWhere('privacy', '=', 2)
+                ->where('created_by', '=', $userProfile->id)
+                ->orWhere('created_by', '=', $userProfile->id)
+                ->get();
+            foreach($question_sets as $question_set){
+                $question_set_id = $question_set->id;
+                if(QuestionSetAnswer::where('question_set_id','=',$question_set_id)->where('profile_id','=',$userProfile->id)->exists()){
+                    $question_sets[$i]['attended']=1;
+                }
+                else{
+                    $question_sets[$i]['attended']=0;
+                }
+                $i++;
+            }
+        }
+        return response()->json(['success' => true, 'question_set' => $question_sets], $this-> successStatus);
     }
 
 

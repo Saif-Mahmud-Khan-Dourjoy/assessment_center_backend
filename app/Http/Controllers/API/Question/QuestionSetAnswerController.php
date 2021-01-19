@@ -185,34 +185,6 @@ class QuestionSetAnswerController extends Controller
     }
 
     /**
-     * student ranking based on the mark and time-taken during exam
-     * @param $question_answers
-     * @return $question_answers
-     */
-//    public function studentRank($question_answers){
-//        for($i=0;$i<sizeof($question_answers)-1;$i++){
-//            for($j=$i+1;$j<sizeof($question_answers);$j++){
-//                if($question_answers[$i]->total_mark<$question_answers[$j]->total_mark){
-//                    $temp = $question_answers[$i];
-//                    $question_answers[$i]=$question_answers[$j];
-//                    $question_answers[$j]=$temp;
-//                }else if($question_answers[$i]->total_mark==$question_answers[$j]->total_mark  && $question_answers[$i]->time_taken>$question_answers[$j]->time_taken){
-//                    $this->out->writeln('swap by time');
-//                    $temp = $question_answers[$i];
-//                    $question_answers[$i]=$question_answers[$j];
-//                    $question_answers[$j]=$temp;
-//                }
-//            }
-//        }
-//        foreach ($question_answers as $qs){
-//            $this->out->writeln('question set ans id: '.$qs->id);
-//        }
-//        return $question_answers;
-//    }
-
-
-
-    /**
      * Get all student based on the assessment.
      *
      * @param $id
@@ -221,10 +193,6 @@ class QuestionSetAnswerController extends Controller
     public function getAllStudent($id)
     {
         $this->out->writeln('Fetching students attended!');
-//        $question_answer = QuestionSetAnswer::with(['user_profile', 'question_set', 'question_set_answer_details'])
-//            ->where('question_set_id', $id)
-//            ->orderByDesc('total_mark')
-//            ->get();
         $question_answer = QuestionSetAnswer::with(['user_profile','question_set_answer_details'])
             ->where('question_set_id', $id)
             ->orderByDesc('total_mark')
@@ -245,21 +213,18 @@ class QuestionSetAnswerController extends Controller
             if($round->passing_criteria=='pass' && $mark_percentage>=$round->number){
                 $this->out->writeln('Total Mark: '.$mark_achieved);
                 $question_answer[$i]['promoted']=1;
-//                $question_answer[$i]['rank']=$i+1;
             }else if($round->passing_criteria=='sort' && 0<$round->number){
                 $this->out->writeln('Total Mark: '.$mark_achieved);
                 $question_answer[$i]['promoted']=1;
-//                $question_answer[$i]['rank']=$i+1;
             }else{
                 $this->out->writeln('Total Mark: '.$mark_achieved);
                 $question_answer[$i]['promoted']=0;
-//                $question_answer[$i]['rank']=$i+1;
             }
             $question_answer[0]['rank']=1;
             $question_answer[0]['position']=1;
             $question_answer[0]['percentage']=$mark_percentage;
             return response()->json(['success' => true, 'question_set'=>$questionSet , 'question_set_answer' => $question_answer], $this->successStatus);
-        }   
+        }
         $question_answer = $this->studentRank($question_answer);
         foreach($question_answer as $question_ans){
             $mark_achieved = $question_ans->total_mark;
@@ -267,23 +232,11 @@ class QuestionSetAnswerController extends Controller
             $mark_percentage = ($mark_achieved/$total_mark)*100;
             $question_answer[$i]['percentage']=$mark_percentage;
             if($round->passing_criteria=='pass' && $mark_percentage>=$round->number){
-                $this->out->writeln('Student is promoted, i: '.$i);
-                $this->out->writeln('Student id: '.$student);
-                $this->out->writeln('Total Mark: '.$mark_achieved);
                 $question_answer[$i]['promoted']=1;
-//                $question_answer[$i]['rank']=$i+1;
             }else if($round->passing_criteria=='sort' && $i<$round->number){
-                $this->out->writeln('Student is promoted, i: '.$i);
-                $this->out->writeln('Student id: '.$student);
-                $this->out->writeln('Total Mark: '.$mark_achieved);
                 $question_answer[$i]['promoted']=1;
-//                $question_answer[$i]['rank']=$i+1;
             }else{
-                $this->out->writeln('Student is not promoted, i: '.$i);
-                $this->out->writeln('Student id: '.$student);
-                $this->out->writeln('Total Mark: '.$mark_achieved);
                 $question_answer[$i]['promoted']=0;
-//                $question_answer[$i]['rank']=$i+1;
             }
 
             $i++;

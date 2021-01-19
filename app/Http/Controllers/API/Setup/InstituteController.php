@@ -44,8 +44,6 @@ class InstituteController extends Controller
             return response()->json(['success'=>true,'institutes'=>$institutes],$this->successStatus);
         }
         return response()->json(['success'=>true,'institutes'=>[]],$this->successStatus);
-//        $institutes = Institute::all();
-//        return response()->json(['success' => true, 'institutes' => $institutes], $this-> successStatus);
     }
 
 
@@ -116,10 +114,10 @@ class InstituteController extends Controller
             'address' =>  $input['address'],
         ];
         $institute = $institute->update($data);
-        if( $institute )
+        if( $institute ) {
             return response()->json(['success' => true, 'message' => 'Institute update successfully'], $this->successStatus);
-        else
-            return response()->json(['success' => false, 'message' => 'Institute update failed'], $this->failedStatus);
+        }
+        return response()->json(['success' => false, 'message' => 'Institute update failed'], $this->failedStatus);
     }
 
 

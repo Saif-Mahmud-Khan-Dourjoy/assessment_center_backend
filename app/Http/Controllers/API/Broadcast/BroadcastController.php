@@ -42,8 +42,6 @@ class BroadcastController extends Controller
     }
 
     public function mailNotice($title, $body, $users){
-        $email_confirm ='';
-        $email_failed='';
         foreach ($users as $user){
             $this->out->writeln('User email: '.$user->email);
             $email = Mail::to(trim($user->email))
@@ -88,8 +86,6 @@ class BroadcastController extends Controller
      */
     public function studentRank($total_mark, $question_answers){
         $position = 1;
-        $percentage=0;
-
         for($i=0;$i<sizeof($question_answers)-1;$i++){
             for($j=$i+1;$j<sizeof($question_answers);$j++){
                 if($question_answers[$i]->total_mark<$question_answers[$j]->total_mark){
@@ -194,7 +190,7 @@ class BroadcastController extends Controller
                 $question_set_answer[0]['percentage']=$mark_percentage;
                 $this->resultEmail($question_set, $question_set_answer, $institution->name);
                 return response()->json(['success' => true, 'broadcast'=>$broadcast , 'question_set_answer' => $question_set_answer], $this->successStatus);
-            } 
+            }
             $sorted_result = $this->studentRank($question_set->total_mark, $question_set_answer);
             $this->resultEmail($question_set, $sorted_result, $institution->name);
             return response()->json(['success'=>true, 'broadcast'=>$broadcast, 'question_set_answer'=>$question_set_answer], $this->successStatus);
@@ -208,9 +204,7 @@ class BroadcastController extends Controller
             'question_set_title'=>$question_set->title,
         ];
         foreach ($question_set_answers as $participant){
-            $this->out->writeln(
-                'user certificate email'
-            );
+            $this->out->writeln('user certificate email');
             $email_info ['user_email']= trim($participant->user_profile->email);
             $email_info['first_name']=$participant->user_profile->first_name;
             $email_info['last_name']=$participant->user_profile->last_name;
@@ -221,9 +215,7 @@ class BroadcastController extends Controller
             Storage::put('certificate/1.pdf', $pdf->output());
 
             mail::to($email_info['user_email'])
-                ->cc('hemayet.nirjhoy@icloud.com')
                 ->send(new BroadcastCertificate($email_info));
-
         }
 
     }
