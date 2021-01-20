@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class StudentController extends Controller
@@ -103,6 +104,7 @@ class StudentController extends Controller
 //        $this->attributes['username'] = $username;
         return $username;
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -215,6 +217,7 @@ class StudentController extends Controller
     }
 
 
+
     /**
      * Display the specified resource.
      *
@@ -312,5 +315,166 @@ class StudentController extends Controller
         else
             return response()->json(['success' => false, 'message' => 'Student can not be deleted'], $this->failedStatus);
 
+    }
+
+    public function validKey($keys){
+        $reform_keys=[];
+        $inst_keys_set=array('institution', 'institution name','institute','institute name','school','college','school/college','university');
+        $phone_keys_set = array('phone', 'phone no.','phone no','phone-no', 'mobile','mobile no.','mobile-no','mobile no','contact no','cell no');
+        $zip_codes_set=array('zip-code', 'zip code','zip','post','post-code');
+        foreach($keys as $key){
+            if(strtolower(trim($key))=='first name')
+                array_push($reform_keys, 'first_name');
+            else if(strtolower(trim($key))=='last name')
+                array_push($reform_keys, 'last_name');
+            else if(strtolower(trim($key))=='email')
+                array_push($reform_keys, 'email');
+            else if(in_array(strtolower(trim($key)), $inst_keys_set))
+                array_push($reform_keys, 'institute_name');
+            else if(in_array(strtolower(trim($key)), $phone_keys_set))
+                array_push($reform_keys, 'phone');
+            else if(strtolower(trim($key))=='class')
+                array_push($reform_keys, 'class');
+            else if(strtolower(trim($key))=='skype')
+                array_push($reform_keys, 'skype');
+            else if(strtolower(trim($key))=='profession')
+                array_push($reform_keys, 'profession');
+            else if(strtolower(trim($key))=='about')
+                array_push($reform_keys, 'about');
+            else if(strtolower(trim($key))=='address')
+                array_push($reform_keys, 'address');
+            else if(in_array(strtolower(trim($key)), $zip_codes_set))
+                array_push($reform_keys, 'zipcode');
+        }
+        return $reform_keys;
+    }
+
+    /**
+     * For converting csv to json
+     * @param $fname
+     * @return false|string
+     */
+
+    function csvToJson($fname) {
+        if (!($fp = fopen($fname, 'r'))) {
+            die("Can't open file...");
+        }
+        $key = fgetcsv($fp,"1024",",");
+        $valid_key =$this->validKey($key);
+        $this->out->writeln('key: '.$valid_key[0]);
+        $json = array();
+        while ($row = fgetcsv($fp,"1024",",")) {
+            $json[] = array_combine($valid_key, $row);
+        }
+        fclose($fp);
+        return $json;
+    }
+
+    public function checkSimilarity($student){
+        if(UserProfile::where('first_name','=',$student['first_name'])
+                        ->where('last_name','=',$student['last_name'])
+                        ->where('email','=',$student['email'])
+                        ->where('phone','=',$student['phone'])
+                        ->exists()
+        ){
+            return true;
+        }
+        return false;
+    }
+
+    public function bulkEntry(Request $request){
+        $default_status =1;
+        $this->out->writeln('Student Mass entry processing...');
+        $user = UserProfile::where('user_id','=',Auth::id())->first();
+        $timestamp = date('y_m_d_h_m_s',time());
+        $file_name = $timestamp."_".$user->user_id.".csv";
+        $path = $request->file('students')->storeAs('students',$file_name);
+        $this->out->writeln('Path: '.$path);
+        $students= Storage::path($path);
+        $students= $this->csvToJson($students);
+        return $students;
+        $student_success = [];
+        foreach($students as $student){
+            $this->out->writeln($student);
+            if(empty($student['first_name']) || empty($student['last_name']) || empty($student['email']) || empty($student['phone'])){
+                continue;
+            }
+            // Auto generate password
+            $rand_pass = Str::random(8);
+            $hashed_random_password = Hash::make($rand_pass);
+            $user_data=[
+                'name'=>$student['first_name'].' '.$student['last_name'],
+                'username'=>$this->uniqueUser($student['first_name'],$student['last_name']),
+                'email'=>$student['email'],
+                'status'=>$default_status,
+                'password'=>$hashed_random_password,
+            ];
+            $student_user = User::create($user_data);
+            if(!$student_user){
+                //todo save failed student
+            }
+            //Send Email
+            if(!$this->emailCredential($student_user->username,$student_user->name, $rand_pass, $student_user->email)){
+                $student_user->delete();
+                $this->out->writeln('User deleted successfully due to unsend email');
+                return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);
+            }
+            $student_profile_data = [
+                'user_id'=>$student_user['id'],
+                'first_name'=>$student['first_name'],
+                'last_name'=>$student['last_name'],
+                'institute_id'=>$user->instiute_id,
+                'email'=>$student['email'],
+                'phone'=>$student['phone'],
+                'skype'=>(!empty($student['skype'])?$student['email']:''),
+                'profession'=>(!empty($student['profession'])?$student['profession']:''),
+                'skill'=>(!empty($student['skill'])?$student['skill']:''),
+                'about'=>(!empty($student['about'])?$student['about']:''),
+                'img'=>(!empty($student['img'])?$student['img']:''),
+                'address'=>(!empty($student['address'])?$student['address']:''),
+                'zipcode'=>(!empty($student['zipcode'])?$student['zipcode']:''),
+                'country'=>(!empty($student['country'])?$student['country']:''),
+                'guard_name' => 'web',
+            ];
+            $student_profile = UserProfile::create($student_profile_data);
+            if(!$student_profile){
+                $student_user->delete();
+                //todo rollback student user
+            }
+            // Add Contributor Info
+            $contributor_data = [
+                'profile_id' => $student_profile['id'],
+                'completing_percentage' => 100,
+                'total_question' => 0,
+                'average_rating' => 0,
+                'approve_status' => 0,
+                'active_status' => 0,
+                'guard_name' => 'web',
+            ];
+            $contributor = Contributor::create( $contributor_data );
+            if(!$student_profile){
+                $student_user->delete();
+                $student_profile->delete();
+                //todo rollback student user
+            }
+            // Add Student Info
+            $student_data = [
+                'profile_id' => $student_profile['id'],
+                'completing_percentage' => 100,
+                'total_complete_assessment' => 0,
+                'approve_status' => 0,
+                'active_status' => 0,
+                'guard_name' => 'web',
+            ];
+            $student_instance = Student::create( $student_data );
+            if(!$student_profile){
+                $student_user->delete();
+                $student_profile->delete();
+                $contributor->delete();
+                //todo rollback student user
+            }
+            array_push($student_success, $student_profile);
+        }
+        return $student_success;
     }
 }
