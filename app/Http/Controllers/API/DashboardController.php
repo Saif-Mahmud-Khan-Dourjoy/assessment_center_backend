@@ -78,7 +78,6 @@ class DashboardController extends Controller
             return response()->json(['success' => true, 'data' => $data], $this-> successStatus);
         }
 
-
         $total_institute = DB::table('institutes')->count();
         $total_user = DB::table('users')->count();
         $total_assessment = DB::table('question_sets')->count();
