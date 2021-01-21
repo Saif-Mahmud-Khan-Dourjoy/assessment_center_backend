@@ -134,7 +134,7 @@ class UserController extends Controller
             // Add User Profile
             $user_profile = UserProfile::create([
                 'user_id' => $user['id'],
-                'institute_id' => (!empty($_POST["institute_id"])) ? $input['institute_id'] : NULL,
+                'institute_id' => (!empty($input["institute_id"])) ? $input['institute_id'] : NULL,
                 'first_name' => $input['first_name'],
                 'last_name' => $input['last_name'],
                 'email' => $input['email'],
@@ -386,7 +386,6 @@ class UserController extends Controller
 
     public function getRoleWiseUsersList(Request $request)
     {
-        $this->out->writeln('get role wise userlist');
         $user = auth()->user();
         $userProfile = UserProfile::where('user_id','=',$user->id)->first();
         $input = $request->all();
@@ -398,7 +397,7 @@ class UserController extends Controller
             return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
         if (!empty($_POST["role_name"]) && $input['role_name']){
-            $this->out->writeln('Rolewise user list fetching.');
+            $this->out->writeln('Rolewise user list fetching: '.$input['role_name']);
             $users = User::with(['user_profile'])->role($input['role_name'])->get();
             $valid_users=[];
             foreach ($users as $u) {
@@ -409,7 +408,7 @@ class UserController extends Controller
             }
             return response()->json(['success' => true, 'users' => $valid_users], $this->successStatus);
         }
-        
+
         if($userProfile->institute_id){
             $this->out->writeln('User fetching based on the institution.');
             $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();

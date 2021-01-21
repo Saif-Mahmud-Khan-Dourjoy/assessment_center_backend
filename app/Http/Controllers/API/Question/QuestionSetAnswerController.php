@@ -59,6 +59,7 @@ class QuestionSetAnswerController extends Controller
      */
     public function store(Request $request)
     {
+        $this->out->writeln('questions et answer');
         request()->validate([
             'question_set_id' => 'required',
             'profile_id' => 'required',

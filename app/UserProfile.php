@@ -54,4 +54,8 @@ class UserProfile extends Model
     public function user(){
         return $this->belongsTo('App\User', 'user_id');
     }
+
+    public function question_set_answer(){
+        return $this->hasMany('App\QuestionSetAnswer','profile_id');
+    }
 }
