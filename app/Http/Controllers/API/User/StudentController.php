@@ -366,12 +366,13 @@ class StudentController extends Controller
         }
         $key = fgetcsv($fp,"1024",",");
         $valid_key =$this->validKey($key);
-        foreach ($valid_key as $k){
-            $this->out->writeln('Key: '.$k);
-        }
         $this->out->writeln('key: '.sizeof($valid_key));
         $json = array();
         while ($row = fgetcsv($fp,"1024",",")) {
+            if(sizeof($row)!=sizeof($valid_key)){
+                $this->out->writeln("CSV Keys and items aren't matching!");
+                return false;
+            }
             $json[] = array_combine($valid_key, $row);
         }
         $this->out->writeln('CSV to json convertion succesful');
@@ -398,39 +399,25 @@ class StudentController extends Controller
             'user_role'=>'required',
         ]);
         $input = $request->all();
-
         $this->out->writeln('Student Mass entry processing...');
         $user = UserProfile::where('user_id','=',Auth::id())->first();
         $timestamp = date('y_m_d_h_m_s',time());
         $file_name = $timestamp."_".$user->user_id.".csv";
         $path = $request->file('students')->storeAs('students',$file_name);
         $students_path= Storage::path($path);
-      //------------------------------------------------------
-
-        $students= $this->csvToJson($students_path);
         if (!($fp = fopen($students_path, 'r'))) {
-            return respnse()->json(['success'=>false, 'message'=>"Can't Open file!"],$this->failedStatus);
+            return response()->json(['success'=>false, 'message'=>"Can't Open file!"],$this->failedStatus);
         }
-
-
-//        $student_failed = fopen("failed.csv","w");
-//
-        $this->out->writeln('checking');
-//
-//        fputcsv($student_failed, fgetcsv($fp));
-
-
-
-        $student_failed = Storage::putFile('file.txt', $path);
-
-        $this->out->writeln("path of storage: $student_failed");
-//        $student_failed_file = Storage::putFile('avatars', );
-        fclose($student_failed);
-        return $students;
-
-        //--------------------------------------------------------------------
+        $keys = fgetcsv($fp);
+        $success_content= $this->fileContent('',$keys);
+        $failed_content = $this->fileContent('',$keys);
+        $students= $this->csvToJson($students_path);
+        if(!$students){
+            return response()->json(['success'=>false, 'message'=>"File has invalid column name!", 'columns'=>$success_content],$this->invalidStatus);
+        }
         $student_success = [];
         foreach($students as $student){
+            $row = fgetcsv($fp);
             $this->out->writeln($student);
             if(empty($student['first_name']) || empty($student['last_name']) || empty($student['email']) || empty($student['phone'])){
                 continue;
@@ -447,19 +434,15 @@ class StudentController extends Controller
             ];
             $student_user = User::create($user_data);
             if(!$student_user){
-                //todo save failed student
+                $failed_content=$this->fileContent($failed_content, $row);
+                continue;
             }
-            //Send Email
-            if(!$this->emailCredential($student_user->username,$student_user->name, $rand_pass, $student_user->email)){
-                $student_user->delete();
-                $this->out->writeln('User deleted successfully due to unsend email');
-                return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);
-            }
+
             $student_profile_data = [
                 'user_id'=>$student_user['id'],
                 'first_name'=>$student['first_name'],
                 'last_name'=>$student['last_name'],
-                'institute_id'=>(!empty($input['institute_id'])?$institute_id['institute_id']:$user->institute_id),
+                'institute_id'=>(!empty($input['institute_id'])?$input['institute_id']:$user->institute_id),
                 'email'=>$student['email'],
                 'phone'=>$student['phone'],
                 'skype'=>(!empty($student['skype'])?$student['email']:''),
@@ -475,7 +458,8 @@ class StudentController extends Controller
             $student_profile = UserProfile::create($student_profile_data);
             if(!$student_profile){
                 $student_user->delete();
-                //todo rollback student user
+                $failed_content=$this->fileContent($failed_content, $row);
+                continue;
             }
             $academic_data=[
                 'profile_id'=>$student_profile['id'],
@@ -484,7 +468,7 @@ class StudentController extends Controller
             ];
             // Assign Role
 //            $role = RoleSetup::first();
-            $user->assignRole($input['user_role']);
+            $student_user->assignRole($input['user_role']);
             // Add Contributor Info
             $contributor_data = [
                 'profile_id' => $student_profile['id'],
@@ -499,7 +483,8 @@ class StudentController extends Controller
             if(!$student_profile){
                 $student_user->delete();
                 $student_profile->delete();
-                //todo rollback student user
+                $failed_content=$this->fileContent($failed_content, $row);
+                continue;
             }
             // Add Student Info
             $student_data = [
@@ -515,11 +500,34 @@ class StudentController extends Controller
                 $student_user->delete();
                 $student_profile->delete();
                 $contributor->delete();
-                //todo rollback student user
+                $failed_content=$this->fileContent($failed_content, $row);
+                continue;
             }
             $student_academic_info = UserAcademicHistory::create($academic_data);
+//            Send Email
+            if(!$this->emailCredential($student_user->username,$student_user->name, $rand_pass, $student_user->email)) {
+                $student_user->delete();
+                $student_profile->delete();
+                $contributor->delete();
+                $student_academic_info->delete();
+                $this->out->writeln('User deleted successfully due to unsend email');
+                $failed_content=$this->fileContent($failed_content, $row);
+                continue;
+            }
+
+            $success_content = $this->fileContent($success_content, $row);
             array_push($student_success, $student_profile);
         }
-        return $student_success;
+        $student_temp = Storage::put("students/$timestamp"."_$user->user_id"."_success.csv",$success_content);
+        $student_temp = Storage::put("students/$timestamp"."_$user->user_id"."_failed.csv",$failed_content);
+        return response()->json(['success'=>true, 'success_students'=>$success_content, "failed_students"=>$failed_content],$this->successStatus);
+    }
+
+    public function fileContent($content, $items){
+        for($i=0;$i<sizeof($items);$i++){
+            $content=$content.$items[$i].",";
+        }
+        $content[strlen($content)-1]="\r\n";
+        return $content;
     }
 }

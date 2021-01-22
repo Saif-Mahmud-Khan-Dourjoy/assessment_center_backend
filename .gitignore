@@ -1,6 +1,7 @@
 .idea
 /public/storage
 /storage/*.key
+/storage/app/students
 .env.backup
 .phpunit.result.cache
 Homestead.json

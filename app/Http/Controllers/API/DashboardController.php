@@ -69,7 +69,7 @@ class DashboardController extends Controller
             $total_attendant = UserProfile::with('question_set_answer')->where('institute_id','=',$userProfile->institute_id)->count();
             $total_attendant = QuestionSetAnswer::whereIn('profile_id',UserProfile::where('institute_id','=',$userProfile->institute_id)->get('id'))->count();
             $data = [
-                'total_institute' => null,
+                'total_institute' => [],
                 'total_user' => $total_user,
                 'total_assessment' => $total_assessment,
                 'total_attendant' => $total_attendant,
