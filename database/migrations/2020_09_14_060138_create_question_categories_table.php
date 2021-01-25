@@ -19,6 +19,8 @@ class CreateQuestionCategoriesTable extends Migration
             $table->integer('parents_id');
             $table->integer('layer');
             $table->text('description')->nullable();
+//            $table->unsignedBigInteger('created_by')->unsigned();
+//            $table->foreign('created_by')->references('id')->on('users');
             $table->timestamps();
         });
     }

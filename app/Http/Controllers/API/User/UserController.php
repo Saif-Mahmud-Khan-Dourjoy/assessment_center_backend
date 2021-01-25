@@ -100,6 +100,7 @@ class UserController extends Controller
         request()->validate([
             'username'=>'required|unique:users',
             'email' => 'required|email',
+            'birth_date'=>'required',
         ]);
         $input = $request->all();
         $rand_pass = Str::random(8);

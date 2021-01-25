@@ -57,6 +57,7 @@ class BroadcastController extends Controller
            'body'=>'required',
             'institute_id'=>'required',
             'broadcast_to'=>'required',
+            'group'=>'required'
         ]);
         $input = $request->all();
         $user_id=Auth::id();
@@ -72,7 +73,6 @@ class BroadcastController extends Controller
         if($broadcast){
             $this->out->writeln('Message broadcast successful');
             $all_profiles = UserProfile::where('institute_id','=',$input['institute_id'])->get();
-//            dd($all_profiles);
             $this->mailNotice($input['title'],$input['body'], $all_profiles);
             return response()->json(['success'=>true, 'broadcast'=>$broadcast],$this->successStatus);
         }

@@ -127,8 +127,9 @@ class QuestionController extends Controller
             'no_of_comments' => $input['no_of_comments'],
             'average_rating' => $input['average_rating'],
             'img' => $input['img'],
-
             'active' => $input['active'],
+            'created_by'=>$user->id,
+            'updated_by'=>$user->id,
         ];
         //dd($questionData);
         $question = Question::create($questionData);
@@ -214,7 +215,9 @@ class QuestionController extends Controller
         request()->validate([
             'name' => 'required|unique:questions,name,'.$id,
         ]);
-        $question = $question->update($request->all());
+        $input = $request->all();
+        $input['updated_by']=Auth::id();
+        $question = $question->update($input);
         if( $question )
             return response()->json(['success' => true, 'message' => 'Question update successfully'], $this->successStatus);
         else

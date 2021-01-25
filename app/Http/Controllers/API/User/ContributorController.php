@@ -90,6 +90,7 @@ class ContributorController extends Controller
             'last_name' => 'required',
             'username'=> 'required|unique:users',
             'email' => 'required|email',
+            'birth_date'=>'required',
             //'phone' => 'required|unique:user_profiles',
         ]);
         $input = $request->all();

@@ -189,9 +189,10 @@ class QuestionSetController extends Controller
             'total_mark' => $input['total_mark'],
             'status' => $input['status'],
             'privacy' => $privacy,
-            'created_by' => $userProfile->id,//Profile ID
             'approved_by' => $userProfile->id,//Profile ID
             'round_id'=>$input['round_id'],
+            'created_by' => $user->id,//User ID
+            'updated_by' => $user->id,
         ];
         $question = QuestionSet::create($questionData);
 
@@ -259,9 +260,9 @@ class QuestionSetController extends Controller
             'total_mark' => $input['total_mark'],
             'status' => $input['status'],
             'privacy' => $privacy,
-            'created_by' => $userProfile->id,//Profile ID
             'approved_by' => $userProfile->id,//Profile ID
             'round_id'=>$input['round_id'],
+            'updated_by'=>$user->id,
         ];
         $questionset = QuestionSet::find($id);
         // if( ! UserAcademicHistory::where(['profile_id' => $input['profile_id'], 'check_status' => $input['check_status']])->first() )
