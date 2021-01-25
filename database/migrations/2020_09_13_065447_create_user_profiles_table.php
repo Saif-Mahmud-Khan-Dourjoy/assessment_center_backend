@@ -22,6 +22,7 @@ class CreateUserProfilesTable extends Migration
             $table->char('last_name', 100)->nullable();
             $table->char('email', 100);
             $table->char('phone', 50)->nullable();
+            $table->date('birth_date');
             $table->char('skype', 100)->nullable();
             $table->char('profession', 100)->nullable();
             $table->char('skill', 200)->nullable();

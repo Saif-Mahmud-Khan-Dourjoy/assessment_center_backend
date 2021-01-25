@@ -41,6 +41,7 @@ class CreateAdminUserSeeder extends Seeder
             'first_name' => 'Admin',
             'last_name' => 'Admin',
             'email' => 'admin@nsl.com',
+            'birth_date'=>'1990-01-10'
         ]);
 
         // Add Contributor Info

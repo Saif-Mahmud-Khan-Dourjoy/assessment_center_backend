@@ -136,6 +136,7 @@ class ContributorController extends Controller
             'last_name' => $input['last_name'],
             'email' => $input['email'],
             'phone' => $input['phone'],
+            'birth_date'=>$input['birth_date'],
             'skype' => (!empty($_POST["skype"])) ? $input['skype'] : 0,
             'profession' => (!empty($_POST["profession"])) ? $input['profession'] : 'n/a',
             'skill' => (!empty($_POST["skill"])) ? $input['skill'] : 'n/a',

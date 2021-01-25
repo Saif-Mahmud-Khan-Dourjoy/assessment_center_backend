@@ -164,6 +164,7 @@ class StudentController extends Controller
             'last_name' => $input['last_name'],
             'email' => $input['email'],
             'phone' => $input['phone'],
+            'birth_date'=>$input['birth_date'],
             'skype' => (!empty($_POST["skype"])) ? $input['skype'] : 0,
             'profession' => (!empty($_POST["profession"])) ? $input['profession'] : 'n/a',
             'skill' => (!empty($_POST["skill"])) ? $input['skill'] : 'n/a',
@@ -325,6 +326,7 @@ class StudentController extends Controller
         $inst_keys_set=array('institution', 'institution name','institute','institute-name','institution-name','institution_name','institute_name','school','college','school/college','university');
         $phone_keys_set = array('phone', 'phone no.','phone no','phone-no', 'mobile','mobile no.','mobile-no','mobile no','contact no','cell no');
         $zip_codes_set=array('zip-code','zipcode', 'zip code','zip','post','post-code');
+        $birth_dates_set = array('birth_date','birth date','birth-date', 'birth');
         foreach($keys as $key){
             if(in_array(strtolower(trim($key)), $first_name_keys_set))
                 array_push($reform_keys, 'first_name');
@@ -350,6 +352,8 @@ class StudentController extends Controller
                 array_push($reform_keys, 'zipcode');
             else if(strtolower(trim($key))=='country')
                 array_push($reform_keys, 'country');
+            else if(in_array(strtolower(trim($key)), $birth_dates_set))
+                array_push($reform_keys, 'birth_date');
         }
         return $reform_keys;
     }
@@ -445,6 +449,7 @@ class StudentController extends Controller
                 'institute_id'=>(!empty($input['institute_id'])?$input['institute_id']:$user->institute_id),
                 'email'=>$student['email'],
                 'phone'=>$student['phone'],
+                'birth_date'=>$student['birth_date'],
                 'skype'=>(!empty($student['skype'])?$student['email']:''),
                 'profession'=>(!empty($student['profession'])?$student['profession']:''),
                 'skill'=>(!empty($student['skill'])?$student['skill']:''),

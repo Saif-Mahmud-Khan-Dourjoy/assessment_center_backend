@@ -139,6 +139,7 @@ class UserController extends Controller
                 'last_name' => $input['last_name'],
                 'email' => $input['email'],
                 'phone' => $input['phone'],
+                'birth_date'=>$input['birth_date'],
                 'skype' => (!empty($_POST["skype"])) ? $input['skype'] : 0,
                 'profession' => (!empty($_POST["profession"])) ? $input['profession'] : 'n/a',
                 'skill' => (!empty($_POST["skill"])) ? $input['skill'] : 'n/a',
@@ -396,10 +397,10 @@ class UserController extends Controller
             }
             return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
+        $valid_users=[];
         if (!empty($_POST["role_name"]) && $input['role_name']){
             $this->out->writeln('Rolewise user list fetching: '.$input['role_name']);
             $users = User::with(['user_profile'])->role($input['role_name'])->get();
-            $valid_users=[];
             foreach ($users as $u) {
                 $up = UserProfile::where('user_id','=',$u->id)->first();
                 if($userProfile->institute_id==$up->institute_id){
@@ -412,7 +413,6 @@ class UserController extends Controller
         if($userProfile->institute_id){
             $this->out->writeln('User fetching based on the institution.');
             $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();
-            $valid_users=[];
             foreach ($users as $u) {
                 $up = UserProfile::where('user_id','=',$u->id)->first();
                 if($userProfile->institute_id==$up->institute_id){
