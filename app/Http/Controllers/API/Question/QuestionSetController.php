@@ -11,8 +11,10 @@ use App\QuestionSetDetail;
 use App\QuestionSetAnswer;
 use App\QuestionSetAnswerDetail;
 use App\RoundCandidates;
+use App\Student;
 use App\UserProfile;
 use Carbon\Carbon;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -300,6 +302,21 @@ class QuestionSetController extends Controller
         }
     }
 
+    public function initQuestionSetAnswer($question_set_id){
+        $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
+        $questionAnswerData = [
+            'question_set_id'=>$question_set_id,
+            'profile_id'=>$userProfile->id,
+            'time_taken'=>0,
+            'total_mark'=>0,
+        ];
+        $question_answer = QuestionSetAnswer::create($questionAnswerData);
+//        $student = Student::where('profile_id','=',$question_answer)->first();
+        Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
+
+
+    }
+
 
     /**
      * Display the specified resource.
@@ -310,10 +327,22 @@ class QuestionSetController extends Controller
     public function show($id)
     {
         $this->out->writeln('Fetching Question set with all questions, question-set id: '.$id);
+        $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
+        if(QuestionSetAnswer::where('question_set_id',$id)->where('profile_id',$userProfile->id)->exists())
+            return response()->json(['success'=>false, "message"=>"You have already attended!"],$this->failedStatus);
         $question_set = QuestionSet::with(['question_set_details'])
             ->where('id', $id)
             ->get();
-        //->with(['question_details', 'question_answer', 'question_tag']);
+        if (sizeof($question_set)<1)
+            return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
+        $questionAnswerData = [
+            'question_set_id'=>$question_set[0]->id,
+            'profile_id'=>$userProfile->id,
+            'time_taken'=>0,
+            'total_mark'=>0,
+        ];
+        $question_set_answer = QuestionSetAnswer::create($questionAnswerData);
+        Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
         $i = 0;
         foreach ($question_set[0]->question_set_details as $question_detail){
             $this->out-> writeln('Question set details: '.$question_detail);
@@ -321,16 +350,17 @@ class QuestionSetController extends Controller
             $question = Question::with(['question_details', 'question_answer', 'question_tag'])
                 ->where('id', $question_detail->question_id)
                 ->get();
+            QuestionSetAnswerDetail::create(
+                [
+                    'question_set_answer_id' =>$question_set_answer->id,
+                    'question_id'=>$question_detail->question_id,
+                    'answer'=>0,
+                    'mark'=>0,
+                ]
+            );
             $question_set[0]->question_set_details[$i++]['question']=$question;
-//            $this->out->writeln('Question: '.$question);
-
         }
-//        [0]->question_set_details[0]->question_id
-//        return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
-        if ( !$question )
-            return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
-        else
-            return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
+        return response()->json(['success' => true, 'question_set' => $question_set, 'question_set_answer_id'=>$question_set_answer->id], $this->successStatus);
     }
 
 
