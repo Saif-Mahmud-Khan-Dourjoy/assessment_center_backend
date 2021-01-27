@@ -56,6 +56,7 @@ class RegisterController extends Controller
             'email' => 'required|email',
             'password' => 'required',
             'c_password' => 'required|same:password',
+            'birth_date'=>'required',
         ]);
         $input = $request->all();
 
@@ -89,6 +90,7 @@ class RegisterController extends Controller
                 'last_name' => $input['last_name'],
                 'email' => $input['email'],
                 'phone' => $input['phone'],
+                'birth_date'=>$input['birth_date'],
             ]);
 
             // Add Contributor Info
