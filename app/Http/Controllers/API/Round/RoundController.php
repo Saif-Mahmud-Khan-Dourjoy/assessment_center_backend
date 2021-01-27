@@ -97,7 +97,9 @@ class RoundController extends Controller
         $available_rounds = [];
         foreach ($rounds as $round){
             $this->out->writeln('rounds: '.$round->id);
-            if(QuestionSet::where('round_id','=',$round->id)->where('end_time','<=', Carbon::now())->exists()){
+            $this->out->writeln("Time now: ".Carbon::now());
+            if(QuestionSet::where('round_id','=',$round->id)->where('end_time','<', Carbon::now())->exists()){
+                $this->out->writeln("Invalid round: $round->id");
                 continue;
             }
             array_push($available_rounds, $round);

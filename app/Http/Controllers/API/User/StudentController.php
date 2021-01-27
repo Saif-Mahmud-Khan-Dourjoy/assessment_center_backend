@@ -398,6 +398,7 @@ class StudentController extends Controller
     }
 
     public function bulkEntry(Request $request){
+        set_time_limit(8000000);
         $start_time = time();
         $default_status =1;
         request()->validate([
