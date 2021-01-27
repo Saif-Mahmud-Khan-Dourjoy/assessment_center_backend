@@ -68,6 +68,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::resource('question-categories','API\Question\QuestionCategoryController');
         Route::resource('questions','API\Question\QuestionController');
         Route::resource('question-sets','API\Question\QuestionSetController');
+        Route::get('attend-question-set/{id}','API\Question\QuestionSetController@attendQuestionSet')->name('attend-question-set');
         Route::get('question-set-status/{id}', 'API\Question\QuestionSetController@status');
         Route::resource('question-set-answer','API\Question\QuestionSetAnswerController');
 

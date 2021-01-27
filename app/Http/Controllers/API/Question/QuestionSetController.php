@@ -328,6 +328,27 @@ class QuestionSetController extends Controller
     {
         $this->out->writeln('Fetching Question set with all questions, question-set id: '.$id);
         $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
+        $question_set = QuestionSet::with(['question_set_details'])
+            ->where('id', $id)
+            ->get();
+        if (sizeof($question_set)<1)
+            return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
+        $i = 0;
+        foreach ($question_set[0]->question_set_details as $question_detail){
+            $this->out-> writeln('Question set details: '.$question_detail);
+            $this->out->writeln('Question ID: '.$question_detail->question_id);
+            $question = Question::with(['question_details', 'question_answer', 'question_tag'])
+                ->where('id', $question_detail->question_id)
+                ->get();
+            $question_set[0]->question_set_details[$i++]['question']=$question;
+        }
+        return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
+    }
+
+    public function attendQuestionSet($id)
+    {
+        $this->out->writeln('Fetching Question set with all questions, question-set id: '.$id);
+        $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
         if(QuestionSetAnswer::where('question_set_id',$id)->where('profile_id',$userProfile->id)->exists())
             return response()->json(['success'=>false, "message"=>"You have already attended!"],$this->failedStatus);
         $question_set = QuestionSet::with(['question_set_details'])
@@ -362,7 +383,6 @@ class QuestionSetController extends Controller
         }
         return response()->json(['success' => true, 'question_set' => $question_set, 'question_set_answer_id'=>$question_set_answer->id], $this->successStatus);
     }
-
 
     /**
      * Remove the specified resource from storage.

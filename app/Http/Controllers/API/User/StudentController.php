@@ -398,6 +398,7 @@ class StudentController extends Controller
     }
 
     public function bulkEntry(Request $request){
+        $start_time = time();
         $default_status =1;
         request()->validate([
             'institute_id'=>'required',
@@ -526,7 +527,9 @@ class StudentController extends Controller
         }
         $student_temp = Storage::put("students/$timestamp"."_$user->user_id"."_success.csv",$success_content);
         $student_temp = Storage::put("students/$timestamp"."_$user->user_id"."_failed.csv",$failed_content);
-        return response()->json(['success'=>true, 'success_students'=>$success_content, "failed_students"=>$failed_content],$this->successStatus);
+        $time_taken = time()-$start_time;
+        $this->out->writeln("Time Taken: $time_taken");
+        return response()->json(['success'=>true,'time_taken'=>$time_taken, 'success_students'=>$success_content, "failed_students"=>$failed_content],$this->successStatus);
     }
 
     public function fileContent($content, $items){
