@@ -101,6 +101,7 @@ class UserController extends Controller
             'username'=>'required|unique:users',
             'email' => 'required|email',
             'birth_date'=>'required',
+            'phone'=>'required',
         ]);
         $input = $request->all();
         $rand_pass = Str::random(8);
