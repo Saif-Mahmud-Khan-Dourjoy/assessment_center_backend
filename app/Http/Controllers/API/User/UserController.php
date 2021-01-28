@@ -114,14 +114,7 @@ class UserController extends Controller
         ];
         $user = User::create($login_data);
 
-        if( $user ){
-
-            //Send Email
-            if(!($this->emailCredential($user->username, $login_data['name'],  $rand_pass, $user->email))){
-                $user->delete();
-                $this->out->writeln('User deleted successfully due to unsend email');
-                return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);
-            }
+        if($user ){
             // Assign Role
             $role = RoleSetup::first();
             if( $role ){
@@ -130,8 +123,6 @@ class UserController extends Controller
             if( $input['role_id'] ){
                 $role_id = $input['role_id'];
             }
-            $user->assignRole([$role_id]);
-
             // Add User Profile
             $user_profile = UserProfile::create([
                 'user_id' => $user['id'],
@@ -152,6 +143,11 @@ class UserController extends Controller
                 'guard_name' => 'web',
             ]);
 
+            if(!$user_profile){
+                $user->delete();
+                return response()->json(['success'=>false, 'message'=>'Unable to create User Profile!'],$this->successStatus);
+            }
+
             // Add Contributor Info
             $contributor_data = [
                 'profile_id' => $user_profile['id'],
@@ -163,7 +159,11 @@ class UserController extends Controller
                 'guard_name' => 'web',
             ];
             $contributor = Contributor::create( $contributor_data );
-
+            if(!$contributor){
+                $user->delete();
+                $user_profile->delete();
+                return response()->json(['success'=>false, 'message'=>'Unable to create Contributor!'],$this->successStatus);
+            }
             // Add Student Info
             $student_data = [
                 'profile_id' => $user_profile['id'],
@@ -174,7 +174,19 @@ class UserController extends Controller
                 'guard_name' => 'web',
             ];
             $student = Student::create( $student_data );
-
+            if(!$student){
+                $user->delete();
+                $user_profile->delete();
+                $contributor->delete();
+                return response()->json(['success'=>false, 'message'=>'Unable to create Student!'],$this->successStatus);
+            }
+            //Send Email
+            if(!($this->emailCredential($user->username, $login_data['name'],  $rand_pass, $user->email))){
+                $user->delete();
+                $this->out->writeln('User deleted successfully due to unsend email');
+                return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);
+            }
+            $user->assignRole([$role_id]);
             $responseData['name'] =  $user->name;
             $responseData['token'] =  $user->createToken('NSLAssessmentCenter')-> accessToken;
             return response()->json(['success' => true, 'message' => 'User added', 'user' => $responseData], $this->successStatus);
