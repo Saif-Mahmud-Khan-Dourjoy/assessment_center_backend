@@ -30,7 +30,8 @@ class CreateAdminUserSeeder extends Seeder
             'username'=>'Admin',
             'email' => 'admin@nsl.com',
             'password' => bcrypt('123456789'),
-            'status' => '1'
+            'status' => '1',
+            'institute_id'=>1,
 
         ]);
 

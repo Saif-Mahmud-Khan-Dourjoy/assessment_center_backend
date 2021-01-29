@@ -16,7 +16,7 @@ class CreateUserProfilesTable extends Migration
         Schema::create('user_profiles', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id')->unsigned();
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->bigInteger('institute_id')->nullable();
             $table->char('first_name', 100);
             $table->char('last_name', 100)->nullable();

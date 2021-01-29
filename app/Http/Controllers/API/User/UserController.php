@@ -13,6 +13,7 @@ use App\UserProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Mail\Mailable;
@@ -44,7 +45,48 @@ class UserController extends Controller
      *
      * @return JsonResponse
      */
-    public function index()
+
+    public function index(Request $request){
+        $user = auth()->user();
+        $userProfile = UserProfile::where('user_id','=',$user->id)->first();
+        $input = $request->all();
+        $this->out->writeln('Get Role Wise userlist!');
+        if($user->can('super-admin')){
+            $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();
+            if (!empty($_POST["role_name"]) && $input['role_name']){
+                $users = User::with(['user_profile'])->role($input['role_name'])->get();
+            }
+            return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
+        }
+        $valid_users=[];
+//        $this->out->writeln("Role Name: ".$input['role_name']);
+        if (!empty($_POST["role_name"]) && $input['role_name']){
+            $this->out->writeln('Role-wise user list fetching: '.$input['role_name']);
+            $users = User::with(['user_profile'])->role($input['role_name'])->get();
+            foreach ($users as $u) {
+                $up = UserProfile::where('user_id','=',$u->id)->first();
+                if($userProfile->institute_id==$up->institute_id){
+                    array_push($valid_users,$u);
+                }
+            }
+            return response()->json(['success' => true, 'users' => $valid_users], $this->successStatus);
+        }
+
+        if($userProfile->institute_id){
+            $this->out->writeln('User fetching based on the institution.');
+            $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();
+            foreach ($users as $u) {
+                $up = UserProfile::where('user_id','=',$u->id)->first();
+                if($userProfile->institute_id==$up->institute_id){
+                    array_push($valid_users, $u);
+                }
+
+            }
+            return response()->json(['success'=>true,'users'=>$valid_users],$this->successStatus);
+        }
+        return response()->json(['success' => true, 'users' => $valid_users], $this->successStatus);
+    }
+    public function index_old()
     {
 //            dd('1');
         $user = auth()->user();
@@ -102,99 +144,63 @@ class UserController extends Controller
             'email' => 'required|email',
             'birth_date'=>'required',
             'phone'=>'required',
+            'institute_id'=>'required'
         ]);
         $input = $request->all();
+        $this->out->writeln('Input-img: '.$input['img']);
         $rand_pass = Str::random(8);
         $hashed_random_password = Hash::make($rand_pass);
-        $login_data = [
+        if( $input['role_id'] )
+            $role_id = $input['role_id'];
+        else{
+            $role = RoleSetup::first();
+            $role_id = $role->new_register_user_role_id;
+        }
+        $user_data = [
+            'first_name'=>$input['first_name'],
+            'last_name' =>$input['last_name'],
             'name' => $input['first_name'] .' '. $input['last_name'],
             'username'=>$input['username'],
             'email' => $input['email'],
             'status' => 1,
             'password' => $hashed_random_password,
+            'phone'=>$input['phone'],
+            'birth_date'=>$input['birth_date'],
+            'skype' => (!empty($_POST["skype"])) ? $input['skype'] : 0,
+            'profession' => (!empty($_POST["profession"])) ? $input['profession'] : 'n/a',
+            'skill' => (!empty($_POST["skill"])) ? $input['skill'] : 'n/a',
+            'about' => (!empty($_POST["about"])) ? $input['about'] : 'n/a',
+            'img' => (!empty($_POST["img"])) ? $input['img'] : '',
+            'address' => (!empty($_POST["address"])) ? $input['address'] : 'n/a',
+            'institute_id'=>(!(empty($input['institute_id'] or is_null($input['institute_id'])))? $input['institute_id']:null),
+            'zipcode' => $input['zipcode'],
+            'country' => $input['country'],
+            'completing_percentage' => 100,
+            'total_complete_assessment' => 0,
+            'approve_status' => 0,
+            'active_status' => 0,
+            'total_question' => 0,
+            'average_rating' => 0,
+            'guard_name' => 'web',
         ];
-        $user = User::create($login_data);
-
-        if($user ){
-            // Assign Role
-            $role = RoleSetup::first();
-            if( $role ){
-                $role_id = $role->new_register_user_role_id;
-            }
-            if( $input['role_id'] ){
-                $role_id = $input['role_id'];
-            }
-            // Add User Profile
-            $user_profile = UserProfile::create([
-                'user_id' => $user['id'],
-                'institute_id' => (!empty($input["institute_id"])) ? $input['institute_id'] : NULL,
-                'first_name' => $input['first_name'],
-                'last_name' => $input['last_name'],
-                'email' => $input['email'],
-                'phone' => $input['phone'],
-                'birth_date'=>$input['birth_date'],
-                'skype' => (!empty($_POST["skype"])) ? $input['skype'] : 0,
-                'profession' => (!empty($_POST["profession"])) ? $input['profession'] : 'n/a',
-                'skill' => (!empty($_POST["skill"])) ? $input['skill'] : 'n/a',
-                'about' => (!empty($_POST["about"])) ? $input['about'] : 'n/a',
-                'img' => (!empty($_POST["img"])) ? $input['img'] : '',
-                'address' => (!empty($_POST["address"])) ? $input['address'] : 0,
-                'zipcode' => $input['zipcode'],
-                'country' => $input['country'],
-                'guard_name' => 'web',
-            ]);
-
-            if(!$user_profile){
-                $user->delete();
-                return response()->json(['success'=>false, 'message'=>'Unable to create User Profile!'],$this->successStatus);
-            }
-
-            // Add Contributor Info
-            $contributor_data = [
-                'profile_id' => $user_profile['id'],
-                'completing_percentage' => 100,
-                'total_question' => 0,
-                'average_rating' => 0,
-                'approve_status' => 0,
-                'active_status' => 0,
-                'guard_name' => 'web',
-            ];
-            $contributor = Contributor::create( $contributor_data );
-            if(!$contributor){
-                $user->delete();
-                $user_profile->delete();
-                return response()->json(['success'=>false, 'message'=>'Unable to create Contributor!'],$this->successStatus);
-            }
-            // Add Student Info
-            $student_data = [
-                'profile_id' => $user_profile['id'],
-                'completing_percentage' => 100,
-                'total_complete_assessment' => 0,
-                'approve_status' => 0,
-                'active_status' => 0,
-                'guard_name' => 'web',
-            ];
-            $student = Student::create( $student_data );
-            if(!$student){
-                $user->delete();
-                $user_profile->delete();
-                $contributor->delete();
-                return response()->json(['success'=>false, 'message'=>'Unable to create Student!'],$this->successStatus);
-            }
-            //Send Email
-            if(!($this->emailCredential($user->username, $login_data['name'],  $rand_pass, $user->email))){
-                $user->delete();
-                $this->out->writeln('User deleted successfully due to unsend email');
-                return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);
-            }
-            $user->assignRole([$role_id]);
-            $responseData['name'] =  $user->name;
-            $responseData['token'] =  $user->createToken('NSLAssessmentCenter')-> accessToken;
-            return response()->json(['success' => true, 'message' => 'User added', 'user' => $responseData], $this->successStatus);
+        DB::beginTransaction();
+        try {
+            $user = User::create($user_data);
+            $user->assignRole($role_id);
+            $user_data['user_id']=$user->id;
+            $user_profile = UserProfile::create( $user_data );
+            $user_data['profile_id']=$user_profile->id;
+            $student = Student::create( $user_data );
+            $contributor = Contributor::create( $user_data );
+            if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email))
+                throw new \Exception('User email may incorrect!');
+        }catch(\Exception $e){
+            DB::rollback();
+            return response()->json(['success'=>false, 'message'=>'User Creation unsuccessful!','error'=>$e->getMessage()],$this->failedStatus);
         }
-        else{
-            return response()->json(['success' => false, 'message' => 'User added fail'], $this->failedStatus);
-        }
+        Db::commit();
+        $user =Student::with(['user_profile'])->where('id', $student->id)->get();
+        return response()->json(['success' => true, 'student' =>$user], $this->successStatus);
     }
 
 
@@ -404,6 +410,7 @@ class UserController extends Controller
         $user = auth()->user();
         $userProfile = UserProfile::where('user_id','=',$user->id)->first();
         $input = $request->all();
+        $this->out->writeln('Get Role Wise userlist!');
         if($user->can('super-admin')){
             $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();
             if (!empty($_POST["role_name"]) && $input['role_name']){
@@ -412,8 +419,9 @@ class UserController extends Controller
             return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
         $valid_users=[];
+//        $this->out->writeln("Role Name: ".$input['role_name']);
         if (!empty($_POST["role_name"]) && $input['role_name']){
-            $this->out->writeln('Rolewise user list fetching: '.$input['role_name']);
+            $this->out->writeln('Role-wise user list fetching: '.$input['role_name']);
             $users = User::with(['user_profile'])->role($input['role_name'])->get();
             foreach ($users as $u) {
                 $up = UserProfile::where('user_id','=',$u->id)->first();
@@ -434,7 +442,7 @@ class UserController extends Controller
                 }
 
             }
-            return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
+            return response()->json(['success'=>true,'users'=>$valid_users],$this->successStatus);
         }
         return response()->json(['success' => true, 'users' => $valid_users], $this->successStatus);
     }

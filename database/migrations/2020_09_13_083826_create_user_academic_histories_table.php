@@ -16,7 +16,7 @@ class CreateUserAcademicHistoriesTable extends Migration
         Schema::create('user_academic_histories', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('profile_id')->unsigned();
-            $table->foreign('profile_id')->references('id')->on('user_profiles');
+            $table->foreign('profile_id')->references('id')->on('user_profiles')->onDelete('cascade');
             $table->char('exam_course_title', 250);
             $table->text('major')->default('general')->comment('Default field is general, but it could be Science, Arts, Business, Madrasha, Diploma etc');
             $table->char('institute', 200);

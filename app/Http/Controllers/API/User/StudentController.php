@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
@@ -73,13 +74,12 @@ class StudentController extends Controller
     public function emailCredential($username,$name,  $user_password, $user_email){
         $this->out->writeln('Emailing user credentials');
         try{
-            // $email = env('TO_EMAIL');
             $this->out->writeln('Email: '.$user_email);
             Mail::to($user_email)
                 ->send(new UserCredentials($username, $name,  $user_password, $user_email));
             return true;
-        }catch(Throwable $e){
-            $this->out->writeln('Unable to email user credentials, for '.$e);
+        }catch(\Throwable $e){
+            $this->out->writeln('Unable to email user credentials');
             return false;
         }
     }
@@ -118,10 +118,9 @@ class StudentController extends Controller
         request()->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-//            'username'=>'required|unique:users',
             'email' => 'required|email',
             'birth_date'=>'required',
-            //'phone' => 'required|unique:user_profiles',
+            'phone' => 'required',
         ]);
         $input = $request->all();
         $roleID = (!empty($_POST["role_id"])) ? $input['role_id'] : 0;
@@ -134,37 +133,18 @@ class StudentController extends Controller
             }
             $student_role_id = $role->student_role_id;
         }
-        // Auto generate password
         $rand_pass = Str::random(8);
         $hashed_random_password = Hash::make($rand_pass);
         $username = $this->uniqueUser($input['first_name'], $input['last_name']);
-        // Add Login Info
-        $login_data = [
+        $user_data = [
+            'first_name'=>$input['first_name'],
+            'last_name' =>$input['last_name'],
             'name' => $input['first_name'] .' '. $input['last_name'],
             'username'=>$username,
             'email' => $input['email'],
             'status' => 1,
-            'password' => $hashed_random_password
-        ];
-        $user = User::create($login_data);
-        if(!$user){
-            return response()->json(['success'=>false, 'message'=>'Unable to register student'],$this->failedStatus);
-        }
-
-        //Send Email
-        if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email)){
-            $user->delete();
-            $this->out->writeln('User deleted successfully due to unsend email');
-            return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);
-        }
-
-        // Add User Profile
-        $data = [
-            'user_id' => $user->id,
-            'first_name' => $input['first_name'],
-            'last_name' => $input['last_name'],
-            'email' => $input['email'],
-            'phone' => $input['phone'],
+            'password' => $hashed_random_password,
+            'phone'=>$input['phone'],
             'birth_date'=>$input['birth_date'],
             'skype' => (!empty($_POST["skype"])) ? $input['skype'] : 0,
             'profession' => (!empty($_POST["profession"])) ? $input['profession'] : 'n/a',
@@ -175,48 +155,32 @@ class StudentController extends Controller
             'institute_id'=>(!(empty($input['institute_id'] or is_null($input['institute_id'])))? $input['institute_id']:null),
             'zipcode' => $input['zipcode'],
             'country' => $input['country'],
+            'completing_percentage' => 100,
+            'total_complete_assessment' => 0,
+            'approve_status' => 0,
+            'active_status' => 0,
+            'total_question' => 0,
+            'average_rating' => 0,
             'guard_name' => 'web',
         ];
-
-        // Assign Role
-        //$role = RoleSetup::first();
-        $user->assignRole($student_role_id);
-
-        $user_profile = UserProfile::create( $data );
-        if($user_profile ){
-
-            // Add Student Info
-            $student_data = [
-                'profile_id' => $user_profile['id'],
-                'completing_percentage' => 100,
-                'total_complete_assessment' => 0,
-                'approve_status' => 0,
-                'active_status' => 0,
-                'guard_name' => 'web',
-            ];
-            $student = Student::create( $student_data );
-
-            // Add Contributor Info
-            $contributor_data = [
-                'profile_id' => $user_profile['id'],
-                'completing_percentage' => 100,
-                'total_question' => 0,
-                'average_rating' => 0,
-                'approve_status' => 0,
-                'active_status' => 0,
-                'guard_name' => 'web',
-            ];
-            $contributor = Contributor::create( $contributor_data );
-
-            $user =Student::with(['user_profile'])->where('id', $student->id)->get();
-
-            if($student ){
-                return response()->json(['success' => true, 'student' => $user], $this->successStatus);
-            }
+        DB::beginTransaction();
+        try {
+            $user = User::create($user_data);
+            $user->assignRole($student_role_id);
+            $user_data['user_id']=$user->id;
+            $user_profile = UserProfile::create( $user_data );
+            $user_data['profile_id']=$user_profile->id;
+            $student = Student::create( $user_data );
+            $contributor = Contributor::create( $user_data );
+            if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email))
+                throw new \Exception('User email may incorrect!');
+        }catch(\Exception $e){
+            DB::rollback();
+            return response()->json(['success'=>false, 'message'=>'Student Creation unsuccessful!','error'=>$e->getMessage()],$this->failedStatus);
         }
-        else{
-            return response()->json(['success' => false, 'message' => 'Student added fail'], $this->failedStatus);
-        }
+        Db::commit();
+        $student_user =Student::with(['user_profile'])->where('id', $student->id)->get();
+        return response()->json(['success' => true, 'student' =>$student_user], $this->successStatus);
     }
 
 
@@ -490,7 +454,7 @@ class StudentController extends Controller
             $contributor = Contributor::create( $contributor_data );
             if(!$student_profile){
                 $student_user->delete();
-                $student_profile->delete();
+//                $student_profile->delete();
                 $failed_content=$this->fileContent($failed_content, $row);
                 continue;
             }
@@ -506,8 +470,8 @@ class StudentController extends Controller
             $student_instance = Student::create( $student_data );
             if(!$student_profile){
                 $student_user->delete();
-                $student_profile->delete();
-                $contributor->delete();
+//                $student_profile->delete();
+//                $contributor->delete();
                 $failed_content=$this->fileContent($failed_content, $row);
                 continue;
             }
@@ -515,8 +479,8 @@ class StudentController extends Controller
 //            Send Email
             if(!$this->emailCredential($student_user->username,$student_user->name, $rand_pass, $student_user->email)) {
                 $student_user->delete();
-                $student_profile->delete();
-                $contributor->delete();
+//                $student_profile->delete();
+//                $contributor->delete();
                 $student_academic_info->delete();
                 $this->out->writeln('User deleted successfully due to unsend email');
                 $failed_content=$this->fileContent($failed_content, $row);

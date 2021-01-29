@@ -50,7 +50,7 @@ class RoundCandidatesController extends Controller
         $roleName = Role::where('id','=',$roleList->student_role_id)->first();
         $this->out->writeln('role name: '.$roleName->name);
         foreach ($students as $student) {
-            $this->out->writeln('Stuetn :'.$student);
+            $this->out->writeln('Student :'.$student);
             if(User::with(['user_profile'])->where('id','=',$student->user_id)->role($roleName->name)->first()){
                 if(RoundCandidates::where('student_id','=',$student->id)->exists()){
                     continue;
