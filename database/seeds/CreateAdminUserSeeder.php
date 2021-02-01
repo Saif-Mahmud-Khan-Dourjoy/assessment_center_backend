@@ -76,10 +76,11 @@ class CreateAdminUserSeeder extends Seeder
 
         $user->assignRole([$role->id]);
 
-        $student_role = Role::create(['name'=>'student', 'guard_name'=>'web']);
+        $student_role = Role::create(['name'=>'Student', 'guard_name'=>'web']);
         $student_permissions= ['student-only', 'institute-list','round-list','question-category-list','user-list','user-edit','question-list','question-set-list','question-set-answer-create','question-set-answer-list'];
         $student_permissions= Permission::whereIn('name',$student_permissions)->get();
         $student_role->syncPermissions($student_permissions);
+
         RoleSetup::create([
             'contributor_role_id' => 1,
             'student_role_id' => $student_role->id,
