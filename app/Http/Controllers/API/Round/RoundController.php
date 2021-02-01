@@ -105,12 +105,18 @@ class RoundController extends Controller
                 $this->out->writeln("Invalid round: $round->id");
                 $round['have_assessment']=1;
                 $round['time_out']=1;
+                array_push($available_rounds, $round);
+                continue;
             }
             if(QuestionSet::where('round_id','=',$round->id)->exists()){
+                $this->out->writeln("Round have Assessment: $round->id");
                 $round['have_assessment']=1;
                 $round['time_out']=0;
+                array_push($available_rounds, $round);
+                continue;
             }
             array_push($available_rounds, $round);
+
         }
         return response()->json(['success'=>true, 'rounds'=>$available_rounds],$this->successStatus);
     }
