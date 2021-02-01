@@ -61,11 +61,11 @@ class UserController extends Controller
         }
         if (!empty($_POST["for_students"]) || $input['for_students']){
             $role_id =RoleSetup::select('student_role_id')->first();
-            $users = User::role($role_id['student_role_id'])->where('id','!=',$user->id)->get();
+            $users = User::role($role_id['student_role_id'])->where('id','!=',$user->id)->where('institute_id',$user->institute_id)->get();
             return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
         if($user->institute_id){
-            $users = User::with(['roles'])->where('id','!=',$user->id)->get();
+            $users = User::with(['roles'])->where('id','!=',$user->id)->where('institute_id',$user->institute_id)->get();
             return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
         return response()->json(['success' => true, 'users' => []], $this->successStatus);
