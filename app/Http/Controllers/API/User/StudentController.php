@@ -387,6 +387,7 @@ class StudentController extends Controller
             return response()->json(['success'=>false, 'message'=>"File has invalid column name!", 'columns'=>$success_content],$this->invalidStatus);
         }
         $student_success = [];
+        $student_rol_id = RoleSetup::select('student_role_id')->first()['student_role_id'];
         foreach($students as $student){
             $row = fgetcsv($fp);
             $this->out->writeln($student);
@@ -396,23 +397,13 @@ class StudentController extends Controller
             // Auto generate password
             $rand_pass = Str::random(8);
             $hashed_random_password = Hash::make($rand_pass);
-            $user_data=[
-                'name'=>$student['first_name'].' '.$student['last_name'],
-                'username'=>$this->uniqueUser($student['first_name'],$student['last_name']),
-                'email'=>$student['email'],
-                'status'=>$default_status,
-                'password'=>$hashed_random_password,
-            ];
-            $student_user = User::create($user_data);
-            if(!$student_user){
-                $failed_content=$this->fileContent($failed_content, $row);
-                continue;
-            }
-
-            $student_profile_data = [
-                'user_id'=>$student_user['id'],
+            $student_data = [
                 'first_name'=>$student['first_name'],
                 'last_name'=>$student['last_name'],
+                'name'=>$student['first_name'].' '.$student['last_name'],
+                'username'=>$this->uniqueUser($student['first_name'],$student['last_name']),
+                'status'=>$default_status,
+                'password'=>$hashed_random_password,
                 'institute_id'=>(!empty($input['institute_id'])?$input['institute_id']:$user->institute_id),
                 'email'=>$student['email'],
                 'phone'=>$student['phone'],
@@ -425,70 +416,41 @@ class StudentController extends Controller
                 'address'=>(!empty($student['address'])?$student['address']:''),
                 'zipcode'=>(!empty($student['zipcode'])?$student['zipcode']:''),
                 'country'=>(!empty($student['country'])?$student['country']:''),
-                'guard_name' => 'web',
-            ];
-            $student_profile = UserProfile::create($student_profile_data);
-            if(!$student_profile){
-                $student_user->delete();
-                $failed_content=$this->fileContent($failed_content, $row);
-                continue;
-            }
-            $academic_data=[
-                'profile_id'=>$student_profile['id'],
+                //academic info
                 'exam_course_title'=>  (!empty($student['class'])?$student['class']:''),
                 'institute'=>(!empty($student['institute_name'])?$student['institute_name']:''),
-            ];
-            // Assign Role
-//            $role = RoleSetup::first();
-            $student_user->assignRole($input['user_role']);
-            // Add Contributor Info
-            $contributor_data = [
-                'profile_id' => $student_profile['id'],
+               // contributor info
                 'completing_percentage' => 100,
                 'total_question' => 0,
                 'average_rating' => 0,
                 'approve_status' => 0,
                 'active_status' => 0,
-                'guard_name' => 'web',
-            ];
-            $contributor = Contributor::create( $contributor_data );
-            if(!$student_profile){
-                $student_user->delete();
-//                $student_profile->delete();
-                $failed_content=$this->fileContent($failed_content, $row);
-                continue;
-            }
-            // Add Student Info
-            $student_data = [
-                'profile_id' => $student_profile['id'],
-                'completing_percentage' => 100,
+                //student info
                 'total_complete_assessment' => 0,
-                'approve_status' => 0,
-                'active_status' => 0,
                 'guard_name' => 'web',
             ];
-            $student_instance = Student::create( $student_data );
-            if(!$student_profile){
-                $student_user->delete();
-//                $student_profile->delete();
-//                $contributor->delete();
+            DB::beginTransaction();
+            try {
+                $user = User::create($student_data);
+                $user->assignRole($student_rol_id);
+                $student_data['user_id']=$user->id;
+                $student_profile = UserProfile::create( $student_data );
+                $student_data['profile_id']=$student_profile->id;
+                $student = Student::create( $student_data );
+                $contributor = Contributor::create( $student_data );
+                $student_academic_info = UserAcademicHistory::create($student_data);
+                if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email))
+                    throw new \Exception('User email may incorrect!');
+            }catch(\Exception $e){
+                $this->out->writeln('Error: '.$e->getMessage());
+                DB::rollback();
                 $failed_content=$this->fileContent($failed_content, $row);
-                continue;
+                break;
             }
-            $student_academic_info = UserAcademicHistory::create($academic_data);
-//            Send Email
-            if(!$this->emailCredential($student_user->username,$student_user->name, $rand_pass, $student_user->email)) {
-                $student_user->delete();
-//                $student_profile->delete();
-//                $contributor->delete();
-                $student_academic_info->delete();
-                $this->out->writeln('User deleted successfully due to unsend email');
-                $failed_content=$this->fileContent($failed_content, $row);
-                continue;
-            }
-
+            Db::commit();
             $success_content = $this->fileContent($success_content, $row);
             array_push($student_success, $student_profile);
+
         }
         $student_temp = Storage::put("students/$timestamp"."_$user->user_id"."_success.csv",$success_content);
         $student_temp = Storage::put("students/$timestamp"."_$user->user_id"."_failed.csv",$failed_content);
