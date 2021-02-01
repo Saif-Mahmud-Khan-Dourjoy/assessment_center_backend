@@ -76,7 +76,7 @@ class CreateAdminUserSeeder extends Seeder
 
         $user->assignRole([$role->id]);
 
-        $student_role = Role::create(['name'=>'student', 'guard_name'=>'web']);
+        $student_role = Role::create(['name'=>'Student', 'guard_name'=>'web']);
         $student_only = Permission::where('name','student-only')->first();
         $student_role->syncPermissions($student_only);
 
