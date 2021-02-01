@@ -79,7 +79,7 @@ class RoundController extends Controller
     }
 
     /**
-     * Round is valid if the assigned exam time is not passed.
+     * all the round is provided with two status, have assessment (0/1), time-out (0/1)
      * @return \Illuminate\Http\JsonResponse
      */
 
