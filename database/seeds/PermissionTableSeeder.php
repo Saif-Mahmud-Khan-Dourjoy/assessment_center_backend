@@ -22,29 +22,29 @@ class PermissionTableSeeder extends Seeder
             //'permission-delete',
             'role-delete',
             'role-create',
-            'role-edit',           
+            'role-edit',
             'role-list',
 
             'role-setup',
-           
- 	    'user-delete',
+
+ 	        'user-delete',
             'user-create',
             'user-edit',
             'user-list',
             //'user-academic-history',
             //'user-employment-history',
-            
+
             'institute-delete',
             'institute-create',
             'institute-edit',
             'institute-list',
-            
 
-	    'round-delete',
+
+	        'round-delete',
             'round-create',
             'round-edit',
             'round-list',
-            
+
 
             'contributor-delete',
             'contributor-create',
@@ -60,7 +60,7 @@ class PermissionTableSeeder extends Seeder
             'question-category-create',
             'question-category-edit',
             'question-category-list',
-                        'question-delete',
+            'question-delete',
 
             'question-create',
             'question-edit',

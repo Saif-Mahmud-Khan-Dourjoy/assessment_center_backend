@@ -18,7 +18,7 @@ class CreateUserAcademicHistoriesTable extends Migration
             $table->unsignedBigInteger('profile_id')->unsigned();
             $table->foreign('profile_id')->references('id')->on('user_profiles')->onDelete('cascade');
             $table->char('exam_course_title', 250);
-            $table->text('major')->default('general')->comment('Default field is general, but it could be Science, Arts, Business, Madrasha, Diploma etc');
+            $table->char('major',200)->default('general')->comment('Default field is general, but it could be Science, Arts, Business, Madrasha, Diploma etc');
             $table->char('institute', 200);
             $table->float('result')->nullable();
             $table->char('start_year', 50)->default(date('Y-m-d'));
