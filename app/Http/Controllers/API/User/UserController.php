@@ -48,43 +48,27 @@ class UserController extends Controller
 
     public function index(Request $request){
         $user = auth()->user();
-        $userProfile = UserProfile::where('user_id','=',$user->id)->first();
         $input = $request->all();
-        $this->out->writeln('Get Role Wise userlist!');
+        $this->out->writeln('Get user-list!');
         if($user->can('super-admin')){
-            $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();
-            if (!empty($_POST["role_name"]) && $input['role_name']){
-                $users = User::with(['user_profile'])->role($input['role_name'])->get();
+            if (!empty($_POST["for_students"]) || $input['for_students']){
+                $role_id =RoleSetup::select('student_role_id')->first();
+                $users = User::role($role_id['student_role_id'])->get();
+                return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
             }
+            $users = User::with(['roles'])->where('id','!=',$user->id)->get();
             return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
-        $valid_users=[];
-//        $this->out->writeln("Role Name: ".$input['role_name']);
-        if (!empty($_POST["role_name"]) && $input['role_name']){
-            $this->out->writeln('Role-wise user list fetching: '.$input['role_name']);
-            $users = User::with(['user_profile'])->role($input['role_name'])->get();
-            foreach ($users as $u) {
-                $up = UserProfile::where('user_id','=',$u->id)->first();
-                if($userProfile->institute_id==$up->institute_id){
-                    array_push($valid_users,$u);
-                }
-            }
-            return response()->json(['success' => true, 'users' => $valid_users], $this->successStatus);
+        if (!empty($_POST["for_students"]) || $input['for_students']){
+            $role_id =RoleSetup::select('student_role_id')->first();
+            $users = User::role($role_id['student_role_id'])->where('id','!=',$user->id)->get();
+            return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
-
-        if($userProfile->institute_id){
-            $this->out->writeln('User fetching based on the institution.');
-            $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();
-            foreach ($users as $u) {
-                $up = UserProfile::where('user_id','=',$u->id)->first();
-                if($userProfile->institute_id==$up->institute_id){
-                    array_push($valid_users, $u);
-                }
-
-            }
-            return response()->json(['success'=>true,'users'=>$valid_users],$this->successStatus);
+        if($user->institute_id){
+            $users = User::with(['roles'])->where('id','!=',$user->id)->get();
+            return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
-        return response()->json(['success' => true, 'users' => $valid_users], $this->successStatus);
+        return response()->json(['success' => true, 'users' => []], $this->successStatus);
     }
     public function index_old()
     {
@@ -166,12 +150,12 @@ class UserController extends Controller
             'password' => $hashed_random_password,
             'phone'=>$input['phone'],
             'birth_date'=>$input['birth_date'],
-            'skype' => (!empty($_POST["skype"])) ? $input['skype'] : 0,
-            'profession' => (!empty($_POST["profession"])) ? $input['profession'] : 'n/a',
-            'skill' => (!empty($_POST["skill"])) ? $input['skill'] : 'n/a',
-            'about' => (!empty($_POST["about"])) ? $input['about'] : 'n/a',
-            'img' => (!empty($_POST["img"])) ? $input['img'] : '',
-            'address' => (!empty($_POST["address"])) ? $input['address'] : 'n/a',
+            'skype' => (!empty($input["skype"])) ? $input['skype'] : 0,
+            'profession' => (!empty($input["profession"])) ? $input['profession'] : 'n/a',
+            'skill' => (!empty($input["skill"])) ? $input['skill'] : 'n/a',
+            'about' => (!empty($input["about"])) ? $input['about'] : 'n/a',
+            'img' => (!empty($input["img"])) ? $input['img'] : '',
+            'address' => (!empty($input["address"])) ? $input['address'] : 'n/a',
             'institute_id'=>(!(empty($input['institute_id'] or is_null($input['institute_id'])))? $input['institute_id']:null),
             'zipcode' => $input['zipcode'],
             'country' => $input['country'],
