@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\API\Setup;
 
 use App\Http\Controllers\Controller;
+use App\UserProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -14,12 +16,14 @@ class RoleController extends Controller
     public $successStatus = 200;
     public $failedStatus = 500;
     public $invalidStatus = 400;
+    public $out;
     function __construct()
     {
 //        $this->middleware('api_permission:role-list|role-create|role-edit|role-delete', ['only' => ['index','show']]);
 //        $this->middleware('api_permission:role-create', ['only' => ['store']]);
 //        $this->middleware('api_permission:role-edit', ['only' => ['update']]);
 //        $this->middleware('api_permission:role-delete', ['only' => ['destroy']]);
+        $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();                 // for printing message to console
     }
 
 
@@ -30,10 +34,24 @@ class RoleController extends Controller
      */
     public function index()
     {
+        $user = Auth::user();
+        $userProfile = UserProfile::where('user_id','=',$user->id)->first();
+        if($user->can('super-admin')){
+            $roles = Role::all();
+            return response()->json(['success' => true, 'roles' => $roles], $this-> successStatus);
+        }
         $roles = Role::all();
+        $valid_roles = [];
+        foreach ($roles as $role){
+            if($role->hasPermissionTo('super-admin')){
+                continue;
+            }
+            array_push($valid_roles, $role);
+        }
+
         $rolePermissions = Permission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")
             ->get();
-        return response()->json(['success' => true, 'roles' => $roles], $this-> successStatus);
+        return response()->json(['success' => true, 'roles' => $valid_roles], $this-> successStatus);
     }
 
 

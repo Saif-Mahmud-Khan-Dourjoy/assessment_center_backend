@@ -16,7 +16,7 @@ class CreateContributorsTable extends Migration
         Schema::create('contributors', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('profile_id')->unsigned();
-            $table->foreign('profile_id')->references('id')->on('user_profiles');
+            $table->foreign('profile_id')->references('id')->on('user_profiles')->onDelete('cascade');
             $table->integer('completing_percentage');
             $table->integer('total_question');
             $table->float('average_rating');

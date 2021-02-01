@@ -20,47 +20,61 @@ class PermissionTableSeeder extends Seeder
             //'permission-create',
             //'permission-edit',
             //'permission-delete',
-            'role-list',
+            'role-delete',
             'role-create',
             'role-edit',
-            'role-delete',
+            'role-list',
+
             'role-setup',
-            'user-list',
+
+ 	        'user-delete',
             'user-create',
             'user-edit',
-            'user-delete',
+            'user-list',
             //'user-academic-history',
             //'user-employment-history',
-            'institute-list',
+
+            'institute-delete',
             'institute-create',
             'institute-edit',
-            'institute-delete',
-            'round-list',
+            'institute-list',
+
+
+	        'round-delete',
             'round-create',
             'round-edit',
-            'round-delete',
-            'contributor-list',
+            'round-list',
+
+
+            'contributor-delete',
             'contributor-create',
             'contributor-edit',
-            'contributor-delete',
-            'student-list',
+            'contributor-list',
+            'student-delete',
             'student-create',
             'student-edit',
-            'student-delete',
-            'question-category-list',
+            'student-list',
+
+
+            'question-category-delete',
             'question-category-create',
             'question-category-edit',
-            'question-category-delete',
-            'question-list',
+            'question-category-list',
+            'question-delete',
+
             'question-create',
             'question-edit',
-            'question-delete',
-            'question-set-list',
+            'question-list',
+            'question-set-delete',
             'question-set-create',
             'question-set-edit',
-            'question-set-delete',
-            'question-set-answer-list',
+            'question-set-list',
+
+            //'question-set-answer-delete',
             'question-set-answer-create',
+            //'question-set-answer-edit
+            'question-set-answer-list',
+
 
         ];
 

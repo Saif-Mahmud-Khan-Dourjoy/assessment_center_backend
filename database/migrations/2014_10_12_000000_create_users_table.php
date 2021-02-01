@@ -21,6 +21,9 @@ class CreateUsersTable extends Migration
             $table->tinyInteger('status')->nullable()->default('0')->comment('active or not 1/0');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('img',400)->nullable();
+            $table->unsignedBigInteger('institute_id')->unsigned();
+            $table->foreign('institute_id')->on('institutes')->references('id')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();
         });

@@ -68,6 +68,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::resource('question-categories','API\Question\QuestionCategoryController');
         Route::resource('questions','API\Question\QuestionController');
         Route::resource('question-sets','API\Question\QuestionSetController');
+        Route::get('attend-question-set/{id}','API\Question\QuestionSetController@attendQuestionSet')->name('attend-question-set');
         Route::get('question-set-status/{id}', 'API\Question\QuestionSetController@status');
         Route::resource('question-set-answer','API\Question\QuestionSetAnswerController');
 
@@ -90,6 +91,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::post('broadcast-result','API\Broadcast\BroadcastController@broadcastResult');
         Route::post('broadcast-certificate','API\Broadcast\BroadcastController@broadcastCertificate');
 
+        Route::post('bulk-entry-students','API\User\StudentController@bulkEntry')->name('bulk-entry-students');
     });
     Route::fallback(function(){
         return response()->json(['message' => 'Not Found.'], 404);

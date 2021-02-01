@@ -16,7 +16,7 @@ class CreateStudentsTable extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('profile_id')->unsigned();
-            $table->foreign('profile_id')->references('id')->on('user_profiles');
+            $table->foreign('profile_id')->references('id')->on('user_profiles')->onDelete('cascade');
             $table->integer('completing_percentage');
             $table->integer('total_complete_assessment');
             $table->tinyInteger('approve_status');

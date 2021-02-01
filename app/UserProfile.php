@@ -17,7 +17,7 @@ class UserProfile extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'institute_id', 'first_name', 'last_name', 'email', 'phone', 'skype', 'profession', 'skill', 'about', 'img', 'address', 'zipcode', 'country', 'guard_name'
+        'user_id', 'institute_id', 'first_name', 'last_name', 'email', 'phone', 'birth_date', 'skype', 'profession', 'skill', 'about', 'img', 'address', 'zipcode', 'country', 'guard_name'
     ];
 
     /**
@@ -53,5 +53,9 @@ class UserProfile extends Model
      */
     public function user(){
         return $this->belongsTo('App\User', 'user_id');
+    }
+
+    public function question_set_answer(){
+        return $this->hasMany('App\QuestionSetAnswer','profile_id');
     }
 }

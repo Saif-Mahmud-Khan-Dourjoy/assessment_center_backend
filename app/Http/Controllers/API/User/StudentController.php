@@ -11,6 +11,7 @@ use App\Student;
 use App\Http\Controllers\Controller;
 use App\RoleSetup;
 use App\User;
+use App\UserAcademicHistory;
 use App\UserProfile;
 use http\Env\Response;
 use Illuminate\Http\JsonResponse;
@@ -18,7 +19,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
@@ -71,13 +74,12 @@ class StudentController extends Controller
     public function emailCredential($username,$name,  $user_password, $user_email){
         $this->out->writeln('Emailing user credentials');
         try{
-            // $email = env('TO_EMAIL');
             $this->out->writeln('Email: '.$user_email);
             Mail::to($user_email)
                 ->send(new UserCredentials($username, $name,  $user_password, $user_email));
             return true;
-        }catch(Throwable $e){
-            $this->out->writeln('Unable to email user credentials, for '.$e);
+        }catch(\Throwable $e){
+            $this->out->writeln('Unable to email user credentials');
             return false;
         }
     }
@@ -104,6 +106,7 @@ class StudentController extends Controller
         return $username;
     }
 
+
     /**
      * Store a newly created resource in storage.
      *
@@ -115,9 +118,9 @@ class StudentController extends Controller
         request()->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-//            'username'=>'required|unique:users',
             'email' => 'required|email',
-            //'phone' => 'required|unique:user_profiles',
+            'birth_date'=>'required',
+            'phone' => 'required',
         ]);
         $input = $request->all();
         $roleID = (!empty($_POST["role_id"])) ? $input['role_id'] : 0;
@@ -130,89 +133,56 @@ class StudentController extends Controller
             }
             $student_role_id = $role->student_role_id;
         }
-        // Auto generate password
         $rand_pass = Str::random(8);
         $hashed_random_password = Hash::make($rand_pass);
         $username = $this->uniqueUser($input['first_name'], $input['last_name']);
-        // Add Login Info
-        $login_data = [
+        $user_data = [
+            'first_name'=>$input['first_name'],
+            'last_name' =>$input['last_name'],
             'name' => $input['first_name'] .' '. $input['last_name'],
             'username'=>$username,
             'email' => $input['email'],
             'status' => 1,
-            'password' => $hashed_random_password
-        ];
-        $user = User::create($login_data);
-        if(!$user){
-            return response()->json(['success'=>false, 'message'=>'Unable to register student'],$this->failedStatus);
-        }
-
-        //Send Email
-        if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email)){
-            $user->delete();
-            $this->out->writeln('User deleted successfully due to unsend email');
-            return response()->json(['success'=>false, 'message'=>'Unable to send email'],$this->successStatus);
-        }
-
-        // Add User Profile
-        $data = [
-            'user_id' => $user->id,
-            'first_name' => $input['first_name'],
-            'last_name' => $input['last_name'],
-            'email' => $input['email'],
-            'phone' => $input['phone'],
-            'skype' => (!empty($_POST["skype"])) ? $input['skype'] : 0,
-            'profession' => (!empty($_POST["profession"])) ? $input['profession'] : 'n/a',
-            'skill' => (!empty($_POST["skill"])) ? $input['skill'] : 'n/a',
-            'about' => (!empty($_POST["about"])) ? $input['about'] : 'n/a',
-            'img' => (!empty($_POST["img"])) ? $input['img'] : '',
-            'address' => (!empty($_POST["address"])) ? $input['address'] : 'n/a',
+            'password' => $hashed_random_password,
+            'phone'=>$input['phone'],
+            'birth_date'=>$input['birth_date'],
+            'skype' => (!empty($input["skype"])) ? $input['skype'] : 0,
+            'profession' => (!empty($input["profession"])) ? $input['profession'] : 'n/a',
+            'skill' => (!empty($input["skill"])) ? $input['skill'] : 'n/a',
+            'about' => (!empty($input["about"])) ? $input['about'] : 'n/a',
+            'img' => (!empty($input["img"])) ? $input['img'] : '',
+            'address' => (!empty($input["address"])) ? $input['address'] : 'n/a',
             'institute_id'=>(!(empty($input['institute_id'] or is_null($input['institute_id'])))? $input['institute_id']:null),
             'zipcode' => $input['zipcode'],
             'country' => $input['country'],
+            'completing_percentage' => 100,
+            'total_complete_assessment' => 0,
+            'approve_status' => 0,
+            'active_status' => 0,
+            'total_question' => 0,
+            'average_rating' => 0,
             'guard_name' => 'web',
         ];
-
-        // Assign Role
-        //$role = RoleSetup::first();
-        $user->assignRole($student_role_id);
-
-        $user_profile = UserProfile::create( $data );
-        if($user_profile ){
-
-            // Add Student Info
-            $student_data = [
-                'profile_id' => $user_profile['id'],
-                'completing_percentage' => 100,
-                'total_complete_assessment' => 0,
-                'approve_status' => 0,
-                'active_status' => 0,
-                'guard_name' => 'web',
-            ];
-            $student = Student::create( $student_data );
-
-            // Add Contributor Info
-            $contributor_data = [
-                'profile_id' => $user_profile['id'],
-                'completing_percentage' => 100,
-                'total_question' => 0,
-                'average_rating' => 0,
-                'approve_status' => 0,
-                'active_status' => 0,
-                'guard_name' => 'web',
-            ];
-            $contributor = Contributor::create( $contributor_data );
-
-            $user =Student::with(['user_profile'])->where('id', $student->id)->get();
-
-            if($student ){
-                return response()->json(['success' => true, 'student' => $user], $this->successStatus);
-            }
+        DB::beginTransaction();
+        try {
+            $user = User::create($user_data);
+            $user->assignRole($student_role_id);
+            $user_data['user_id']=$user->id;
+            $user_profile = UserProfile::create( $user_data );
+            $user_data['profile_id']=$user_profile->id;
+            $student = Student::create( $user_data );
+            $contributor = Contributor::create( $user_data );
+            if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email))
+                throw new \Exception('User email may incorrect!');
+        }catch(\Exception $e){
+            DB::rollback();
+            return response()->json(['success'=>false, 'message'=>'Student Creation unsuccessful!','error'=>$e->getMessage()],$this->failedStatus);
         }
-        else{
-            return response()->json(['success' => false, 'message' => 'Student added fail'], $this->failedStatus);
-        }
+        Db::commit();
+        $student_user =Student::with(['user_profile'])->where('id', $student->id)->get();
+        return response()->json(['success' => true, 'student' =>$student_user], $this->successStatus);
     }
+
 
 
     /**
@@ -312,5 +282,188 @@ class StudentController extends Controller
         else
             return response()->json(['success' => false, 'message' => 'Student can not be deleted'], $this->failedStatus);
 
+    }
+
+    public function validKey($keys){
+        $reform_keys=[];
+        $first_name_keys_set=['first name', 'firstname','first-name','first_name'];
+        $last_name_keys_set=['last name','last-name','last_name','lastname'];
+        $inst_keys_set=array('institution', 'institution name','institute','institute-name','institution-name','institution_name','institute_name','school','college','school/college','university');
+        $phone_keys_set = array('phone', 'phone no.','phone no','phone-no', 'mobile','mobile no.','mobile-no','mobile no','contact no','cell no');
+        $zip_codes_set=array('zip-code','zipcode', 'zip code','zip','post','post-code');
+        $birth_dates_set = array('birth_date','birth date','birth-date', 'birth');
+        foreach($keys as $key){
+            if(in_array(strtolower(trim($key)), $first_name_keys_set))
+                array_push($reform_keys, 'first_name');
+            else if(in_array(strtolower(trim($key)), $last_name_keys_set))
+                array_push($reform_keys, 'last_name');
+            else if(strtolower(trim($key))=='email')
+                array_push($reform_keys, 'email');
+            else if(in_array(strtolower(trim($key)), $inst_keys_set))
+                array_push($reform_keys, 'institute_name');
+            else if(in_array(strtolower(trim($key)), $phone_keys_set))
+                array_push($reform_keys, 'phone');
+            else if(strtolower(trim($key))=='class')
+                array_push($reform_keys, 'class');
+            else if(strtolower(trim($key))=='skype')
+                array_push($reform_keys, 'skype');
+            else if(strtolower(trim($key))=='profession')
+                array_push($reform_keys, 'profession');
+            else if(strtolower(trim($key))=='about')
+                array_push($reform_keys, 'about');
+            else if(strtolower(trim($key))=='address')
+                array_push($reform_keys, 'address');
+            else if(in_array(strtolower(trim($key)), $zip_codes_set))
+                array_push($reform_keys, 'zipcode');
+            else if(strtolower(trim($key))=='country')
+                array_push($reform_keys, 'country');
+            else if(in_array(strtolower(trim($key)), $birth_dates_set))
+                array_push($reform_keys, 'birth_date');
+        }
+        return $reform_keys;
+    }
+
+    /**
+     * For converting csv to json
+     * @param $fname
+     * @return false|string
+     */
+
+    function csvToJson($fname) {
+        if (!($fp = fopen($fname, 'r'))) {
+            die("Can't open file...");
+        }
+        $key = fgetcsv($fp,"1024",",");
+        $valid_key =$this->validKey($key);
+        $this->out->writeln('key: '.sizeof($valid_key));
+        $json = array();
+        while ($row = fgetcsv($fp,"1024",",")) {
+            if(sizeof($row)!=sizeof($valid_key)){
+                $this->out->writeln("CSV Keys and items aren't matching!");
+                return false;
+            }
+            $json[] = array_combine($valid_key, $row);
+        }
+        $this->out->writeln('CSV to json convertion succesful');
+        fclose($fp);
+        return $json;
+    }
+
+    public function checkSimilarity($student){
+        if(UserProfile::where('first_name','=',$student['first_name'])
+                        ->where('last_name','=',$student['last_name'])
+                        ->where('email','=',$student['email'])
+                        ->where('phone','=',$student['phone'])
+                        ->exists()
+        ){
+            return true;
+        }
+        return false;
+    }
+
+    public function bulkEntry(Request $request){
+        set_time_limit(8000000);
+        $start_time = time();
+        $default_status =1;
+        request()->validate([
+            'institute_id'=>'required',
+            'user_role'=>'required',
+        ]);
+        $input = $request->all();
+        $this->out->writeln('Student Mass entry processing...');
+        $user = UserProfile::where('user_id','=',Auth::id())->first();
+        $timestamp = date('y_m_d_h_m_s',time());
+        $file_name = $timestamp."_".$user->user_id.".csv";
+        $path = $request->file('students')->storeAs('students',$file_name);
+        $students_path= Storage::path($path);
+        if (!($fp = fopen($students_path, 'r'))) {
+            return response()->json(['success'=>false, 'message'=>"Can't Open file!"],$this->failedStatus);
+        }
+        $keys = fgetcsv($fp);
+        $success_content= $this->fileContent('',$keys);
+        $failed_content = $this->fileContent('',$keys);
+        $students= $this->csvToJson($students_path);
+        if(!$students){
+            return response()->json(['success'=>false, 'message'=>"File has invalid column name!", 'columns'=>$success_content],$this->invalidStatus);
+        }
+        $student_success = [];
+        $student_rol_id = RoleSetup::select('student_role_id')->first()['student_role_id'];
+        foreach($students as $student){
+            $row = fgetcsv($fp);
+            $this->out->writeln($student);
+            if(empty($student['first_name']) || empty($student['last_name']) || empty($student['email']) || empty($student['phone'])){
+                continue;
+            }
+            // Auto generate password
+            $rand_pass = Str::random(8);
+            $hashed_random_password = Hash::make($rand_pass);
+            $student_data = [
+                'first_name'=>$student['first_name'],
+                'last_name'=>$student['last_name'],
+                'name'=>$student['first_name'].' '.$student['last_name'],
+                'username'=>$this->uniqueUser($student['first_name'],$student['last_name']),
+                'status'=>$default_status,
+                'password'=>$hashed_random_password,
+                'institute_id'=>(!empty($input['institute_id'])?$input['institute_id']:$user->institute_id),
+                'email'=>$student['email'],
+                'phone'=>$student['phone'],
+                'birth_date'=>$student['birth_date'],
+                'skype'=>(!empty($student['skype'])?$student['email']:''),
+                'profession'=>(!empty($student['profession'])?$student['profession']:''),
+                'skill'=>(!empty($student['skill'])?$student['skill']:''),
+                'about'=>(!empty($student['about'])?$student['about']:''),
+                'img'=>(!empty($student['img'])?$student['img']:''),
+                'address'=>(!empty($student['address'])?$student['address']:''),
+                'zipcode'=>(!empty($student['zipcode'])?$student['zipcode']:''),
+                'country'=>(!empty($student['country'])?$student['country']:''),
+                //academic info
+                'exam_course_title'=>  (!empty($student['class'])?$student['class']:''),
+                'institute'=>(!empty($student['institute_name'])?$student['institute_name']:''),
+               // contributor info
+                'completing_percentage' => 100,
+                'total_question' => 0,
+                'average_rating' => 0,
+                'approve_status' => 0,
+                'active_status' => 0,
+                //student info
+                'total_complete_assessment' => 0,
+                'guard_name' => 'web',
+            ];
+            DB::beginTransaction();
+            try {
+                $user = User::create($student_data);
+                $user->assignRole($student_rol_id);
+                $student_data['user_id']=$user->id;
+                $student_profile = UserProfile::create( $student_data );
+                $student_data['profile_id']=$student_profile->id;
+                $student = Student::create( $student_data );
+                $contributor = Contributor::create( $student_data );
+                $student_academic_info = UserAcademicHistory::create($student_data);
+                if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email))
+                    throw new \Exception('User email may incorrect!');
+            }catch(\Exception $e){
+                $this->out->writeln('Error: '.$e->getMessage());
+                DB::rollback();
+                $failed_content=$this->fileContent($failed_content, $row);
+                break;
+            }
+            Db::commit();
+            $success_content = $this->fileContent($success_content, $row);
+            array_push($student_success, $student_profile);
+
+        }
+        $student_temp = Storage::put("students/$timestamp"."_$user->user_id"."_success.csv",$success_content);
+        $student_temp = Storage::put("students/$timestamp"."_$user->user_id"."_failed.csv",$failed_content);
+        $time_taken = time()-$start_time;
+        $this->out->writeln("Time Taken: $time_taken");
+        return response()->json(['success'=>true,'time_taken'=>$time_taken, 'success_students'=>$success_content, "failed_students"=>$failed_content],$this->successStatus);
+    }
+
+    public function fileContent($content, $items){
+        for($i=0;$i<sizeof($items);$i++){
+            $content=$content.$items[$i].",";
+        }
+        $content[strlen($content)-1]="\r\n";
+        return $content;
     }
 }

@@ -57,6 +57,7 @@ class BroadcastController extends Controller
            'body'=>'required',
             'institute_id'=>'required',
             'broadcast_to'=>'required',
+            'group'=>'required'
         ]);
         $input = $request->all();
         $user_id=Auth::id();
@@ -72,7 +73,6 @@ class BroadcastController extends Controller
         if($broadcast){
             $this->out->writeln('Message broadcast successful');
             $all_profiles = UserProfile::where('institute_id','=',$input['institute_id'])->get();
-//            dd($all_profiles);
             $this->mailNotice($input['title'],$input['body'], $all_profiles);
             return response()->json(['success'=>true, 'broadcast'=>$broadcast],$this->successStatus);
         }
@@ -174,7 +174,7 @@ class BroadcastController extends Controller
             'broadcast_by'=>$user,
         ];
         if(!QuestionSetAnswer::where('question_set_id','=',$input['question_set_id'])->exists()){
-            return response()->json(['success'=>false, 'message'=>'No student attented to this Assessment!'], $this->failedStatus);
+            return response()->json(['success'=>false, 'message'=>'No student Participated on this Assessment!'], $this->invalidStatus);
         }
         $broadcast = Broadcast::create($data);
         if($broadcast){
@@ -236,6 +236,9 @@ class BroadcastController extends Controller
             'broadcast_to'=>$input['question_set_id'],
             'broadcast_by'=>$user,
         ];
+        if(!QuestionSetAnswer::where('question_set_id','=',$input['question_set_id'])->exists()){
+            return response()->json(['success'=>false, 'message'=>'No student participated on this Assessment!'], $this->invalidStatus);
+        }
         $broadcast = Broadcast::create($data);
         if($broadcast){
             $this->out->writeln('Emailing result, Broadcast: '.$broadcast);

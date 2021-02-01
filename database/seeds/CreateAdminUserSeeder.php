@@ -30,7 +30,8 @@ class CreateAdminUserSeeder extends Seeder
             'username'=>'Admin',
             'email' => 'admin@nsl.com',
             'password' => bcrypt('123456789'),
-            'status' => '1'
+            'status' => '1',
+            'institute_id'=>1,
 
         ]);
 
@@ -41,6 +42,7 @@ class CreateAdminUserSeeder extends Seeder
             'first_name' => 'Admin',
             'last_name' => 'Admin',
             'email' => 'admin@nsl.com',
+            'birth_date'=>'1990-01-10'
         ]);
 
         // Add Contributor Info
@@ -74,9 +76,14 @@ class CreateAdminUserSeeder extends Seeder
 
         $user->assignRole([$role->id]);
 
+        $student_role = Role::create(['name'=>'Student', 'guard_name'=>'web']);
+        $student_permissions= ['student-only', 'institute-list','round-list','question-category-list','user-list','user-edit','question-list','question-set-list','question-set-answer-create','question-set-answer-list'];
+        $student_permissions= Permission::whereIn('name',$student_permissions)->get();
+        $student_role->syncPermissions($student_permissions);
+
         RoleSetup::create([
             'contributor_role_id' => 1,
-            'student_role_id' => 1,
+            'student_role_id' => $student_role->id,
             'new_register_user_role_id' => 1,
         ]);
     }

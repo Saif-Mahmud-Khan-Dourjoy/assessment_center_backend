@@ -16,7 +16,7 @@ class CreateUserEmploymentHistoriesTable extends Migration
         Schema::create('user_employment_histories', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('profile_id')->unsigned();
-            $table->foreign('profile_id')->references('id')->on('user_profiles');
+            $table->foreign('profile_id')->references('id')->on('user_profiles')->onDelete('cascade');
             $table->char('institute', 250);
             $table->char('position', 200);
             $table->text('responsibility');

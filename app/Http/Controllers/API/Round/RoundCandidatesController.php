@@ -50,7 +50,7 @@ class RoundCandidatesController extends Controller
         $roleName = Role::where('id','=',$roleList->student_role_id)->first();
         $this->out->writeln('role name: '.$roleName->name);
         foreach ($students as $student) {
-            $this->out->writeln('Stuetn :'.$student);
+            $this->out->writeln('Student :'.$student);
             if(User::with(['user_profile'])->where('id','=',$student->user_id)->role($roleName->name)->first()){
                 if(RoundCandidates::where('student_id','=',$student->id)->exists()){
                     continue;
@@ -157,7 +157,7 @@ class RoundCandidatesController extends Controller
 
     public function eachRoundCandidates($round_id){
         $this->out->writeln('Fetching candidates based on the round-id: '.$round_id);
-        $round_candidates = RoundCandidates::with('user_profiles')->where('round_id',$round_id)->get();
+        $round_candidates = RoundCandidates::with('user_profiles','academic_info')->where('round_id',$round_id)->get();
         if($round_candidates){
             return response()->json(['success'=>true, 'round_candidates'=>$round_candidates],$this->successStatus);
         }

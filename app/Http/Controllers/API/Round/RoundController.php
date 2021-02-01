@@ -79,7 +79,7 @@ class RoundController extends Controller
     }
 
     /**
-     * Round is valid if the assigned exam time is not passed.
+     * all the round is provided with two status, have assessment (0/1), time-out (0/1)
      * @return \Illuminate\Http\JsonResponse
      */
 
@@ -95,12 +95,28 @@ class RoundController extends Controller
             return response()->json(['success'=>true, 'rounds'=>$rounds],$this->successStatus);
         }
         $available_rounds = [];
+        $i=0;
         foreach ($rounds as $round){
             $this->out->writeln('rounds: '.$round->id);
-            if(QuestionSet::where('round_id','=',$round->id)->where('end_time','<=', Carbon::now())->exists()){
+            $this->out->writeln("Time now: ".Carbon::now());
+            $round['have_assessment']=0;
+            $round['time_out']=0;
+            if(QuestionSet::where('round_id','=',$round->id)->where('end_time','<', Carbon::now())->exists()){
+                $this->out->writeln("Invalid round: $round->id");
+                $round['have_assessment']=1;
+                $round['time_out']=1;
+                array_push($available_rounds, $round);
+                continue;
+            }
+            if(QuestionSet::where('round_id','=',$round->id)->exists()){
+                $this->out->writeln("Round have Assessment: $round->id");
+                $round['have_assessment']=1;
+                $round['time_out']=0;
+                array_push($available_rounds, $round);
                 continue;
             }
             array_push($available_rounds, $round);
+
         }
         return response()->json(['success'=>true, 'rounds'=>$available_rounds],$this->successStatus);
     }

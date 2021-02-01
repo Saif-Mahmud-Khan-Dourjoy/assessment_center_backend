@@ -33,6 +33,10 @@ class CreateQuestionsTable extends Migration
             $table->integer('average_rating');
             $table->text('img')->nullable();
             $table->tinyInteger('active')->comment('0 for inactive and 1 for active');
+            $table->unsignedBigInteger('created_by')->unsigned()->comment('User Id from users table');
+            $table->foreign('created_by')->references('id')->on('users');
+            $table->unsignedBigInteger('updated_by')->unsigned()->comment('User Id from users table');
+            $table->foreign('updated_by')->references('id')->on('users');
             $table->timestamps();
         });
     }
