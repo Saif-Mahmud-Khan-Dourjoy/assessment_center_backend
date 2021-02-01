@@ -65,7 +65,7 @@ class UserController extends Controller
             return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
         if($user->institute_id){
-            $users = User::with(['roles'])->where('id','!=',$user->id)->role('Admin')->get();
+            $users = User::with(['roles'])->where('id','!=',$user->id)->get();
             return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
         }
         return response()->json(['success' => true, 'users' => []], $this->successStatus);
