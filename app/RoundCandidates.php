@@ -17,4 +17,8 @@ class RoundCandidates extends Model
         return $this->belongsTo('App\UserProfile','student_id');
     }
 
+    public function academic_info(){
+        return $this->belongsTo('App\UserAcademicHistory','student_id','profile_id');
+    }
+
 }
