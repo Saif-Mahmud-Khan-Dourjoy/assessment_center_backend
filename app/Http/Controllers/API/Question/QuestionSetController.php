@@ -346,14 +346,15 @@ class QuestionSetController extends Controller
     }
 
     public function attendQuestionSet($id)
-    {
+    {   $st_time = microtime(true);
         $this->out->writeln('Fetching Question set with all questions, question-set id: '.$id);
         $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
         if(QuestionSetAnswer::where('question_set_id',$id)->where('profile_id',$userProfile->id)->exists())
             return response()->json(['success'=>false, "message"=>"You have already attended!"],$this->failedStatus);
         $question_set = QuestionSet::with(['question_set_details'])
-            ->where('id', $id)
-            ->get();
+                                    ->where('id', $id)
+                                    ->get();
+        $question_set[0]['remaining_time']=Carbon::parse($question_set[0]->end_time)->diffInMinutes(Carbon::now());
         if (sizeof($question_set)<1)
             return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
         $questionAnswerData = [
@@ -381,6 +382,8 @@ class QuestionSetController extends Controller
             );
             $question_set[0]->question_set_details[$i++]['question']=$question;
         }
+        $time_taken= microtime(true)-$st_time;
+        $this->out->writeln("Remaining time calculation: ".$time_taken);
         return response()->json(['success' => true, 'question_set' => $question_set, 'question_set_answer_id'=>$question_set_answer->id], $this->successStatus);
     }
 

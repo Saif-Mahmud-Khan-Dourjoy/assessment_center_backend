@@ -11,6 +11,9 @@ use App\Mail\BroadcastResult;
 use App\Mail\WelcomeMail;
 use App\QuestionSet;
 use App\QuestionSetAnswer;
+use App\Round;
+use App\RoundCandidates;
+use App\User;
 use App\UserProfile;
 use http\Env\Response;
 use Illuminate\Http\Request;
@@ -43,10 +46,15 @@ class BroadcastController extends Controller
 
     public function mailNotice($title, $body, $users){
         foreach ($users as $user){
-            $this->out->writeln('User email: '.$user->email);
-            $email = Mail::to(trim($user->email))
-                ->send(new BroadcastNotice($title, $body, $user->first_name, $user->last_name));
-            $this->out->writeln('Email confirm: '.$email);
+            try{
+                $this->out->writeln('User email: '.$user->email);
+                $email = Mail::to(trim($user->email))
+                    ->send(new BroadcastNotice($title, $body, $user->first_name, $user->last_name));
+                $this->out->writeln('Email confirm: '.$email);
+            }catch (\Exception $e){
+                $this->out->writeln("Error: Unable to email notice $user->email, exception: $e");
+                continue;
+            }
         }
     }
 
@@ -65,18 +73,27 @@ class BroadcastController extends Controller
             'title'=>$input['title'],
             'body'=>$input['body'],
             'type'=>$this->type['notice'],
-            'group'=>$this->group['institute'],
+            'group'=>$input['group'],
             'broadcast_to'=>$input['broadcast_to'],
             'broadcast_by'=>$user_id,
         ];
-        $broadcast = Broadcast::create($data);
-        if($broadcast){
-            $this->out->writeln('Message broadcast successful');
-            $all_profiles = UserProfile::where('institute_id','=',$input['institute_id'])->get();
+        try{
+            if($input['group']==0){
+                $all_profiles = UserProfile::where('institute_id','=',$input['broadcast_to'])->get();
+            }else if($input['group']==1){
+                $round = QuestionSet::selec('round_id')->where('round_id','=',$input['broadcast_to'])->first();
+                $all_profiles = RoundCandidates::with(['user_profiles'])->where('round_id',$round->round_id)->get('email');
+            }else if($input['group']==2){
+                $all_profiles = RoundCandidates::with(['user_profiles'])->where('round_id',$input['broadcast_to'])->get('email');
+            }else{
+                throw new \Exception('No User Found to Broadcast!');
+            }
+            $broadcast = Broadcast::create($data);
             $this->mailNotice($input['title'],$input['body'], $all_profiles);
             return response()->json(['success'=>true, 'broadcast'=>$broadcast],$this->successStatus);
+        }catch (\Exception $e){
+            return response()->json(['success'=>false, 'message'=>"Broadcasting Notice Unsuccessful!", 'error'=>$e->getMessage()], $this->failedStatus);
         }
-        return reponse()->json(['success'=>false, 'message'=>'Message broadcasting failed!'], $this->failedStatus);
     }
 
     /**
