@@ -13,7 +13,7 @@ class RoundCandidates extends Model
         'round_id','student_id', 'mark',
     ];
 
-    public function user_profiles(){
+    public function user_profile(){
         return $this->belongsTo('App\UserProfile','student_id');
     }
 

@@ -47,12 +47,12 @@ class BroadcastController extends Controller
     public function mailNotice($title, $body, $users){
         foreach ($users as $user){
             try{
-                $this->out->writeln('User email: '.$user->email);
-                $email = Mail::to(trim($user->email))
-                    ->send(new BroadcastNotice($title, $body, $user->first_name, $user->last_name));
+                $this->out->writeln('User email: '.$user->user_profile->email);
+                $email = Mail::to(trim($user->user_profile->email))
+                    ->send(new BroadcastNotice($title, $body, $user->user_profile->first_name, $user->user_profile->last_name));
                 $this->out->writeln('Email confirm: '.$email);
             }catch (\Exception $e){
-                $this->out->writeln("Error: Unable to email notice $user->email, exception: $e");
+                $this->out->writeln("Error: Unable to email notice $user->user_profile->email, exception: $e");
                 continue;
             }
         }
@@ -79,12 +79,12 @@ class BroadcastController extends Controller
         ];
         try{
             if($input['group']==0){
-                $all_profiles = UserProfile::where('institute_id','=',$input['broadcast_to'])->get();
+                $all_profiles = User::with('user_profile')->where('institute_id','=',$input['broadcast_to'])->get();
             }else if($input['group']==1){
-                $round = QuestionSet::selec('round_id')->where('round_id','=',$input['broadcast_to'])->first();
-                $all_profiles = RoundCandidates::with(['user_profiles'])->where('round_id',$round->round_id)->get('email');
+                $round = QuestionSet::select('round_id')->where('round_id','=',$input['broadcast_to'])->first();
+                $all_profiles = RoundCandidates::with(['user_profile'])->where('round_id',$round->round_id)->get();
             }else if($input['group']==2){
-                $all_profiles = RoundCandidates::with(['user_profiles'])->where('round_id',$input['broadcast_to'])->get('email');
+                $all_profiles = RoundCandidates::with(['user_profile'])->where('round_id',$input['broadcast_to'])->get();
             }else{
                 throw new \Exception('No User Found to Broadcast!');
             }
