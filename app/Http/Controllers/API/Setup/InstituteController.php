@@ -37,6 +37,11 @@ class InstituteController extends Controller
         $user_profile = UserProfile::where('user_id','=',$user->id)->first();
         if($user->can('super-admin')){
             $institutes = Institute::all();
+            //--- Debugging
+            foreach ($institutes as $institute){
+                $this->out->writeln('Website length: '.strlen($institute->website));
+            }
+            //-------
             return response()->json(['success'=>true,'institutes'=>$institutes],$this->successStatus);
         }
         if($user_profile->institute_id){
@@ -68,6 +73,7 @@ class InstituteController extends Controller
             'logo' => (!empty($_POST["logo"]))? $input['logo']:'',
             'icon' => (!empty($_POST["icon"]))? $input["icon"]:'',
         ];
+        $this->out->writeln('Length of the string: '.strlen($data['website']));
         $institute = Institute::create($data);
         if( $institute )
             return response()->json(['success' => true, 'institute' => $institute], $this->successStatus);

@@ -22,6 +22,8 @@ class CreateBroadcastsTable extends Migration
             $table->unsignedBigInteger('broadcast_to')->comment('According to the group it  might be institute id, round-id, question-set-id');
             $table->unsignedBigInteger('broadcast_by')->unsigned();
             $table->foreign('broadcast_by')->references('id')->on('users');
+            $table->unsignedBigInteger('institute_id')->unsigned();
+            $table->foreign('institute_id')->on('institutes')->references('id')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -44,6 +44,22 @@ class BroadcastController extends Controller
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
 
+    public function index(){
+        try{
+            $user = Auth::user();
+            if($user->can('super-admin')){
+                $broadcasts = Broadcast::all();
+                return response()->json(['success'=>true, 'broadcast'=>$broadcasts],$this->successStatus);
+            }
+            if($user->institute_id){
+                $broadcasts = Broadcast::where('institute_id','=',$user->institute_id);
+                return response()->json(['success'=>true, 'broadcast'=>$broadcasts], $this->successStatus);
+            }
+        }catch (\Exception $e){
+            return response()->json(['success'=>false, 'message'=>"Unable to fetch Broadcast lists!", 'error'=> $e->getMessage()], $this->failedStatus);
+        }
+    }
+
     public function mailNotice($title, $body, $users){
         foreach ($users as $user){
             try{
@@ -68,14 +84,15 @@ class BroadcastController extends Controller
             'group'=>'required'
         ]);
         $input = $request->all();
-        $user_id=Auth::id();
+        $user=Auth::user();
         $data = [
             'title'=>$input['title'],
             'body'=>$input['body'],
             'type'=>$this->type['notice'],
             'group'=>$input['group'],
             'broadcast_to'=>$input['broadcast_to'],
-            'broadcast_by'=>$user_id,
+            'broadcast_by'=>$user->id,
+            'institute_id'=>$user->institute_id,
         ];
         try{
             if($input['group']==0){
@@ -180,7 +197,7 @@ class BroadcastController extends Controller
             'question_set_id'=>'required',
         ]);
         $input = $request->all();
-        $user = Auth::id();
+        $user = Auth::user();
         $institution = Institute::find($input['institute_id']);
         $data = [
             'title'=>'Assessment Result',
@@ -188,7 +205,8 @@ class BroadcastController extends Controller
             'type'=>$this->type['result'],
             'group'=>$this->group['question_set'],
             'broadcast_to'=>$input['question_set_id'],
-            'broadcast_by'=>$user,
+            'broadcast_by'=>$user->id,
+            'institute_id'=>$user->institute_id,
         ];
         if(!QuestionSetAnswer::where('question_set_id','=',$input['question_set_id'])->exists()){
             return response()->json(['success'=>false, 'message'=>'No student Participated on this Assessment!'], $this->invalidStatus);
@@ -244,14 +262,15 @@ class BroadcastController extends Controller
             'question_set_id'=>'required',
         ]);
         $input = $request->all();
-        $user = Auth::id();
+        $user = Auth::user();
         $data = [
             'title'=>'Assessment Result',
             'body'=>'Assessment Result',
             'type'=>$this->type['result'],
             'group'=>$this->group['question_set'],
             'broadcast_to'=>$input['question_set_id'],
-            'broadcast_by'=>$user,
+            'broadcast_by'=>$user->id,
+            'institute_id'=>$user->institute_id,
         ];
         if(!QuestionSetAnswer::where('question_set_id','=',$input['question_set_id'])->exists()){
             return response()->json(['success'=>false, 'message'=>'No student participated on this Assessment!'], $this->invalidStatus);
@@ -267,4 +286,5 @@ class BroadcastController extends Controller
         return response()->json(['success'=>false, 'message'=>'Unable to broadcast Result'], $this->failedStatus);
     }
 }
+
 

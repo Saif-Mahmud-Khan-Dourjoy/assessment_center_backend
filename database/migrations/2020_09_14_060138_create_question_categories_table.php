@@ -15,7 +15,7 @@ class CreateQuestionCategoriesTable extends Migration
     {
         Schema::create('question_categories', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->char('name', 100);
+            $table->string('name', 100);
             $table->integer('parents_id');
             $table->integer('layer');
             $table->text('description')->nullable();

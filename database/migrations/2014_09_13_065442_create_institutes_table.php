@@ -15,13 +15,13 @@ class CreateInstitutesTable extends Migration
     {
         Schema::create('institutes', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->char('name', 200);
-            $table->char('contact_no', 50)->nullable();
-            $table->char('email', 200)->nullable();
-            $table->char('website', 200)->nullable();
+            $table->string('contact_no', 50)->nullable();
+            $table->string('name', 200);
+            $table->string('email', 200)->nullable();
+            $table->string('website', 200)->nullable();
             $table->text('address')->nullable();
-            $table->char('logo',100)->nullable();
-            $table->char('icon',100)->nullable();
+            $table->string('logo',100)->nullable();
+            $table->string('icon',100)->nullable();
             $table->timestamps();
         });
     }

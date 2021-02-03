@@ -22,10 +22,10 @@ class CreateQuestionsTable extends Migration
             $table->bigInteger('institute_id')->nullable();
             $table->tinyInteger('privacy')->default(0)->comment('0 for public, 1 for private, 2 for protected');
             $table->tinyInteger('publish_status')->comment('0 for unpublished and 1 published');
-            $table->char('question_type', 100)->comment('multiple choice, checkbox, short answer');
+            $table->string('question_type', 100)->comment('multiple choice, checkbox, short answer');
             $table->text('question_text');
             $table->text('description')->nullable();
-            $table->char('option_type', 20)->comment('text, textarea, checkbox, radio');
+            $table->string('option_type', 20)->comment('text, textarea, checkbox, radio');
             $table->integer('no_of_option');
             $table->integer('no_of_answer');
             $table->integer('no_of_used');
