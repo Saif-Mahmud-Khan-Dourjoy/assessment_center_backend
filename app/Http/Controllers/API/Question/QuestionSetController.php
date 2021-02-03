@@ -257,7 +257,7 @@ class QuestionSetController extends Controller
             'assessment_time' => $input['assessment_time'],
             'start_time' => (!empty($input['start_time']) || !is_null($input['start_time'])? $input['start_time'] : ''),
             'end_time'=>(!empty('end_time') || !is_null($input['end_time'])? $input['end_time']: ''),
-            'each_question_time' => (!empty('each_question_time') || !is_null($input['each_question_time'])? $input['each_question_time']: 0),
+            'each_question_time' => (!empty($input['each_question_time']) || !is_null($input['each_question_time'])? $input['each_question_time']: 0),
             'total_question' => $input['total_question'],
             'total_mark' => $input['total_mark'],
             'status' => $input['status'],

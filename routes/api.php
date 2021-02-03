@@ -76,6 +76,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::post('student-have-assessments','API\Question\QuestionSetController@studentHaveAssessments')->name('student-have-assessments');
 
         Route::post('get-certificate', 'API\Question\QuestionSetAnswerController@getCertificate')->name('get-certificate');
+        Route::post('rank-certificate','API\Question\QuestionSetAnswerController@rankCertificate')->name('rank-certificate');
 
         Route::resource('rounds','API\Round\RoundController');
         Route::get('institute-rounds/{id}', 'API\Round\RoundController@getInstituteRound');

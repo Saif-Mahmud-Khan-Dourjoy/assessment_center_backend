@@ -170,7 +170,7 @@ class RoundCandidatesController extends Controller
 
     public function eachRoundCandidates($round_id){
         $this->out->writeln('Fetching candidates based on the round-id: '.$round_id);
-        $round_candidates = RoundCandidates::with('user_profiles','academic_info')->where('round_id',$round_id)->get();
+        $round_candidates = RoundCandidates::with('user_profile','academic_info')->where('round_id',$round_id)->get();
         if($round_candidates){
             return response()->json(['success'=>true, 'round_candidates'=>$round_candidates],$this->successStatus);
         }

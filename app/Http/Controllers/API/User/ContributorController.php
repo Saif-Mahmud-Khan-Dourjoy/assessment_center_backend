@@ -42,6 +42,7 @@ class ContributorController extends Controller
     {
         $user = auth()->user();
         $userProfile=UserProfile::find($user->id);
+        $userProfile =$userProfile::where('user_id','=',$user->id)->first();
         $permissions = $user->getAllPermissions();
         if($user->can('super-admin')){
             $contributors = Contributor::with(['user_profile'])->where('profile_id','!=',$userProfile->id)->get();

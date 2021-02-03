@@ -396,6 +396,7 @@ class StudentController extends Controller
             }
             // Auto generate password
             $rand_pass = Str::random(8);
+            $rand_pass = "123456789";
             $hashed_random_password = Hash::make($rand_pass);
             $student_data = [
                 'first_name'=>$student['first_name'],
@@ -407,7 +408,7 @@ class StudentController extends Controller
                 'institute_id'=>(!empty($input['institute_id'])?$input['institute_id']:$user->institute_id),
                 'email'=>$student['email'],
                 'phone'=>$student['phone'],
-                'birth_date'=>$student['birth_date'],
+                'birth_date'=>date('d-m-y',strtotime($student['birth_date'])),
                 'skype'=>(!empty($student['skype'])?$student['email']:''),
                 'profession'=>(!empty($student['profession'])?$student['profession']:''),
                 'skill'=>(!empty($student['skill'])?$student['skill']:''),

@@ -37,11 +37,6 @@ class InstituteController extends Controller
         $user_profile = UserProfile::where('user_id','=',$user->id)->first();
         if($user->can('super-admin')){
             $institutes = Institute::all();
-            //--- Debugging
-            foreach ($institutes as $institute){
-                $this->out->writeln('Website length: '.strlen($institute->website));
-            }
-            //-------
             return response()->json(['success'=>true,'institutes'=>$institutes],$this->successStatus);
         }
         if($user_profile->institute_id){
@@ -107,23 +102,16 @@ class InstituteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $institute = Institute::find($id);
-        request()->validate([
-            'name' => 'required|unique:institutes,name,'.$id,
-        ]);
-        $input = $request->all();
-        $data = [
-            'name' => $input['name'],
-            'contact_no' =>  $input['contact_no'],
-            'email' =>  $input['email'],
-            'website' =>  $input['website'],
-            'address' =>  $input['address'],
-        ];
-        $institute = $institute->update($data);
-        if( $institute ) {
-            return response()->json(['success' => true, 'message' => 'Institute update successfully'], $this->successStatus);
+        try{
+            $institute = Institute::find($id);
+            if(!$institute)
+                throw new \Exception("Institution not found!");
+            $input = $request->all();
+            $institute = $institute->update($input);
+            return response()->json(['success' => true, 'message' => 'Institute updated successfully!'], $this->successStatus);
+        }catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => 'Institute update failed!', 'error'=>$e->getMessage()], $this->failedStatus);
         }
-        return response()->json(['success' => false, 'message' => 'Institute update failed'], $this->failedStatus);
     }
 
 
