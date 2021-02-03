@@ -354,9 +354,9 @@ class QuestionSetController extends Controller
         $question_set = QuestionSet::with(['question_set_details'])
                                     ->where('id', $id)
                                     ->get();
-        $question_set[0]['remaining_time']=Carbon::parse($question_set[0]->end_time)->diffInMinutes(Carbon::now());
         if (sizeof($question_set)<1)
             return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
+        $question_set[0]['remaining_time']=Carbon::parse($question_set[0]->end_time)->diffInMinutes(Carbon::now());
         $questionAnswerData = [
             'question_set_id'=>$question_set[0]->id,
             'profile_id'=>$userProfile->id,

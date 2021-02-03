@@ -141,6 +141,8 @@ class QuestionSetAnswerController extends Controller
         }
 
         $question_set_answer = QuestionSetAnswer::find($input['question_set_answer_id']);
+        if(!$question_set_answer)
+            return response()->json(['success'=>false, 'message'=>'Question Set Answer Id may not correct!'], $this->failedStatus);
 
         // Add answer detail
         $question_id = explode( '|', $input['question_id']);
@@ -162,6 +164,8 @@ class QuestionSetAnswerController extends Controller
                 'answer' => $answer[$i],
                 'mark' => $mark,
             ];
+            $this->out->writeln("Checking...");
+//            return $question_set_answer;
             QuestionSetAnswerDetail::where('question_set_answer_id','=',$question_set_answer->id)
                                     ->where('question_id',$question_id[$i])
                                     ->update($questionAnswerDetailsData);
@@ -205,7 +209,7 @@ class QuestionSetAnswerController extends Controller
      * @param $question_answers
      * @return $question_answers
      */
-    public function studentRank($question_answers){
+    public function studentRankBS($question_answers){
         $position = 1;
         $previous_mark = 0;
         $previous_time = 0;
@@ -243,11 +247,7 @@ class QuestionSetAnswerController extends Controller
         return $question_answers;
     }
 
-    public function studentPromotion($question_set, $mark, $student){
-        $questionSet = QuestionSet::find($question_set);
-        $round = Round::find($questionSet->round_id);
-        $this->out->writeln('Round: '.$round);
-    }
+
 
     /**
      * Get all student based on the assessment.
@@ -290,7 +290,7 @@ class QuestionSetAnswerController extends Controller
             $question_answer[0]['percentage']=$mark_percentage;
             return response()->json(['success' => true, 'question_set'=>$questionSet , 'question_set_answer' => $question_answer], $this->successStatus);
         }
-        $question_answer = $this->studentRank($question_answer);
+        $question_answer = $this->studentRankBS($question_answer);
         foreach($question_answer as $question_ans){
             $mark_achieved = $question_ans->total_mark;
             $student = $question_ans->user_profile->id;
@@ -312,6 +312,10 @@ class QuestionSetAnswerController extends Controller
             return response()->json(['success' => true, 'question_set'=>$questionSet , 'question_set_answer' => $question_answer], $this->successStatus);
     }
 
+    function rankCompare($student1, $student2){
+        return $student1->total_mark <$student2->total_mark || $student1->time_taken > $student2->time_taken;
+    }
+
     public function rankCertificate(Request $request){
         request()->validate([
             'question_set_id'=>'required',
@@ -322,27 +326,35 @@ class QuestionSetAnswerController extends Controller
             $question_set  = QuestionSet::find($input['question_set_id']);
             if(!$question_set || empty($question_set))
                 throw new \Exception('No Assessment Found!');
-            $question_set_answer = QuestionSetAnswer::with(['user_profile','question_set_answer_details'])
+            $question_set_answers = QuestionSetAnswer::with(['user_profile','question_set_answer_details'])
                 ->where('question_set_id', $input['question_set_id'])
                 ->orderByDesc('total_mark')
                 ->get();
-            if(!$question_set_answer)
+            if(!$question_set_answers)
                 throw new \Exception("No Question Set Answer found!");
-            if(sizeof($question_set_answer)==1){
-                if($question_set_answer->profile_id==$input['profile_id'])
+            if(sizeof($question_set_answers)==1){
+                if($question_set_answers->profile_id==$input['profile_id'])
                     throw new \Error("User may not attended to this assessment!");
                 $total_mark = $question_set->total_mark;
-                $mark_percentage = ($question_set_answer[0]->total_mark/$total_mark)*100;
+                $mark_percentage = ($question_set_answers[0]->total_mark/$total_mark)*100;
                 $question_answer[0]['rank']=1;
                 $question_answer[0]['position']=1;
                 $question_answer[0]['percentage']=$mark_percentage;
                 return response()->json(['success' => true, 'question_set'=>$question_set , 'question_set_answer' => $question_answer], $this->successStatus);
             }
-            $question_set_answers = $this->studentRank($question_set_answer);
-            foreach ($question_set_answers as $question_set_answer){
-                if($question_set_answer->profile_id==$input['profile_id']){
-                    return response()->json(['success'=>true, 'question_set_answer'=>$question_set_answer],$this->successStatus);
+            $question_set_answers =json_decode($question_set_answers, true);
+            usort($question_set_answers, function($student1, $student2){
+                return ($student1['total_mark'] < $student2['total_mark']) || ($student1['total_mark'] == $student2['total_mark'] && $student1['time_taken'] > $student2['time_taken']);
+            });
+            for($rank=0, $position=0; sizeof($question_set_answers);$rank++){
+                if($question_set_answers[$rank]['profile_id']==$input['profile_id']){
+                    $question_set_answers[$rank]['position']=$position+1;
+                    $question_set_answers[$rank]['rank']=$rank+1;
+                    return response()->json(['success'=>true, 'question_set_answer'=>$question_set_answers[$rank]],$this->successStatus);
                 }
+                if($question_set_answers[$rank]['total_mark'] ==$question_set_answers[$rank+1]['total_mark'] && $question_set_answers[$rank]['time_taken']==$question_set_answers[$rank+1]['time_taken'])
+                    continue;
+                $position++;
             }
             throw new \Exception("User may not attended");
         }catch(\Exception $e){
