@@ -224,7 +224,7 @@ class QuestionSetAnswerController extends Controller
                             ->orderByDesc('total_mark')
                             ->get();
             if(!$question_answer)
-                throw new Exception("No Student Attended for this Assessment!");
+                throw new \Exception("No Student Attended for this Assessment!");
             $round = Round::find($questionSet->round_id);
             $i=0;
             $total_mark=$questionSet->total_mark;
