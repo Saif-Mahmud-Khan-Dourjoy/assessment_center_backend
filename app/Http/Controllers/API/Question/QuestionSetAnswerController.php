@@ -15,10 +15,12 @@ use App\Round;
 use App\RoundCandidates;
 use App\Student;
 use App\UserProfile;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use mysql_xdevapi\Exception;
 use PDF;
 use Illuminate\Support\Facades\Mail;
 
@@ -205,51 +207,6 @@ class QuestionSetAnswerController extends Controller
     }
 
     /**
-     * student ranking based on the mark and time-taken during exam
-     * @param $question_answers
-     * @return $question_answers
-     */
-    public function studentRankBS($question_answers){
-        $position = 1;
-        $previous_mark = 0;
-        $previous_time = 0;
-        for($i=0;$i<sizeof($question_answers)-1;$i++){
-            $this->out->writeln('Question Answer set ranking: '.$question_answers[$i]);
-            for($j=$i+1;$j<sizeof($question_answers);$j++){
-                if($question_answers[$i]->total_mark<$question_answers[$j]->total_mark){
-                    $temp = $question_answers[$i];
-                    $question_answers[$i]=$question_answers[$j];
-                    $question_answers[$j]=$temp;
-                }else if($question_answers[$i]->total_mark==$question_answers[$j]->total_mark  && $question_answers[$i]->time_taken>$question_answers[$j]->time_taken){
-                    $this->out->writeln('swap by time');
-                    $temp = $question_answers[$i];
-                    $question_answers[$i]=$question_answers[$j];
-                    $question_answers[$j]=$temp;
-                }
-            }
-            $question_answers[$i]['rank']=$i+1;
-            if($i>0 && $question_answers[$i-1]->total_mark==$question_answers[$i]->total_mark && $question_answers[$i-1]->time_taken==$question_answers[$i]->time_taken){
-                $this->out->writeln('Position must be same!');
-                $question_answers[$i]['position']=$position-1;
-            }else{
-                $question_answers[$i]['position']=$position++;
-            }
-        }
-        $question_answers[$i]['rank']=$i+1;
-        if($question_answers[$i-1]->total_mark==$question_answers[$i]->total_mark && $question_answers[$i-1]->time_taken==$question_answers[$i]->time_taken){
-            $question_answers[$i]['position']=$position-1;
-        }else{
-            $question_answers[$i]['position']=$position++;
-        }
-        foreach ($question_answers as $qs){
-            $this->out->writeln('question set ans id: '.$qs->id);
-        }
-        return $question_answers;
-    }
-
-
-
-    /**
      * Get all student based on the assessment.
      *
      * @param $id
@@ -258,62 +215,68 @@ class QuestionSetAnswerController extends Controller
     public function getAllStudent($id)
     {
         $this->out->writeln('Fetching students attended!');
-        $question_answer = QuestionSetAnswer::with(['user_profile','question_set_answer_details'])
-            ->where('question_set_id', $id)
-            ->orderByDesc('total_mark')
-            ->get();
-        $questionSet = QuestionSet::find($id);
-        $round = Round::find($questionSet->round_id);
-        $this->out->writeln($round);
-        $i=0;
-        $total_mark=$questionSet->total_mark;
-        $this->out->writeln('checking....');
-        if(sizeof($question_answer)==0){
-            return response()->json(['success' => true, 'question_set'=>$questionSet , 'question_set_answer' => $question_answer], $this->successStatus);
-        }
-        if(sizeof($question_answer)==1){
-            $mark_achieved = $question_answer[0]->total_mark;
-            $total_mark = $questionSet->total_mark;
-            $mark_percentage = ($mark_achieved/$total_mark)*100;
-            if($round->passing_criteria=='pass' && $mark_percentage>=$round->number){
-                $this->out->writeln('Total Mark: '.$mark_achieved);
-                $question_answer[$i]['promoted']=1;
-            }else if($round->passing_criteria=='sort' && 0<$round->number){
-                $this->out->writeln('Total Mark: '.$mark_achieved);
-                $question_answer[$i]['promoted']=1;
-            }else{
-                $this->out->writeln('Total Mark: '.$mark_achieved);
-                $question_answer[$i]['promoted']=0;
+        try{
+            $questionSet = QuestionSet::find($id);
+            if(!$questionSet)
+                throw new \Exception("Assessment Not Found!");
+            $question_answer = QuestionSetAnswer::with(['user_profile','question_set_answer_details'])
+                            ->where('question_set_id', $id)
+                            ->orderByDesc('total_mark')
+                            ->get();
+            if(!$question_answer)
+                throw new Exception("No Student Attended for this Assessment!");
+            $round = Round::find($questionSet->round_id);
+            $i=0;
+            $total_mark=$questionSet->total_mark;
+            if(sizeof($question_answer)==0){
+                return response()->json(['success' => true, 'question_set'=>$questionSet , 'question_set_answer' => $question_answer], $this->successStatus);
             }
-            $question_answer[0]['rank']=1;
-            $question_answer[0]['position']=1;
-            $question_answer[0]['percentage']=$mark_percentage;
-            return response()->json(['success' => true, 'question_set'=>$questionSet , 'question_set_answer' => $question_answer], $this->successStatus);
-        }
-        $question_answer = $this->studentRankBS($question_answer);
-        foreach($question_answer as $question_ans){
-            $mark_achieved = $question_ans->total_mark;
-            $student = $question_ans->user_profile->id;
-            $mark_percentage = ($mark_achieved/$total_mark)*100;
-            $question_answer[$i]['percentage']=$mark_percentage;
-            if($round->passing_criteria=='pass' && $mark_percentage>=$round->number){
-                $question_answer[$i]['promoted']=1;
-            }else if($round->passing_criteria=='sort' && $i<$round->number){
-                $question_answer[$i]['promoted']=1;
-            }else{
-                $question_answer[$i]['promoted']=0;
+            if(sizeof($question_answer)==1){
+                $mark_achieved = $question_answer[0]->total_mark;
+                $total_mark = $questionSet->total_mark;
+                $mark_percentage = ($mark_achieved/$total_mark)*100;
+                if($round->passing_criteria=='pass' && $mark_percentage>=$round->number){
+                    $this->out->writeln('Total Mark: '.$mark_achieved);
+                    $question_answer[$i]['promoted']=1;
+                }else if($round->passing_criteria=='sort' && 0<$round->number){
+                    $this->out->writeln('Total Mark: '.$mark_achieved);
+                    $question_answer[$i]['promoted']=1;
+                }else{
+                    $this->out->writeln('Total Mark: '.$mark_achieved);
+                    $question_answer[$i]['promoted']=0;
+                }
+                $question_answer[0]['rank']=1;
+                $question_answer[0]['position']=1;
+                $question_answer[0]['percentage']=$mark_percentage;
+                return response()->json(['success' => true, 'question_set'=>$questionSet , 'question_set_answer' => $question_answer], $this->successStatus);
             }
-
-            $i++;
-        }
-        if ( !$question_answer )
-            return response()->json(['success' => false, 'message' => 'Question set answer not found'], $this->invalidStatus);
-        else
+            $question_answer =json_decode($question_answer, true);
+            usort($question_answer, function($student1, $student2){
+                return ($student1['total_mark'] < $student2['total_mark']) || ($student1['total_mark'] == $student2['total_mark'] && $student1['time_taken'] > $student2['time_taken']);
+            });
+            $total_student = sizeof($question_answer);
+            for($rank=0,$position=0;$rank<$total_student;$rank++){
+                $mark_achieved = $question_answer[$rank]['total_mark'];
+                $student = $question_answer[$rank]['user_profile']['id'];
+                $mark_percentage = ($mark_achieved/$total_mark)*100;
+                $question_answer[$rank]['percentage']=$mark_percentage;
+                if($round->passing_criteria=='pass' && $mark_percentage>=$round->number){
+                    $question_answer[$rank]['promoted']=1;
+                }else if($round->passing_criteria=='sort' && $rank<$round->number){
+                    $question_answer[$rank]['promoted']=1;
+                }else{
+                    $question_answer[$rank]['promoted']=0;
+                }
+                $question_answer[$rank]['rank']=$rank+1;
+                $question_answer[$rank]['position']=$position+1;
+                if($rank+1<$total_student && $question_answer[$rank]['total_mark'] ==$question_answer[$rank+1]['total_mark'] && $question_answer[$rank]['time_taken']==$question_answer[$rank+1]['time_taken'])
+                    continue;
+                $position++;
+            }
             return response()->json(['success' => true, 'question_set'=>$questionSet , 'question_set_answer' => $question_answer], $this->successStatus);
-    }
-
-    function rankCompare($student1, $student2){
-        return $student1->total_mark <$student2->total_mark || $student1->time_taken > $student2->time_taken;
+        }catch(\Exception $e){
+            return response()->json(['success'=>false, 'message'=>"All Students standing fetching un-successful!", "error"=>$e->getMessage()], $this->failedStatus);
+        }
     }
 
     public function rankCertificate(Request $request){
@@ -346,13 +309,14 @@ class QuestionSetAnswerController extends Controller
             usort($question_set_answers, function($student1, $student2){
                 return ($student1['total_mark'] < $student2['total_mark']) || ($student1['total_mark'] == $student2['total_mark'] && $student1['time_taken'] > $student2['time_taken']);
             });
-            for($rank=0, $position=0; sizeof($question_set_answers);$rank++){
+            $total_student=sizeof($question_set_answers);
+            for($rank=0, $position=0; $rank<$total_student;$rank++){
                 if($question_set_answers[$rank]['profile_id']==$input['profile_id']){
                     $question_set_answers[$rank]['position']=$position+1;
                     $question_set_answers[$rank]['rank']=$rank+1;
                     return response()->json(['success'=>true, 'question_set_answer'=>$question_set_answers[$rank]],$this->successStatus);
                 }
-                if($question_set_answers[$rank]['total_mark'] ==$question_set_answers[$rank+1]['total_mark'] && $question_set_answers[$rank]['time_taken']==$question_set_answers[$rank+1]['time_taken'])
+                if($rank+1<$total_student && $question_set_answers[$rank]['total_mark'] ==$question_set_answers[$rank+1]['total_mark'] && $question_set_answers[$rank]['time_taken']==$question_set_answers[$rank+1]['time_taken'])
                     continue;
                 $position++;
             }
