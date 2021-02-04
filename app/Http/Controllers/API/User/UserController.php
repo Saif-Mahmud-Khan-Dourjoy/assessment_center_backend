@@ -108,7 +108,6 @@ class UserController extends Controller
             'institute_id'=>'required'
         ]);
         $input = $request->all();
-        $this->out->writeln('Input-img: '.$input['img']);
         $rand_pass = Str::random(8);
         $hashed_random_password = Hash::make($rand_pass);
         if( $input['role_id'] )

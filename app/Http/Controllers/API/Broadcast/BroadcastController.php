@@ -15,11 +15,13 @@ use App\Round;
 use App\RoundCandidates;
 use App\User;
 use App\UserProfile;
+use Carbon\Carbon;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use mysql_xdevapi\Exception;
 use PDF;
 class BroadcastController extends Controller
 {
@@ -162,57 +164,67 @@ class BroadcastController extends Controller
      * @return $question_answers
      */
     public function resultEmail($question_set, $question_set_answers , $institute_name){
-        $email_info=[
-            'question_set_title'=>trim($question_set->title),
-            'start_time'=>trim($question_set->start_time),
-            'end_time'=>trim($question_set->end_time),
-            'assessment_time'=>trim($question_set->assessment_time),
-            'total_mark'=>trim($question_set->total_mark),
-            'number_of_participation'=>sizeof($question_set_answers),
-            'institute_name'=>trim($institute_name),
-        ];
-        foreach ($question_set_answers as $participant){
-            $this->out->writeln(
-                'user result with email'
-            );
-            $email_info ['user_email']= trim($participant->user_profile->email);
-            $email_info['time_taken'] = trim($participant->time_taken);
-            $email_info['marks']=trim($participant->total_mark);
-            $email_info['first_name']=trim($participant->user_profile->first_name);
-            $email_info['last_name']=trim($participant->user_profile->last_name);
-            $email_info['percentage']=trim($participant->percentage);
-            $email_info['position']=trim($participant->position);
-//            dd($email_info);
-//            $this->out->writeln('Email info: '.$email_info);
-            $email = Mail::to($email_info['user_email'])
-                ->send(new BroadcastResult($email_info));
-
+        try{
+            $st_time = Carbon::parse($question_set->start_time);
+            $end_time = Carbon::parse($question_set->end_time);
+            $email_info=[
+                'question_set_title'=>trim($question_set->title),
+                'start_time'=>trim($st_time->toDayDateTimeString()),
+                'end_time'=>trim($end_time->toDayDateTimeString()),
+                'assessment_time'=>trim($question_set->assessment_time),
+                'total_mark'=>trim($question_set->total_mark),
+                'number_of_participation'=>sizeof($question_set_answers),
+                'institute_name'=>trim($institute_name),
+                'total_time'=>trim($question_set->assessment_time),
+            ];
+            $total_student=sizeof($question_set_answers);
+            $total_mark = $question_set->total_mark;
+            for($rank=0, $position=0; $rank<$total_student;$rank++){
+                $mark_achieved = $question_set_answers[$rank]['total_mark'];
+                $email_info ['user_email']= trim($question_set_answers[$rank]['user_profile']['email']);
+                $email_info['time_taken'] = trim($question_set_answers[$rank]['time_taken']);
+                $email_info['marks']= trim($question_set_answers[$rank]['total_mark']);
+                $email_info['first_name']= trim($question_set_answers[$rank]['user_profile']['first_name']);
+                $email_info['last_name']= trim($question_set_answers[$rank]['user_profile']['last_name']);
+                $email_info['percentage']= ($mark_achieved/$total_mark)*100;
+                $email_info['position']=$position+1;
+                $email = Mail::to($email_info['user_email'])
+                    ->send(new BroadcastResult($email_info));
+                if($rank+1<$total_student && $question_set_answers[$rank]['total_mark'] ==$question_set_answers[$rank+1]['total_mark'] && $question_set_answers[$rank]['time_taken']==$question_set_answers[$rank+1]['time_taken'])
+                    continue;
+                $position++;
+            }
+            return true;
+        }catch(\Exception $e){
+            return response()->json(['success'=>false, "message"=>"Email result unsuccessful!", "error"=>$e->getMessage()]);
         }
     }
 
     public function broadcastResult(Request $request){
         $this->out->writeln('Broadcasting result according to the Assessment-id');
-        request()->validate([
-            'institute_id'=>'required',
-            'question_set_id'=>'required',
-        ]);
-        $input = $request->all();
-        $user = Auth::user();
-        $institution = Institute::find($input['institute_id']);
-        $data = [
-            'title'=>'Assessment Result',
-            'body'=>'Assessment Result',
-            'type'=>$this->type['result'],
-            'group'=>$this->group['question_set'],
-            'broadcast_to'=>$input['question_set_id'],
-            'broadcast_by'=>$user->id,
-            'institute_id'=>$user->institute_id,
-        ];
-        if(!QuestionSetAnswer::where('question_set_id','=',$input['question_set_id'])->exists()){
-            return response()->json(['success'=>false, 'message'=>'No student Participated on this Assessment!'], $this->invalidStatus);
-        }
-        $broadcast = Broadcast::create($data);
-        if($broadcast){
+        try{
+            request()->validate([
+                'institute_id'=>'required',
+                'question_set_id'=>'required',
+            ]);
+            $input = $request->all();
+            $user = Auth::user();
+            $institution = Institute::find($input['institute_id']);
+            $data = [
+                'title'=>'Assessment Result',
+                'body'=>'Assessment Result',
+                'type'=>$this->type['result'],
+                'group'=>$this->group['question_set'],
+                'broadcast_to'=>$input['question_set_id'],
+                'broadcast_by'=>$user->id,
+                'institute_id'=>$user->institute_id,
+            ];
+            if(!QuestionSetAnswer::where('question_set_id','=',$input['question_set_id'])->exists()){
+                return response()->json(['success'=>false, 'message'=>'No student Participated on this Assessment!'], $this->invalidStatus);
+            }
+            $broadcast = Broadcast::create($data);
+            if(!$broadcast)
+                throw new Exception("Broadcast Insertion Failed!");
             $this->out->writeln('Emailing result, Broadcast: '.$broadcast);
             $question_set = QuestionSet::find($input['question_set_id']);
             $question_set_answer = QuestionSetAnswer::with(['user_profile'])->where('question_set_id','=',$input['question_set_id'])->get();
@@ -226,11 +238,16 @@ class BroadcastController extends Controller
                 $this->resultEmail($question_set, $question_set_answer, $institution->name);
                 return response()->json(['success' => true, 'broadcast'=>$broadcast , 'question_set_answer' => $question_set_answer], $this->successStatus);
             }
-            $sorted_result = $this->studentRank($question_set->total_mark, $question_set_answer);
-            $this->resultEmail($question_set, $sorted_result, $institution->name);
+            $question_set_answer =json_decode($question_set_answer, true);
+            usort($question_set_answer, function($student1, $student2){
+                return ($student1['total_mark'] < $student2['total_mark']) || ($student1['total_mark'] == $student2['total_mark'] && $student1['time_taken'] > $student2['time_taken']);
+            });
+            $this->resultEmail($question_set, $question_set_answer, $institution->name);
             return response()->json(['success'=>true, 'broadcast'=>$broadcast, 'question_set_answer'=>$question_set_answer], $this->successStatus);
+
+        }catch(\Exception $e){
+            return response()->json(['success'=>false, "message"=>"Broadcasting Result Failed!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return response()->json(['success'=>false, 'message'=>'Unable to broadcast Result'], $this->failedStatus);
     }
 
     public function certificateEmail($question_set, $question_set_answers){
