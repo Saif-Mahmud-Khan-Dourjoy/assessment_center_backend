@@ -226,16 +226,16 @@ class StudentController extends Controller
      */
     public function getAllAssessment($id)
     {
-        $student = Student::where('profile_id', $id)->first();
-        if ( $student ){
+        try{
+            $student = Student::where('profile_id', $id)->first();
+            if(!$student)
+                throw new \Exception("Student Not found!");
             $assessment = QuestionSetAnswer::with(['question_set_answer_details'])->where('profile_id', $id)->get();
             return response()->json(['success' => true, 'all_assessment' => $assessment], $this->successStatus);
-        }
-        else{
-            return response()->json(['success' => false, 'message' => 'Student assessment not found'], $this->invalidStatus);
+        }catch (\Exception $e){
+            return response()->json(["success"=>false, "message"=>"Fetching Assessments fo student is Unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
-
 
 
     /**

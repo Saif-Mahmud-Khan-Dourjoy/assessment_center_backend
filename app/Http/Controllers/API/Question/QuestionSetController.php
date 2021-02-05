@@ -133,23 +133,19 @@ class QuestionSetController extends Controller
      * @param $duration
      * @return bool
      */
-
-
     public function assessmentTimeValidator($start_time, $end_time, $duration){
-        //calculate start and end time in terms of duration
-        $this->out->writeln('Validating time....');
-        $startTime = Carbon::parse($start_time);
-        $endTime = Carbon::parse($end_time);
-        $this->out->writeln('Start time: '.$startTime." ****** End time: ".$endTime);
-        if ($startTime->addMinutes($duration)>$endTime){
-            $this->out->writeln('Invalid time: ');
-            return false;
+        try{
+            $startTime = Carbon::parse($start_time);
+            $endTime = Carbon::parse($end_time);
+            $this->out->writeln('Start time: '.$startTime." ****** End time: ".$endTime);
+            if ($startTime->addMinutes($duration)>$endTime){
+                return false;
+            }
+            return true;
+        }catch(\Exception $e){
+            $this->out->writeln("Unable to validate Assessment Time! error: ".$e->getMessage());
         }
-        return true;
-
     }
-
-
     /**
      * Store a newly created resource in storage.
      *
@@ -313,8 +309,6 @@ class QuestionSetController extends Controller
         $question_answer = QuestionSetAnswer::create($questionAnswerData);
 //        $student = Student::where('profile_id','=',$question_answer)->first();
         Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
-
-
     }
 
 
@@ -328,12 +322,15 @@ class QuestionSetController extends Controller
     {
         $this->out->writeln('Fetching Question set with all questions, question-set id: '.$id);
         $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
-        $question_set = QuestionSet::with(['question_set_details'])
+        $question_set = QuestionSet::inRandomOrder()->with(['question_set_details'])
             ->where('id', $id)
             ->get();
         if (sizeof($question_set)<1)
             return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
         $i = 0;
+//        $question_set_details = $question_set[0]->question_set_details;
+        $question_set_details = json_decode($question_set[0]->question_set_details, true);
+        shuffle($question_set_details);
         foreach ($question_set[0]->question_set_details as $question_detail){
             $this->out-> writeln('Question set details: '.$question_detail);
             $this->out->writeln('Question ID: '.$question_detail->question_id);
@@ -347,44 +344,50 @@ class QuestionSetController extends Controller
 
     public function attendQuestionSet($id)
     {   $st_time = microtime(true);
-        $this->out->writeln('Fetching Question set with all questions, question-set id: '.$id);
-        $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
-        if(QuestionSetAnswer::where('question_set_id',$id)->where('profile_id',$userProfile->id)->exists())
-            return response()->json(['success'=>false, "message"=>"You have already attended!"],$this->failedStatus);
-        $question_set = QuestionSet::with(['question_set_details'])
-                                    ->where('id', $id)
-                                    ->get();
-        if (sizeof($question_set)<1)
-            return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
-        $question_set[0]['remaining_time']=Carbon::parse($question_set[0]->end_time)->diffInMinutes(Carbon::now());
-        $questionAnswerData = [
-            'question_set_id'=>$question_set[0]->id,
-            'profile_id'=>$userProfile->id,
-            'time_taken'=>0,
-            'total_mark'=>0,
-        ];
-        $question_set_answer = QuestionSetAnswer::create($questionAnswerData);
-        Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
-        $i = 0;
-        foreach ($question_set[0]->question_set_details as $question_detail){
-            $this->out-> writeln('Question set details: '.$question_detail);
-            $this->out->writeln('Question ID: '.$question_detail->question_id);
-            $question = Question::with(['question_details', 'question_answer', 'question_tag'])
-                ->where('id', $question_detail->question_id)
-                ->get();
-            QuestionSetAnswerDetail::create(
-                [
-                    'question_set_answer_id' =>$question_set_answer->id,
-                    'question_id'=>$question_detail->question_id,
-                    'answer'=>0,
-                    'mark'=>0,
-                ]
-            );
-            $question_set[0]->question_set_details[$i++]['question']=$question;
+        try{
+            $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
+            $question_set = QuestionSet::with(['question_set_details'])
+                            ->where('id', $id)
+                            ->get();
+            if (sizeof($question_set)<1)
+                return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
+            if(QuestionSetAnswer::where('question_set_id',$id)->where('profile_id',$userProfile->id)->exists())
+                return response()->json(['success'=>false, "message"=>"You have already attended!"],$this->failedStatus);
+//            if($question_set[0]['remaining_time']<$question_set[0]['assessment_time'])
+//                $question_set[0]['assessment_time']=$question_set[0]['remaining_time'];
+            $questionAnswerData = [
+                'question_set_id'=>$question_set[0]->id,
+                'profile_id'=>$userProfile->id,
+                'time_taken'=>0,
+                'total_mark'=>0,
+            ];
+            $question_set_answer = QuestionSetAnswer::create($questionAnswerData);
+            Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
+            $i = 0;
+            foreach ($question_set[0]->question_set_details as $question_detail){
+                $this->out-> writeln('Question set details: '.$question_detail);
+                $this->out->writeln('Question ID: '.$question_detail->question_id);
+                $question = Question::with(['question_details', 'question_answer', 'question_tag'])
+                    ->where('id', $question_detail->question_id)
+                    ->get();
+                QuestionSetAnswerDetail::create(
+                    [
+                        'question_set_answer_id' =>$question_set_answer->id,
+                        'question_id'=>$question_detail->question_id,
+                        'answer'=>0,
+                        'mark'=>0,
+                    ]
+                );
+                $question_set[0]->question_set_details[$i++]['question']=$question;
+            }
+            $time_taken= microtime(true)-$st_time;
+            $this->out->writeln("Remaining time calculation: ".$time_taken);
+            return response()->json(['success' => true, 'question_set' => $question_set, 'question_set_answer_id'=>$question_set_answer->id], $this->successStatus);
+
+        }catch(\Exception $e){
+            $this->out->writeln("Unable to fetch Question-set for attend! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Unable to fetch Question-set for attend!","error"=>$e->getMessage()], $this->failedStatus);
         }
-        $time_taken= microtime(true)-$st_time;
-        $this->out->writeln("Remaining time calculation: ".$time_taken);
-        return response()->json(['success' => true, 'question_set' => $question_set, 'question_set_answer_id'=>$question_set_answer->id], $this->successStatus);
     }
 
     /**
