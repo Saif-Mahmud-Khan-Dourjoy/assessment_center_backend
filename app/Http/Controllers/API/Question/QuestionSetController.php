@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Question;
 use App\QuestionDetail;
 use App\QuestionSet;
+use App\QuestionSetCandidate;
 use App\QuestionSetDetail;
 use App\QuestionSetAnswer;
 use App\QuestionSetAnswerDetail;
@@ -344,6 +345,38 @@ class QuestionSetController extends Controller
 
     public function attendQuestionSet($id)
     {   $st_time = microtime(true);
+        $this->out->writeln("Attending Student for the assessment-id: ".$id);
+        try{
+            $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
+            $question_set = QuestionSet::with(['question_set_details'])
+                ->where('id', $id)
+                ->get();
+            if (sizeof($question_set)<1)
+                return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
+            if(QuestionSetCandidate::where('question_set_id',$id)->where('profile_id',$userProfile->id)->exists())
+                return response()->json(['success'=>false, "message"=>"You have already attended!"],$this->failedStatus);
+            Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
+            $i = 0;
+            foreach ($question_set[0]->question_set_details as $question_detail){
+                $this->out-> writeln('Question set details: '.$question_detail);
+                $this->out->writeln('Question ID: '.$question_detail->question_id);
+                $question = Question::with(['question_details', 'question_answer', 'question_tag'])
+                    ->where('id', $question_detail->question_id)
+                    ->get();
+                $question_set[0]->question_set_details[$i++]['question']=$question;
+            }
+            $time_taken= microtime(true)-$st_time;
+            $question_set_candidates = QuestionSetCandidate::create(['question_set_id'=>$question_set->id, 'profile_id'=>$userProfile->id, 'attended'=>1]);
+            return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
+        }catch(\Exception $e){
+            $this->out->writeln("Unable to fetch Question-set for attend! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Unable to fetch Question-set for attend!","error"=>$e->getMessage()], $this->failedStatus);
+        }
+    }
+
+    public function attendQuestionSetPrevious($id)
+    {   $st_time = microtime(true);
+        $this->out->writeln("Attending Student for the assessment-id: ".$id);
         try{
             $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
             $question_set = QuestionSet::with(['question_set_details'])
