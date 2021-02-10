@@ -366,7 +366,7 @@ class QuestionSetController extends Controller
                 $question_set[0]->question_set_details[$i++]['question']=$question;
             }
             $time_taken= microtime(true)-$st_time;
-            $question_set_candidates = QuestionSetCandidate::create(['question_set_id'=>$question_set->id, 'profile_id'=>$userProfile->id, 'attended'=>1]);
+            $question_set_candidates = QuestionSetCandidate::create(['question_set_id'=>$question_set[0]->id, 'profile_id'=>$userProfile->id, 'attended'=>1]);
             return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
         }catch(\Exception $e){
             $this->out->writeln("Unable to fetch Question-set for attend! error: ".$e->getMessage());
