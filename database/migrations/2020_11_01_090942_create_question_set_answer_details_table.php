@@ -16,7 +16,7 @@ class CreateQuestionSetAnswerDetailsTable extends Migration
         Schema::create('question_set_answer_details', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('question_set_answer_id')->unsigned();
-            $table->foreign('question_set_answer_id')->references('id')->on('question_set_answers');
+            $table->foreign('question_set_answer_id')->references('id')->on('question_set_answers')->onDelete('cascade');
             $table->unsignedBigInteger('question_id')->unsigned();
             $table->foreign('question_id')->references('id')->on('questions');
             $table->string('answer', 100);

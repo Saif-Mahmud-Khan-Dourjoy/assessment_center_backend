@@ -358,8 +358,6 @@ class QuestionSetController extends Controller
             Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
             $i = 0;
             foreach ($question_set[0]->question_set_details as $question_detail){
-                $this->out-> writeln('Question set details: '.$question_detail);
-                $this->out->writeln('Question ID: '.$question_detail->question_id);
                 $question = Question::with(['question_details', 'question_answer', 'question_tag'])
                     ->where('id', $question_detail->question_id)
                     ->get();
