@@ -635,6 +635,7 @@ class ComposerStaticInit437c2d0b698d777a9dcc91641da49e0e
         'App\\QuestionSet' => __DIR__ . '/../..' . '/app/QuestionSet.php',
         'App\\QuestionSetAnswer' => __DIR__ . '/../..' . '/app/QuestionSetAnswer.php',
         'App\\QuestionSetAnswerDetail' => __DIR__ . '/../..' . '/app/QuestionSetAnswerDetail.php',
+        'App\\QuestionSetCandidate' => __DIR__ . '/../..' . '/app/QuestionSetCandidate.php',
         'App\\QuestionSetDetail' => __DIR__ . '/../..' . '/app/QuestionSetDetail.php',
         'App\\RoleSetup' => __DIR__ . '/../..' . '/app/RoleSetup.php',
         'App\\Round' => __DIR__ . '/../..' . '/app/Round.php',

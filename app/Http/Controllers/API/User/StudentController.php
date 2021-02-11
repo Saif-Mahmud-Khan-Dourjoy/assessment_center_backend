@@ -79,7 +79,7 @@ class StudentController extends Controller
                 ->send(new UserCredentials($username, $name,  $user_password, $user_email));
             return true;
         }catch(\Throwable $e){
-            $this->out->writeln('Unable to email user credentials');
+            $this->out->writeln('Unable to email user credentials'.$e->getMessage());
             return false;
         }
     }
@@ -446,12 +446,11 @@ class StudentController extends Controller
                 $this->out->writeln('Error: '.$e->getMessage());
                 DB::rollback();
                 $failed_content=$this->fileContent($failed_content, $row);
-                break;
+                continue;
             }
             Db::commit();
             $success_content = $this->fileContent($success_content, $row);
             array_push($student_success, $student_profile);
-
         }
         $student_temp = Storage::put("students/$timestamp"."_$user->user_id"."_success.csv",$success_content);
         $student_temp = Storage::put("students/$timestamp"."_$user->user_id"."_failed.csv",$failed_content);

@@ -74,6 +74,7 @@ return array(
     'App\\QuestionSet' => $baseDir . '/app/QuestionSet.php',
     'App\\QuestionSetAnswer' => $baseDir . '/app/QuestionSetAnswer.php',
     'App\\QuestionSetAnswerDetail' => $baseDir . '/app/QuestionSetAnswerDetail.php',
+    'App\\QuestionSetCandidate' => $baseDir . '/app/QuestionSetCandidate.php',
     'App\\QuestionSetDetail' => $baseDir . '/app/QuestionSetDetail.php',
     'App\\RoleSetup' => $baseDir . '/app/RoleSetup.php',
     'App\\Round' => $baseDir . '/app/Round.php',
