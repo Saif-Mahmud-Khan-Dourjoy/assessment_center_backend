@@ -43,6 +43,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::post('get-role-wise-user', 'API\User\UserController@getRoleWiseUsersList')->name('get-role-wise-user');
 
         Route::get('get-profile/{id}', 'API\User\UserController@getUser')->name('get-profile');
+        Route::get('get-profile-pid/{pid}','API\User\UserController@getProfileByPID')->name('get-profile-pid');
         Route::post('update-profile', 'API\User\UserController@updateProfile')->name('update-profile');
         Route::get('update-status/{id}', 'API\User\UserController@updateStatus')->name('update-status');
 

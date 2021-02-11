@@ -10,6 +10,7 @@ use App\User;
 use App\UserAcademicHistory;
 use App\UserEmploymentHistory;
 use App\UserProfile;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -188,11 +189,26 @@ class UserController extends Controller
      */
     public function getUser($id)
     {
-        $profile = User::with(['user_profile', 'roles'])->where('id', $id)->get();
-        if ( !$profile )
-            return response()->json(['success' => false, 'message' => 'User not found'], $this->invalidStatus);
-        else
+        try{
+            $profile = User::with(['user_profile', 'roles'])->where('id', $id)->get();
+            if ( !$profile )
+                return response()->json(['success' => false, 'message' => 'User not found'], $this->invalidStatus);
             return response()->json(['success' => true, 'profile' => $profile], $this->successStatus);
+        }catch (\Exception $e){
+            return response()->json(['success'=>false, "message"=>"Unable to Fetch User with Profile!", "error"=>$e->getMessage()], $this->failedStatus);
+        }
+    }
+
+    public function getProfileByPID($profileId){
+        try{
+            $userProfile = UserProfile::find($profileId);
+            if(!$userProfile)
+                return response()->json(['success'=>false, "message"=>"User Profile Not Found!"], $this->invalidStatus);
+            return $this->getUser($userProfile->user_id);
+        }catch (\Exception $e){
+            $this->out->writeln("Unable to fetch User-Profile by profile-id: $profileId! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Unable to fetch User-Profile by profile-id: $profileId!", 'error'=>$e->getMessage()],$this->failedStatus);
+        }
     }
 
 
