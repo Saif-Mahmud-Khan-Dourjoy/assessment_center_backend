@@ -416,7 +416,7 @@ class UserController extends Controller
      */
     public function updateStatus($id)
     {
-        $profile = UserProfile::where('id', $id)->first();
+        $profile = UserProfile::where('user_id', $id)->first();
         // Check profile
         if ( !$profile )
             return response()->json(['success' => false, 'message' => 'Profile not found'], $this->invalidStatus);
