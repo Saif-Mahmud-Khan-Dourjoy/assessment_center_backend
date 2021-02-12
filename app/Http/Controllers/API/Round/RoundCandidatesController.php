@@ -95,7 +95,6 @@ class RoundCandidatesController extends Controller
             }
             if(!is_null($confirm_candidates)){
                 $round = Round::with('question_set')->where('id',$input['round_id'])->first();
-                $this->out->writeln('Rounds: '.$round);
                 $this->roundConfirmMail($round, $candidate_profiles);
                 return response()->json(['success'=>true, 'confirmed_candidates'=>$confirm_candidates, 'failed_candidates'=>$failed_candidates],$this->successStatus);
             }
@@ -107,23 +106,29 @@ class RoundCandidatesController extends Controller
     }
 
     public function roundConfirmMail($round, $users){
-        $round_name = $round->name;
-        $title = $round_name;
-        if(!is_null($round->question_set)){
-            $this->out->writeln("There is no assessment for this project!");
-            $title = $round->question_set['title'];
-            $assessment_start_time = Carbon::parse($round->question_set->start_time);
-            $body= "You are promoted to the round **\"".$round_name."\"**. Exam Title: **\"".$round->question_set['title']."\"**. Your Exam will start at: **".$assessment_start_time->toDayDateTimeString()."**.";
-        }
-        else{
-            $body = $body= "You are promoted to the round **\"".$round_name."\".** Your Exam Time and Date will send you later.";
-        }
-
-        foreach ($users as $user){
-            $this->out->writeln('User email: '.$user->email);
-            $email = Mail::to(trim($user->email))
-                ->send(new ExamConfirmation($title, $body, $user->first_name, $user->last_name));
-            $this->out->writeln('Email confirm: '.$email);
+        try{
+            $round_name = $round->name;
+            $title = $round_name;
+            if(!is_null($round->question_set)){
+                $this->out->writeln("There is no assessment for this project!");
+                $title = $round->question_set['title'];
+                $assessment_start_time = Carbon::parse($round->question_set->start_time);
+                $body= "You are promoted to the round **\"".$round_name."\"**. Exam Title: **\"".$round->question_set['title']."\"**. Your Exam will start at: **".$assessment_start_time->toDayDateTimeString()."**.";
+            }
+            else{
+                $body = $body= "You are promoted to the round **\"".$round_name."\".** Your Exam Time and Date will send you later.";
+            }
+            foreach ($users as $user){
+                try{
+                    $email = Mail::to(trim($user->email))
+                        ->send(new ExamConfirmation($title, $body, $user->first_name, $user->last_name));
+                }catch(\Exception $e){
+                    $this->out->writeln("Failed to email: $user->email, error: ".$e->getMessage());
+                    continue;
+                }
+            }
+        }catch (\Exception $e){
+            $this->out->writeln("Unable to Confirm student through email, error: ".$e->getMessage());
         }
     }
 
@@ -173,12 +178,17 @@ class RoundCandidatesController extends Controller
     }
 
     public function eachRoundCandidates($round_id){
-        $this->out->writeln('Fetching candidates based on the round-id: '.$round_id);
-        $round_candidates = RoundCandidates::with('user_profile','academic_info')->where('round_id',$round_id)->get();
-        if($round_candidates){
+        try{
+            $this->out->writeln('Fetching candidates based on the round-id: '.$round_id);
+            $round_candidates = RoundCandidates::with('user_profile','academic_info')->where('round_id',$round_id)->get();
+            if(!$round_candidates)
+                return response()->json(['success'=>false, "message"=>"Round Candidates with round-id not found!"], $this->invalidStatus);
             return response()->json(['success'=>true, 'round_candidates'=>$round_candidates],$this->successStatus);
+        }catch (\Exception $e){
+            $this->out->writeln("Unable to find candidates with this round-id: ".$round_id.", error".$e->getMessage());
+            return response()->json(['success'=>false, 'message'=>'Unable to find candidates with this round-id: '.$round_id, "error"=>$e->getMessage()],$this->failedStatus);
         }
-        return response()->json(['success'=>false, 'message'=>'Unable to find candidates with this round-id: '.$round_id],$this->invalidStatus);
+
     }
 
 }
