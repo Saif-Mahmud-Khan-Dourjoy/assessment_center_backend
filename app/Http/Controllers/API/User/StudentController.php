@@ -193,14 +193,30 @@ class StudentController extends Controller
      */
     public function show($id)
     {
-        $student = Student::with('user_profile')
-            ->where('id', $id)
-            ->get();
-        if ( !$student )
-            return response()->json(['success' => false, 'message' => 'Student not found'], $this->invalidStatus);
-        else
+        try{
+            $student = Student::with('user_profile')
+                ->where('id', $id)
+                ->get();
+            if ( !$student )
+                return response()->json(['success' => false, 'message' => 'Student not found'], $this->invalidStatus);
             return response()->json(['success' => true, 'student' => $student], $this->successStatus);
+        }catch (\Exception $e){
+            $this->out->writeln("Unable to Fetch student id: $id, error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Unable to Fetch student id: $id", "error"=>$e->getMessage()], $this->failedStatus);
+        }
     }
+
+    public function studentByUid($uid){
+        try{
+            $userProfile = UserProfile::with("student")->where('user_id',$uid)->first();
+            if(!$userProfile)
+                return response()->json(['success'=>false, "message"=>"User Profile Not Found!"], $this->invalidStatus);
+            return $this->show($userProfile->student->id);
+        }catch(\Exception $e){
+            return response()->json(['success'=>false, "message"=>"Unable to fetch student-user id: $uid", "error"=>$e->getMessage()], $this->failedStatus);
+        }
+    }
+
 
 
     /**

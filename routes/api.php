@@ -62,6 +62,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::get('get-contributor/{id}', 'API\User\ContributorController@getContributor')->name('get-contributor');
 
         Route::resource('students','API\User\StudentController');
+        Route::get('get-student-uid/{uid}', 'API\User\StudentController@studentByUid');
         Route::get('get-student/{id}', 'API\User\StudentController@getStudent')->name('get-student');
         Route::get('get-student-all-assessment/{id}', 'API\User\StudentController@getAllAssessment')->name('get-student-all-assessment');
         Route::get('get-assessment-all-student/{id}', 'API\Question\QuestionSetAnswerController@getAllStudent')->name('get-assessment-all-student');
