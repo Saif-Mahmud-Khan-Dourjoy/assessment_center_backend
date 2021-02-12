@@ -44,62 +44,66 @@ class RoundCandidatesController extends Controller
      */
 
     public function fresherCandidates(){
-        $user= UserProfile::where('user_id','=',Auth::id())->first();
-        $students = UserProfile::with('student')->where('institute_id','=',$user->institute_id)->where('id','!=',$user->id)->get();
-        $new_student = [];
-        $roleList = RoleSetup::first();
-        $this->out->writeln('Rolename: '.$roleList->student_role_id);
-        $roleName = Role::where('id','=',$roleList->student_role_id)->first();
-        $this->out->writeln('role name: '.$roleName->name);
-        foreach ($students as $student) {
-            $this->out->writeln('Student :'.$student);
-            if(User::with(['user_profile'])->where('id','=',$student->user_id)->role($roleName->name)->first()){
-                if(RoundCandidates::where('student_id','=',$student->id)->exists()){
-                    continue;
+        try{
+            $this->out->writeln("Fetching Fresher-students who currently not in any round!");
+            $user= UserProfile::where('user_id','=',Auth::id())->first();
+            $students = UserProfile::with('student')->where('institute_id','=',$user->institute_id)->where('id','!=',$user->id)->get();
+            $new_student = [];
+            $roleList = RoleSetup::first();
+            $roleName = Role::where('id','=',$roleList->student_role_id)->first();
+            $this->out->writeln('role name: '.$roleName->name);
+            foreach ($students as $student) {
+                if(User::with(['user_profile'])->where('id','=',$student->user_id)->role($roleName->name)->first()){
+                    if(RoundCandidates::where('student_id','=',$student->id)->exists()){
+                        continue;
+                    }
+                    array_push($new_student, $student);
                 }
-                array_push($new_student, $student);
             }
+            return response()->json(['success'=>true, 'students'=>$new_student],$this->successStatus);
+        }catch(\Exception $e){
+            $this->out->writeln("Unable to Fetch fresher-candidates, error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Unable to Fetch fresher-candidates!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return response()->json(['success'=>true, 'students'=>$new_student],$this->successStatus);
     }
 
     public function store(Request $request){
-        $this->out->writeln('Storing Candidates based on the round');
-        request()->validate([
-            'round_id'=> 'required',
-            'candidate_students'=>'required',
-        ]);
-        $input= $request->all();
-        $students = explode('|',$input['candidate_students']);
-        $confirm_candidates=null;
-        $failed_candidates = null;
-        $candidate_profiles = [];
-        foreach ($students as $student){
+        $this->out->writeln('Storing Candidates based on the round-id');
+        try{
+            request()->validate([
+                'round_id'=> 'required',
+                'candidate_students'=>'required',
+            ]);
+            $input= $request->all();
+            $students = explode('|',$input['candidate_students']);
+            $confirm_candidates=null;
+            $failed_candidates = null;
+            $candidate_profiles = [];
             $data=[
-              'round_id'=>$input['round_id'],
-              'student_id'=>$student,
+                'round_id'=>$input['round_id'],
             ];
-            $this->out->writeln('Round Candidates: '.$student);
-            if(RoundCandidates::firstOrCreate($data)){
-                $confirm_candidates=$confirm_candidates.$student.'|';
-                $userProfile = UserProfile::where('id',$student)->first();
-                array_push($candidate_profiles, $userProfile);
+            foreach ($students as $student){
+                $data['student_id']=$student;
+                if(RoundCandidates::firstOrCreate($data)){
+                    $confirm_candidates=$confirm_candidates.$student.'|';
+                    $userProfile = UserProfile::where('id',$student)->first();
+                    array_push($candidate_profiles, $userProfile);
+                }
+                else{
+                    $failed_candidates=$failed_candidates.$student.'|';
+                }
             }
-            else{
-                $failed_candidates=$failed_candidates.$student.'|';
+            if(!is_null($confirm_candidates)){
+                $round = Round::with('question_set')->where('id',$input['round_id'])->first();
+                $this->out->writeln('Rounds: '.$round);
+                $this->roundConfirmMail($round, $candidate_profiles);
+                return response()->json(['success'=>true, 'confirmed_candidates'=>$confirm_candidates, 'failed_candidates'=>$failed_candidates],$this->successStatus);
             }
+            return response()->json(['success'=>false, 'confirmed_candidates'=>$confirm_candidates, 'failed_candidates'=>$failed_candidates], $this->failedStatus);
+        }catch (\Exception $e){
+            $this->out->writeln("Unable to Enroll the Round-candidates, error");
+            return response()->json(['success'=>false, "message"=>"Unable to Enroll the Round-candidates", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        if(!is_null($confirm_candidates)){
-            $round = Round::with('question_set')->where('id',$input['round_id'])->first();
-
-//            return $round;
-
-            $this->out->writeln('Rounds: '.$round);
-            $this->out->writeln('Round candidates: '.$candidate_profiles[0]);
-            $this->roundConfirmMail($round, $candidate_profiles);
-            return response()->json(['success'=>true, 'confirmed_candidates'=>$confirm_candidates, 'failed_candidates'=>$failed_candidates],$this->successStatus);
-        }
-        return response()->json(['success'=>false, 'confirmed_candidates'=>$confirm_candidates, 'failed_candidates'=>$failed_candidates], $this->failedStatus);
     }
 
     public function roundConfirmMail($round, $users){

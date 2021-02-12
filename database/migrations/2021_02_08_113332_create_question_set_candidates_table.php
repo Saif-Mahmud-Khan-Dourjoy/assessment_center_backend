@@ -20,7 +20,7 @@ class CreateQuestionSetCandidatesTable extends Migration
             $table->unsignedBigInteger("profile_id")->unsigned();
             $table->foreign("profile_id")->on("user_profiles")->references("id")->onDelete('cascade')->comment("who is Illegible (participated for now) for this round");
             $table->smallInteger("attended")->unsigned()->default(0)->comment("Whether this student/candidate is participated on this exam or not!");
-            $table->unique('profile_id','question_set_id');
+//            $table->unique('profile_id','question_set_id');
             $table->timestamps();
         });
     }

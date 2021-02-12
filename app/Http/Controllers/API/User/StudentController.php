@@ -466,4 +466,17 @@ class StudentController extends Controller
         $content[strlen($content)-1]="\r\n";
         return $content;
     }
+
+    public function studentCredential($profileId){
+        try{
+            $userProfile = UserProfile::find($profileId);
+            $rand_pass = Str::random(8);
+            $rand_pass = "123456789";
+            $hashed_random_password = Hash::make($rand_pass);
+            User::where('id',$userProfile->user_id)->update(['password'=>$hashed_random_password]);
+        }catch (\Exception $e){
+            $this->out->writeln("Unable to Email Student Credential! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Unable to Email Student Credential!", "error"=>$e->getMessage()], $this->failedStatus);
+        }
+    }
 }

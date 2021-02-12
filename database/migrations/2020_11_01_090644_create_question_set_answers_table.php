@@ -22,7 +22,7 @@ class CreateQuestionSetAnswersTable extends Migration
             $table->float('time_taken');
             $table->float('total_mark');
             $table->smallInteger('served')->nullable();
-            $table->unique('question_set_id','profile_id');
+//            $table->unique('question_set_id','profile_id');
             $table->timestamps();
         });
     }
