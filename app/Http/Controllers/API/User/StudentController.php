@@ -253,6 +253,17 @@ class StudentController extends Controller
         }
     }
 
+    public function getAllAssessmentByUid($uid){
+        try{
+            $userProfile = UserProfile::where('user_id',$uid)->first();
+            if(!$userProfile)
+                return response()->json(['success'=>false, "message"=>"User Profile Not Found!"], $this->invalidStatus);
+            return $this->getAllAssessment($userProfile->id);
+        }catch (\Exception $e){
+            return response()->json(['success'=>false, "message"=>"Fetching All Assessments by User Id Unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
+        }
+    }
+
 
     /**
      * Update the specified resource in storage.
