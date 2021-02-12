@@ -343,30 +343,31 @@ class QuestionSetAnswerController extends Controller
     }
 
     public function rankCertificate(Request $request){
+        $this->out->writeln("Certificate with obtained Rank...");
         request()->validate([
             'question_set_id'=>'required',
             'profile_id'=>'required',
         ]);
         $input = $request->all();
         try{
-            $question_set  = QuestionSet::find($input['question_set_id']);
+            $question_set = QuestionSet::find($input['question_set_id']);
             if(!$question_set || empty($question_set))
                 throw new \Exception('No Assessment Found!');
             $question_set_answers = QuestionSetAnswer::with(['user_profile','question_set_answer_details'])
                 ->where('question_set_id', $input['question_set_id'])
                 ->orderByDesc('total_mark')
                 ->get();
-            if(!$question_set_answers)
+            if(sizeof($question_set_answers)<1)
                 throw new \Exception("No Question Set Answer found!");
             if(sizeof($question_set_answers)==1){
-                if($question_set_answers->profile_id==$input['profile_id'])
-                    throw new \Error("User may not attended to this assessment!");
+                if($question_set_answers[0]->profile_id!=$input['profile_id'])
+                    throw new \Exception("User may not attended to this assessment!");
                 $total_mark = $question_set->total_mark;
                 $mark_percentage = ($question_set_answers[0]->total_mark/$total_mark)*100;
-                $question_answer[0]['rank']=1;
-                $question_answer[0]['position']=1;
-                $question_answer[0]['percentage']=$mark_percentage;
-                return response()->json(['success' => true, 'question_set'=>$question_set , 'question_set_answer' => $question_answer], $this->successStatus);
+                $question_set_answers[0]['rank']=1;
+                $question_set_answers[0]['position']=1;
+                $question_set_answers[0]['percentage']=$mark_percentage;
+                return response()->json(['success' => true, 'question_set'=>$question_set , 'question_set_answer' => $question_set_answers], $this->successStatus);
             }
             $question_set_answers =json_decode($question_set_answers, true);
             usort($question_set_answers, function($student1, $student2){
@@ -385,6 +386,7 @@ class QuestionSetAnswerController extends Controller
             }
             throw new \Exception("User may not attended");
         }catch(\Exception $e){
+            $this->out->writeln("Fetching Certificate with rank is unsuccessful!, error: ".$e->getMessage());
             return response()->json(['success'=>false, 'message'=>'Fetching Certificate with rank is unsuccessful!', 'error'=>$e->getMessage()],$this->failedStatus);
         }
     }
