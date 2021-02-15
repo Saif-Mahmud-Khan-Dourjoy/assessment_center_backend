@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Composer;
 use Illuminate\Support\Facades\Auth;
 
 class QuestionSetController extends Controller
@@ -353,6 +354,8 @@ class QuestionSetController extends Controller
                 ->get();
             if (sizeof($question_set)<1)
                 return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
+            if(Carbon::parse($question_set[0]->start_time)>now())
+                return response()->json(['success' => false, 'message' => 'Its too early for attending this Assessment!'], $this->invalidStatus);
             if(QuestionSetCandidate::where('question_set_id',$id)->where('profile_id',$userProfile->id)->exists())
                 return response()->json(['success'=>false, "message"=>"You have already attended!"],$this->failedStatus);
             Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
