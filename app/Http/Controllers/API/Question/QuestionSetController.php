@@ -355,7 +355,7 @@ class QuestionSetController extends Controller
             if (sizeof($question_set)<1)
                 return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
             $now = now();
-            if(!(Carbon::parse($question_set[0]->start_time)>$now && Carbon::parse($question_set[0]->end_time)<$now))
+            if(Carbon::parse($question_set[0]->start_time)>$now || Carbon::parse($question_set[0]->end_time)<$now)
                 return response()->json(['success' => false, 'message' => 'Invalid entering time, Assessment time may over or its too early to participate on this Assessment!'], $this->invalidStatus);
             if(QuestionSetCandidate::where('question_set_id',$id)->where('profile_id',$userProfile->id)->exists())
                 return response()->json(['success'=>false, "message"=>"You have already attended!"],$this->failedStatus);
@@ -489,7 +489,7 @@ class QuestionSetController extends Controller
             if(!$question_set){
                 continue;
             }
-            if(QuestionSetAnswer::where('question_set_id','=',$question_set->id)
+            if(QuestionSetCandidate::where('question_set_id','=',$question_set->id)
                                 ->where('profile_id','=',$userProfile->id)
                                 ->exists()
             ){
