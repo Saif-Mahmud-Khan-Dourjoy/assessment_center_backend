@@ -489,9 +489,19 @@ class QuestionSetController extends Controller
             if(!$question_set){
                 continue;
             }
-            if(QuestionSetCandidate::where('question_set_id','=',$question_set->id)
+            if(QuestionSetAnswer::where('question_set_id','=',$question_set->id)
                                 ->where('profile_id','=',$userProfile->id)
                                 ->exists()
+            ){
+                $this->out->writeln('Attended status: 1>'.$question_set->id);
+                $question_set['submitted']=1;
+            }else{
+                $question_set['submitted']=0;
+                $this->out->writeln('Attended status: 0>'.$question_set->id);
+            }
+            if(QuestionSetCandidate::where('question_set_id','=',$question_set->id)
+                ->where('profile_id','=',$userProfile->id)
+                ->exists()
             ){
                 $this->out->writeln('Attended status: 1>'.$question_set->id);
                 $question_set['attended']=1;
