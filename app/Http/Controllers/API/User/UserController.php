@@ -304,32 +304,33 @@ class UserController extends Controller
      */
     public function addEmploymentHistory(Request $request)
     {
-        request()->validate([
-            //'user_id' => 'required'
-        ]);
-        $input = $request->all();
-
-        // Delete previous data
-        if( ! UserEmploymentHistory::where(['profile_id' => $input['profile_id'], 'check_status' => $input['check_status']])->first() )
-            UserEmploymentHistory::where('profile_id', $input['profile_id'])->delete();
-
-        // Add User Employment History
-        $dataEmployment = [
-            'profile_id' => $input['profile_id'],
-            'institute' => $input['institute'],
-            'position' => $input['position'],
-            'responsibility' => $input['responsibility'],
-            'start_date' => $input['start_date'],
-            'end_date' => $input['end_date'],
-            'duration' => $input['duration'],
-            'currently_work' => $input['currently_work'],
-            'description' => (!empty($_POST["description"])) ? $input['description'] : 'n/a',
-            'check_status' => $input['check_status'],
-        ];
-        UserEmploymentHistory::create($dataEmployment);
-
-        return response()->json(['success' => true, 'message' => 'Employment history add successfully'], $this->successStatus);
-
+        try{
+            request()->validate([
+                'profile_id' => 'required'
+            ]);
+            $input = $request->all();
+            // Delete previous data
+            if( ! UserEmploymentHistory::where(['profile_id' => $input['profile_id'], 'check_status' => $input['check_status']])->first() )
+                UserEmploymentHistory::where('profile_id', $input['profile_id'])->delete();
+            // Add User Employment History
+            $dataEmployment = [
+                'profile_id' => $input['profile_id'],
+                'institute' => $input['institute'],
+                'position' => $input['position'],
+                'responsibility' => $input['responsibility'],
+                'start_date' => $input['start_date'],
+                'end_date' => (!empty($input['end_date'])?$input['end_date']:""),
+                'duration' => $input['duration'],
+                'currently_work' => $input['currently_work'],
+                'description' => (!empty($_POST["description"])) ? $input['description'] : 'n/a',
+                'check_status' => $input['check_status'],
+            ];
+            UserEmploymentHistory::create($dataEmployment);
+            return response()->json(['success' => true, 'message' => 'Employment history add successfully'], $this->successStatus);
+        }catch(\Exception $e){
+            $this->out->writeln("Employment History insertion unsuccessful!, error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Employment History insertion unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
+        }
     }
 
     /**

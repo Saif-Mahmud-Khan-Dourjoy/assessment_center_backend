@@ -513,6 +513,4 @@ class QuestionSetController extends Controller
         }
         return response()->json(['success'=>true,'question_sets'=>$question_sets],$this->successStatus);
     }
-
-
 }
