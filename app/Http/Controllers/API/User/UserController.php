@@ -258,7 +258,6 @@ class UserController extends Controller
         if( ! UserAcademicHistory::where(['profile_id' => $input['profile_id'], 'check_status' => $input['check_status']])->first() )
             UserAcademicHistory::where('profile_id', $input['profile_id'])->delete();
 
-
         // Add User Academic History
         $dataAcademic = [
             'profile_id' => $input['profile_id'],
