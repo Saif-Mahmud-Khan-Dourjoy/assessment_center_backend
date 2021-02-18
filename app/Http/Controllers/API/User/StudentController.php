@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use \GuzzleHttp\Client;
+use Symfony\Contracts\Service;
 
 class StudentController extends Controller
 {
@@ -80,6 +82,28 @@ class StudentController extends Controller
             return true;
         }catch(\Throwable $e){
             $this->out->writeln('Unable to email user credentials'.$e->getMessage());
+            return false;
+        }
+    }
+
+    public function singleUserCredential($email, $first_name, $last_name, $username, $password, $delay){
+        try{
+            $url = env("EMAIL_SERVER_URL").'user-credential';
+            $client = new Client();
+            $body = [
+                "email"=>$email,
+                "first_name"=>$first_name,
+                "last_name"=>$last_name,
+                "username"=>$username,
+                "password"=>$password,
+                "delay"=>$delay
+            ];
+            $response = $client->post($url, ["form_params"=>$body, 'http_errors' => false]);
+            if($response->getStatusCode()!=200)
+                throw new \Exception("Unable to send user-credential for user! Check your email.");
+            return true;
+        }catch(\Exception $e){
+            $this->out->writeln("Unable to send-credential to user! error: ".$e->getMessage());
             return false;
         }
     }
@@ -172,8 +196,9 @@ class StudentController extends Controller
             $user_data['profile_id']=$user_profile->id;
             $student = Student::create( $user_data );
             $contributor = Contributor::create( $user_data );
-            if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email))
-                throw new \Exception('User email may incorrect!');
+            $delay = 2; //seconds delay for email sending
+            if(!($this->singleUserCredential($user_data['email'], $user_data['first_name'], $user_data['last_name'], $user_data['username'], $rand_pass, $delay)))
+                throw new \Exception('Email-Server may be down!');
         }catch(\Exception $e){
             DB::rollback();
             return response()->json(['success'=>false, 'message'=>'Student Creation unsuccessful!','error'=>$e->getMessage()],$this->failedStatus);
@@ -415,6 +440,7 @@ class StudentController extends Controller
         }
         $student_success = [];
         $student_rol_id = RoleSetup::select('student_role_id')->first()['student_role_id'];
+        $students_credential = array();  // For sending students credential to email-server
         foreach($students as $student){
             $row = fgetcsv($fp);
             $this->out->writeln($student);
@@ -467,8 +493,8 @@ class StudentController extends Controller
                 $student = Student::create( $student_data );
                 $contributor = Contributor::create( $student_data );
                 $student_academic_info = UserAcademicHistory::create($student_data);
-                if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email))
-                    throw new \Exception('User email may incorrect!');
+//                if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email))
+//                    throw new \Exception('User email may incorrect!');
             }catch(\Exception $e){
                 $this->out->writeln('Error: '.$e->getMessage());
                 DB::rollback();
@@ -476,14 +502,43 @@ class StudentController extends Controller
                 continue;
             }
             Db::commit();
+            array_push($students_credential,[
+                'email'=>$student_data['email'],
+                'first_name'=>$student_data['first_name'],
+                'last_name'=>$student_data['last_name'],
+                'name'=>$student_data['name'],
+                'username'=>$student_data['username'],
+                'password'=>$rand_pass,
+            ]);
             $success_content = $this->fileContent($success_content, $row);
             array_push($student_success, $student_profile);
         }
         $student_temp = Storage::put("students/$timestamp"."_$user->user_id"."_success.csv",$success_content);
         $student_temp = Storage::put("students/$timestamp"."_$user->user_id"."_failed.csv",$failed_content);
+        if(!$this->bulkEmailCredential($students_credential))
+            return response()->json(['success'=>true,'success_students'=>$success_content, "failed_students"=>$failed_content, "warning"=>"Email server may be down!"],$this->successStatus);
         $time_taken = time()-$start_time;
         $this->out->writeln("Time Taken: $time_taken");
         return response()->json(['success'=>true,'time_taken'=>$time_taken, 'success_students'=>$success_content, "failed_students"=>$failed_content],$this->successStatus);
+    }
+
+    public function bulkEmailCredential($students){
+        try{
+            $body=[
+              "students"=>$students,
+              "delay"=>env("BULK_EMAIL_DELAY"),
+            ];
+            $this->out->writeln("Sending credential for Bulk-entry.");
+            $url = env("EMAIL_SERVER_URL").'bulk-entry-credential';
+            $client = new Client();
+            $response = $client->post($url, ["form_params"=>$body, 'http_errors' => false]);
+            if($response->getStatusCode()!=200)
+                throw new \Exception("Unable to send Bulk-credential to students! Check your email.");
+            return true;
+        }catch(\Exception $e){
+            $this->out->writeln("Unable to send Bulk-credential to students! error: ".$e->getMessage());
+            return false;
+        }
     }
 
     public function fileContent($content, $items){

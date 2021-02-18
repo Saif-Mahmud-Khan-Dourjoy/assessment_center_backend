@@ -10,6 +10,7 @@ use App\User;
 use App\UserAcademicHistory;
 use App\UserEmploymentHistory;
 use App\UserProfile;
+use GuzzleHttp\Client;
 use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -93,6 +94,29 @@ class UserController extends Controller
         }
     }
 
+    public function singleUserCredential($email, $first_name, $last_name, $username, $password){
+        try{
+            $delay = env("EMAIL_SERVER_JOB_DELAY");
+            $url = env("EMAIL_SERVER_URL").'user-credential';
+            $client = new Client();
+            $body = [
+                "email"=>$email,
+                "first_name"=>$first_name,
+                "last_name"=>$last_name,
+                "username"=>$username,
+                "password"=>$password,
+                "delay"=>$delay
+            ];
+            $response = $client->post($url, ["form_params"=>$body, 'http_errors' => false]);
+            if($response->getStatusCode()!=200)
+                throw new \Exception("Unable to send user-credential for user! Check your email.");
+            return true;
+        }catch(\Exception $e){
+            $this->out->writeln("Unable to send-credential to user! error: ".$e->getMessage());
+            return false;
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -153,7 +177,7 @@ class UserController extends Controller
             $user_data['profile_id']=$user_profile->id;
             $student = Student::create( $user_data );
             $contributor = Contributor::create( $user_data );
-            if(!$this->emailCredential($user->username,$user->name, $rand_pass, $user->email))
+            if(!$this->singleUserCredential($user_data['email'], $user_data['first_name'],$user_data['last_name'], $user_data['username'], $rand_pass))
                 throw new \Exception('User email may incorrect!');
         }catch(\Exception $e){
             DB::rollback();
