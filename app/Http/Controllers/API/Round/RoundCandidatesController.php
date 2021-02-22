@@ -11,6 +11,7 @@ use App\RoundCandidates;
 use App\User;
 use App\UserProfile;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -86,8 +87,8 @@ class RoundCandidatesController extends Controller
                 $data['student_id']=$student;
                 if(RoundCandidates::firstOrCreate($data)){
                     $confirm_candidates=$confirm_candidates.$student.'|';
-                    $userProfile = UserProfile::where('id',$student)->first();
-                    array_push($candidate_profiles, $userProfile);
+//                    $userProfile = UserProfile::where('id',$student)->first();
+//                    array_push($candidate_profiles, $userProfile);
                 }
                 else{
                     $failed_candidates=$failed_candidates.$student.'|';
@@ -95,7 +96,10 @@ class RoundCandidatesController extends Controller
             }
             if(!is_null($confirm_candidates)){
                 $round = Round::with('question_set')->where('id',$input['round_id'])->first();
-                $this->roundConfirmMail($round, $candidate_profiles);
+                $temp_string = substr($confirm_candidates,0,strlen($confirm_candidates)-1);
+//                return $temp_string;
+//                return $confirm_candidates;
+                $this->roundConfirmFromServer($round, $confirm_candidates);
                 return response()->json(['success'=>true, 'confirmed_candidates'=>$confirm_candidates, 'failed_candidates'=>$failed_candidates],$this->successStatus);
             }
             return response()->json(['success'=>false, 'confirmed_candidates'=>$confirm_candidates, 'failed_candidates'=>$failed_candidates], $this->failedStatus);
@@ -116,7 +120,7 @@ class RoundCandidatesController extends Controller
                 $body= "You are promoted to the round **\"".$round_name."\"**. Exam Title: **\"".$round->question_set['title']."\"**. Your Exam will start at: **".$assessment_start_time->toDayDateTimeString()."**.";
             }
             else{
-                $body = $body= "You are promoted to the round **\"".$round_name."\".** Your Exam Time and Date will send you later.";
+                $body= "You are promoted to the round **\"".$round_name."\".** Your Exam Time and Date will send you later.";
             }
             foreach ($users as $user){
                 try{
@@ -129,6 +133,41 @@ class RoundCandidatesController extends Controller
             }
         }catch (\Exception $e){
             $this->out->writeln("Unable to Confirm student through email, error: ".$e->getMessage());
+        }
+    }
+
+    public function roundConfirmFromServer($round, $candidates){
+        try{
+            $this->out->writeln("Requesting email server for Bulk-email..");
+            $delay = env("EMAIL_SERVER_JOB_DELAY");
+            $url = env("EMAIL_SERVER_URL").'assessment-confirmation';
+            $home_url = env('FRONT_END_HOME');
+            $client = new Client();
+            $body = [
+                'round_name'=>$round->name,
+                'title'=>$round->name,
+                'candidates'=>substr($candidates,0,strlen($candidates)-1),
+                'home_url'=>$home_url,
+                "delay"=>$delay,
+            ];
+            if(!is_null($round->question_set)){
+                $this->out->writeln("There is no assessment for this project!");
+                $title = $round->question_set['title'];
+                $assessment_start_time = Carbon::parse($round->question_set->start_time);
+                $body['body']= "You are promoted to the round **\"".$body['round_name']."\"**. Exam Title: **\"".$round->question_set['title']."\"**. Your Exam will start at: **".$assessment_start_time->toDayDateTimeString()."**.";
+            }
+            else{
+                $body['body']= "You are promoted to the round **\"".$body['round_name']."\".** Your Exam Time and Date will send you later.";
+            }
+
+            $response = $client->post($url, ["form_params"=>$body, 'http_errors' => false]);
+            $this->out->writeln("Url: $url");
+            if($response->getStatusCode()!=200)
+                throw new \Exception("Mail server is not responding, its may be down or something else!");
+            return true;
+        }catch(\Exception $e){
+            $this->out->writeln("Unable to Confirm Student trough email, error: ".$e->getMessage());
+            return false;
         }
     }
 
