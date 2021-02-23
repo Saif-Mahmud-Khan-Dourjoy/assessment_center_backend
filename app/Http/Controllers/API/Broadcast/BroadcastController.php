@@ -294,6 +294,30 @@ class BroadcastController extends Controller
         }
     }
 
+    public function certificateEmailFromServer($question_set, $question_set_answers)
+    {
+        try{
+            $this->out->writeln("Requesting email server for Bulk-email..");
+            $delay = env("EMAIL_SERVER_JOB_DELAY");
+            $url = env("EMAIL_SERVER_URL").'assessment-certificate';
+            $client = new Client();
+            $body = [
+                "question_set"=>$question_set->toArray(),
+                "question_set_answers"=>$question_set_answers->toArray(),
+                "delay"=>$delay,
+            ];
+//            $this->out->writeln($question_set_answers);
+            $response = $client->post($url, ["form_params"=>$body, 'http_errors' => false]);
+            $this->out->writeln("Url: $url");
+            if($response->getStatusCode()!=200)
+                throw new \Exception("Mail server is not responding, its may be down or something else!");
+            return true;
+        }catch(\Exception $e){
+            $this->out->writeln("Unable to send-credential to user! error: ".$e->getMessage());
+            return false;
+        }
+    }
+
     public function broadcastCertificate(Request $request){
         try{
             request()->validate([
@@ -322,7 +346,7 @@ class BroadcastController extends Controller
             $question_set_answer = QuestionSetAnswer::with(['user_profile'])->where('question_set_id','=',$input['question_set_id'])->get();
             if(!$question_set_answer)
                 throw new \Exception("Question-Set-Answer Not Found");
-            $this->certificateEmail($question_set, $question_set_answer);
+            $this->certificateEmailFromServer($question_set, $question_set_answer);
             return response()->json(['success'=>true, 'broadcast'=>$broadcast, 'question_set_answer'=>$question_set_answer], $this->successStatus);
         }catch(\Exception $e){
             return response()->json(['success'=>false, "message"=>"Broadcasting Certification is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
