@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Contributor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -40,15 +41,15 @@ class ContributorController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
-        $userProfile=UserProfile::find($user->id);
-        $permissions = $user->getAllPermissions();
+        $user = Auth::user();
+        $userProfile =UserProfile::where('user_id','=',$user->id)->first();
         if($user->can('super-admin')){
             $contributors = Contributor::with(['user_profile'])->where('profile_id','!=',$userProfile->id)->get();
             return response()->json(['success'=>true,'contributors'=>$contributors],$this->successStatus);
         }
         if($userProfile->institute_id){
-            $contributors = UserProfile::with(['contributor'])->where('id','!=',$userProfile->id)
+            $contributors = UserProfile::with(['contributor'])
+                ->where('id','!=',$userProfile->id)
                 ->where('institute_id','=',$userProfile->institute_id)
                 ->get();
             return response()->json(['success'=>true,'contributors'=>$contributors],$this->successStatus);

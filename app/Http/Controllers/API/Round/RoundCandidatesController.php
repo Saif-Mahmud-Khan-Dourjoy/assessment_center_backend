@@ -4,11 +4,13 @@ namespace App\Http\Controllers\API\Round;
 
 use App\Http\Controllers\Controller;
 use App\Mail\BroadcastNotice;
+use App\Mail\ExamConfirmation;
 use App\RoleSetup;
 use App\Round;
 use App\RoundCandidates;
 use App\User;
 use App\UserProfile;
+use Carbon\Carbon;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -89,6 +91,9 @@ class RoundCandidatesController extends Controller
         }
         if(!is_null($confirm_candidates)){
             $round = Round::with('question_set')->where('id',$input['round_id'])->first();
+
+//            return $round;
+
             $this->out->writeln('Rounds: '.$round);
             $this->out->writeln('Round candidates: '.$candidate_profiles[0]);
             $this->roundConfirmMail($round, $candidate_profiles);
@@ -99,13 +104,21 @@ class RoundCandidatesController extends Controller
 
     public function roundConfirmMail($round, $users){
         $round_name = $round->name;
-        $assessment_name = $round->question_set['title'];
-        $assessment_start_time = $round->question_set->start_time;
-        $body= "You are promoted to next round **(".$round_name.")** Exam Title: **".$assessment_name."** Your Exam will start at: ".$assessment_start_time.".";
+        $title = $round_name;
+        if(!is_null($round->question_set)){
+            $this->out->writeln("There is no assessment for this project!");
+            $title = $round->question_set['title'];
+            $assessment_start_time = Carbon::parse($round->question_set->start_time);
+            $body= "You are promoted to the round **\"".$round_name."\"**. Exam Title: **\"".$round->question_set['title']."\"**. Your Exam will start at: **".$assessment_start_time->toDayDateTimeString()."**.";
+        }
+        else{
+            $body = $body= "You are promoted to the round **\"".$round_name."\".** Your Exam Time and Date will send you later.";
+        }
+
         foreach ($users as $user){
             $this->out->writeln('User email: '.$user->email);
             $email = Mail::to(trim($user->email))
-                ->send(new BroadcastNotice($assessment_name, $body, $user->first_name, $user->last_name));
+                ->send(new ExamConfirmation($title, $body, $user->first_name, $user->last_name));
             $this->out->writeln('Email confirm: '.$email);
         }
     }
@@ -157,7 +170,7 @@ class RoundCandidatesController extends Controller
 
     public function eachRoundCandidates($round_id){
         $this->out->writeln('Fetching candidates based on the round-id: '.$round_id);
-        $round_candidates = RoundCandidates::with('user_profiles','academic_info')->where('round_id',$round_id)->get();
+        $round_candidates = RoundCandidates::with('user_profile','academic_info')->where('round_id',$round_id)->get();
         if($round_candidates){
             return response()->json(['success'=>true, 'round_candidates'=>$round_candidates],$this->successStatus);
         }

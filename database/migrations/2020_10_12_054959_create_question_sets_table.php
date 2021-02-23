@@ -15,8 +15,8 @@ class CreateQuestionSetsTable extends Migration
     {
         Schema::create('question_sets', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->char('title', 255);
-            $table->char('type', 100)->comment('educational, job preparation, institutional');
+            $table->string('title', 255);
+            $table->string('type', 100)->comment('educational, job preparation, institutional');
             $table->text('institute')->nullable();
             $table->bigInteger('institute_id')->nullable();
             $table->float('assessment_time')->comment('in min');

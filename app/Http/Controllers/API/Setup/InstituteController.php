@@ -68,6 +68,7 @@ class InstituteController extends Controller
             'logo' => (!empty($_POST["logo"]))? $input['logo']:'',
             'icon' => (!empty($_POST["icon"]))? $input["icon"]:'',
         ];
+        $this->out->writeln('Length of the string: '.strlen($data['website']));
         $institute = Institute::create($data);
         if( $institute )
             return response()->json(['success' => true, 'institute' => $institute], $this->successStatus);
@@ -101,23 +102,16 @@ class InstituteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $institute = Institute::find($id);
-        request()->validate([
-            'name' => 'required|unique:institutes,name,'.$id,
-        ]);
-        $input = $request->all();
-        $data = [
-            'name' => $input['name'],
-            'contact_no' =>  $input['contact_no'],
-            'email' =>  $input['email'],
-            'website' =>  $input['website'],
-            'address' =>  $input['address'],
-        ];
-        $institute = $institute->update($data);
-        if( $institute ) {
-            return response()->json(['success' => true, 'message' => 'Institute update successfully'], $this->successStatus);
+        try{
+            $institute = Institute::find($id);
+            if(!$institute)
+                throw new \Exception("Institution not found!");
+            $input = $request->all();
+            $institute = $institute->update($input);
+            return response()->json(['success' => true, 'message' => 'Institute updated successfully!'], $this->successStatus);
+        }catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => 'Institute update failed!', 'error'=>$e->getMessage()], $this->failedStatus);
         }
-        return response()->json(['success' => false, 'message' => 'Institute update failed'], $this->failedStatus);
     }
 
 

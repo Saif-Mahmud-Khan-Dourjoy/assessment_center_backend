@@ -226,16 +226,16 @@ class StudentController extends Controller
      */
     public function getAllAssessment($id)
     {
-        $student = Student::where('profile_id', $id)->first();
-        if ( $student ){
+        try{
+            $student = Student::where('profile_id', $id)->first();
+            if(!$student)
+                throw new \Exception("Student Not found!");
             $assessment = QuestionSetAnswer::with(['question_set_answer_details'])->where('profile_id', $id)->get();
             return response()->json(['success' => true, 'all_assessment' => $assessment], $this->successStatus);
-        }
-        else{
-            return response()->json(['success' => false, 'message' => 'Student assessment not found'], $this->invalidStatus);
+        }catch (\Exception $e){
+            return response()->json(["success"=>false, "message"=>"Fetching Assessments fo student is Unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
-
 
 
     /**
@@ -396,6 +396,7 @@ class StudentController extends Controller
             }
             // Auto generate password
             $rand_pass = Str::random(8);
+            $rand_pass = "123456789";
             $hashed_random_password = Hash::make($rand_pass);
             $student_data = [
                 'first_name'=>$student['first_name'],
@@ -407,7 +408,7 @@ class StudentController extends Controller
                 'institute_id'=>(!empty($input['institute_id'])?$input['institute_id']:$user->institute_id),
                 'email'=>$student['email'],
                 'phone'=>$student['phone'],
-                'birth_date'=>$student['birth_date'],
+                'birth_date'=>date('d-m-y',strtotime($student['birth_date'])),
                 'skype'=>(!empty($student['skype'])?$student['email']:''),
                 'profession'=>(!empty($student['profession'])?$student['profession']:''),
                 'skill'=>(!empty($student['skill'])?$student['skill']:''),

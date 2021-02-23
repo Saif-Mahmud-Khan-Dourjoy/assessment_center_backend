@@ -17,7 +17,7 @@ class CreateQuestionAnswersTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('question_id')->unsigned();
             $table->foreign('question_id')->references('id')->on('questions');
-            $table->char('answer', 100);
+            $table->string('answer', 100);
             $table->text('reference')->nullable();
             $table->timestamps();
         });
