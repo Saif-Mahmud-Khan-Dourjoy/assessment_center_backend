@@ -90,7 +90,7 @@ class RegisterController extends Controller
                 'about' => (isset($input["about"])) ? $input['about'] : 'n/a',
                 'img' => (isset($input["img"])) ? $input['img'] : '',
                 'address' => (isset($input["address"])) ? $input['address'] : 'n/a',
-                'institute_id'=>(isset($input['institute_id'])? $input['institute_id']:null),
+                'institute_id'=>(isset($input['institute_id'])? $input['institute_id']:'1'),
                 'zipcode' => (isset($input["zipcode"])) ? $input['zipcode'] : 0,
                 'country' => (isset($input["country"])) ? $input['country'] : 0,
                 'completing_percentage' => 100,
