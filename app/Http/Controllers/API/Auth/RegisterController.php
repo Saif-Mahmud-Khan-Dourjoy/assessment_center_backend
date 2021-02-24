@@ -55,15 +55,15 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
+        $this->out->writeln("Registering new user...");
+        request()->validate([
+            'username'=>'required|unique:users',
+            'email' => 'required|email',
+            'password' => 'required',
+            'c_password' => 'required|same:password',
+            'birth_date'=>'required',
+        ]);
         try{
-            $this->out->writeln("Registering new user...");
-            request()->validate([
-                'username'=>'required|unique:users',
-                'email' => 'required|email',
-                'password' => 'required',
-                'c_password' => 'required|same:password',
-                'birth_date'=>'required',
-            ]);
             $input = $request->all();
             $role = RoleSetup::first();
             if(!$role)
@@ -118,7 +118,7 @@ class RegisterController extends Controller
             return response()->json(['success' => true, 'message' =>"User Registration Successful"], $this->successStatus);
         }catch (\Exception $e){
             $this->out->writeln("User Registration is unsuccessful! error: ".$e->getMessage());
-            return response()->json(['success'=>true, "message"=>"User Registration unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
+            return response()->json(['success'=>true, "message"=>"User Registration incomplete!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
 
