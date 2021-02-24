@@ -11,8 +11,10 @@ use App\UserProfile;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use \Symfony\Component\Console\Output\ConsoleOutput;
 
 class RegisterController extends Controller
 {
@@ -32,6 +34,7 @@ class RegisterController extends Controller
     public $failedStatus = 500;
     public $invalidStatus = 400;
 
+    public $out;
     /**
      * Create a new controller instance.
      *
@@ -40,6 +43,7 @@ class RegisterController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+        $this->out = new ConsoleOutput();
     }
 
 
@@ -51,78 +55,70 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
-        request()->validate([
-            'username'=>'required|unique:users',
-            'email' => 'required|email',
-            'password' => 'required',
-            'c_password' => 'required|same:password',
-            'birth_date'=>'required',
-        ]);
-        $input = $request->all();
-
-//        $check_email = User::where('email', $input['email'])->first();
-//        if($check_email){
-//            return response()->json(['success' => false, 'message' => 'Email already exist'], $this->failedStatus);
-//        }
-
-        $role = RoleSetup::first();
-        if( !$role ){
-            return response()->json(['success' => false, 'message' => 'Role not found for this user'], $this->failedStatus);
-        }
-
-        $login_data = [
-            'name' => $input['first_name'] .' '. $input['last_name'],
-            'username'=>$input['username'],
-            'email' => $input['email'],
-            'password' => bcrypt($input['password']),
-        ];
-        $user = User::create($login_data);
-        if( $user ){
-
-            // Assign Role
-            $user->assignRole([$role->new_register_user_role_id]);
-
-            // Add User Profile
-            $user_profile = UserProfile::create([
-                'user_id' => $user['id'],
-                'institute_id' => (!empty($_POST["institute_id"])) ? $input['institute_id'] : NULL,
-                'first_name' => $input['first_name'],
-                'last_name' => $input['last_name'],
-                'email' => $input['email'],
-                'phone' => $input['phone'],
-                'birth_date'=>$input['birth_date'],
+        try{
+            $this->out->writeln("Registering new user...");
+            request()->validate([
+                'username'=>'required|unique:users',
+                'email' => 'required|email',
+                'password' => 'required',
+                'c_password' => 'required|same:password',
+                'birth_date'=>'required',
             ]);
-
-            // Add Contributor Info
-            $contributor_data = [
-                'profile_id' => $user_profile['id'],
-                'completing_percentage' => 100,
-                'total_question' => 0,
-                'average_rating' => 0,
-                'approve_status' => 0,
-                'active_status' => 0,
-                'guard_name' => 'web',
-            ];
-            $contributor = Contributor::create( $contributor_data );
-
-            // Add Student Info
-            $student_data = [
-                'profile_id' => $user_profile['id'],
+            $input = $request->all();
+            $role = RoleSetup::first();
+            if(!$role)
+                throw new \Exception("Role not Found for this user!");
+            if( $input['role_id'] )
+                $role_id = $input['role_id'];
+            else{
+                $role = RoleSetup::first();
+                $role_id = $role->new_register_user_role_id;
+            }
+            $user_data = [
+                'first_name'=>$input['first_name'],
+                'last_name' =>$input['last_name'],
+                'name' => $input['first_name'] .' '. $input['last_name'],
+                'username'=>$input['username'],
+                'email' => $input['email'],
+                'status' => 1,
+                'password' => $input['password'],
+                'phone'=>$input['phone'],
+                'birth_date'=>$input['birth_date'],
+                'skype' => (!empty($input["skype"])) ? $input['skype'] : 0,
+                'profession' => (!empty($input["profession"])) ? $input['profession'] : 'n/a',
+                'skill' => (!empty($input["skill"])) ? $input['skill'] : 'n/a',
+                'about' => (!empty($input["about"])) ? $input['about'] : 'n/a',
+                'img' => (!empty($input["img"])) ? $input['img'] : '',
+                'address' => (!empty($input["address"])) ? $input['address'] : 'n/a',
+                'institute_id'=>(!(empty($input['institute_id'] or is_null($input['institute_id'])))? $input['institute_id']:null),
+                'zipcode' => $input['zipcode'],
+                'country' => $input['country'],
                 'completing_percentage' => 100,
                 'total_complete_assessment' => 0,
                 'approve_status' => 0,
                 'active_status' => 0,
+                'total_question' => 0,
+                'average_rating' => 0,
                 'guard_name' => 'web',
             ];
-            $student = Student::create( $student_data );
-
-
-            $responseData['name'] =  $user->name;
-            $responseData['token'] =  $user->createToken('NSLAssessmentCenter')-> accessToken;
-            return response()->json(['success' => true, 'user' => $responseData], $this->successStatus);
-        }
-        else{
-            return response()->json(['success' => false, 'message' => 'User added fail'], $this->failedStatus);
+            DB::beginTransaction();
+            try {
+                $user = User::create($user_data);
+                $user->assignRole($role_id);
+                $user_data['user_id']=$user->id;
+                $user_profile = UserProfile::create( $user_data );
+                $user_data['profile_id']=$user_profile->id;
+                $student = Student::create( $user_data );
+                $contributor = Contributor::create( $user_data );
+            }catch(\Exception $e){
+                DB::rollback();
+                return response()->json(['success'=>false, 'message'=>'User Registration unsuccessful!','error'=>$e->getMessage()],$this->failedStatus);
+            }
+            Db::commit();
+            return response()->json(['success' => true, 'message' =>"User Registration Successful"], $this->successStatus);
+        }catch (\Exception $e){
+            $this->out->writeln("User Registration is unsuccessful! error: ".$e->getMessage());
+            return response()->json(['success'=>true, "message"=>"User Registration unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
 

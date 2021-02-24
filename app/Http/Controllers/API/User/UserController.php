@@ -265,24 +265,27 @@ class UserController extends Controller
      */
     public function updateProfile(Request $request)
     {
+        $this->out->writeln("Updating User profile...");
         $input = $request->all();
         $user = UserProfile::find($input['profile_id']);
         if( ! $user ){
             return response()->json(['success' => true, 'message' => 'Profile not found'], $this->successStatus);
         }
-        request()->validate([
-//            'email' => 'unique:user_profiles,email,'.$input['profile_id'],
-            //'phone' => 'unique:user_profiles,phone,'.$input['profile_id'],
-        ]);
-        $userProfile = $user->update($request->all());
-        $input = request()->all();
-        $input['name']=$input['first_name'].' '.$input['last_name'];
-        $userUpdate = User::find($user->user_id);
-        $userUpdate->update($input);
-        if( $userProfile )
-            return response()->json(['success' => true, 'message' => 'Profile update successfully'], $this->successStatus);
-        else
-            return response()->json(['success' => false, 'message' => 'Profile update failed'], $this->failedStatus);
+        DB::beginTransaction();
+        try{
+            $userProfile = $user->update($request->all());
+            $input['name']=$input['first_name'].' '.$input['last_name'];
+            $userUpdate = User::find($user->user_id);
+            $userUpdate->update($input);
+            DB::table('model_has_roles')->where('model_id',$userUpdate->id)->delete();
+            $userUpdate->assignRole($input['role_id']);
+        }catch (\Exception $e){
+            DB::rollback();
+            $this->out->writeln("Unable to update user profile! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Unable to update user profile!", "error"=>$e->getMessage()], $this->failedStatus);
+        }
+        Db::commit();
+        return response()->json(['success' => true, 'message' => 'Profile updated successfully'], $this->successStatus);
     }
 
 
