@@ -81,7 +81,7 @@ class RegisterController extends Controller
                 'username'=>$input['username'],
                 'email' => $input['email'],
                 'status' => 1,
-                'password' => $input['password'],
+                'password' => Hash::make($input['password']),
                 'phone'=>$input['phone'],
                 'birth_date'=>$input['birth_date'],
                 'skype' => (isset($input["skype"])) ? $input['skype'] : 0,
