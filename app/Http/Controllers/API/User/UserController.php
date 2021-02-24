@@ -15,6 +15,7 @@ use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -50,13 +51,25 @@ class UserController extends Controller
      */
 
     public function index(Request $request){
+//        $payload = DB::table('failed_jobs')->first();
+//        $json_payload = json_decode($payload->payload);
+//        $data = unserialize($json_payload->data->command);
+//        dd($data);
         $user = auth()->user();
         $input = $request->all();
         $this->out->writeln('Get user-list!');
         if($user->can('super-admin')){
+            $this->out->writeln("Super Admin!");
             if (!empty($_POST["for_students"]) || $input['for_students']){
                 $role_id =RoleSetup::select('student_role_id')->first();
                 $users = User::role($role_id['student_role_id'])->get();
+                /*** Uncomment this if caching is necessary
+                $users = Cache::remember('users', 60*60*24, function ($role_id) {
+                    $this->out->writeln("Not found in cache!");
+//                    return DB::table('users')->get();
+                    return User::role($role_id['student_role_id'])->get();
+                });
+                 * ***/
                 return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
             }
             $users = User::with(['roles'])->where('id','!=',$user->id)->get();
@@ -70,6 +83,13 @@ class UserController extends Controller
         if($user->institute_id){
             $users = User::with(['roles'])->where('id','!=',$user->id)->where('institute_id',$user->institute_id)->get();
             return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
+            /*** If caching necessary then uncomment next section ***
+            $users = Cache::remember('users', 60*60*24, function () use ($user) {
+                $this->out->writeln("User-list Not found in cache!");
+                return User::with(['roles'])->where('id','!=',$user->id)->where('institute_id',$user->institute_id)->get();;
+            });
+            return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
+             * */
         }
         return response()->json(['success' => true, 'users' => []], $this->successStatus);
     }
@@ -179,7 +199,7 @@ class UserController extends Controller
             $student = Student::create( $user_data );
             $contributor = Contributor::create( $user_data );
             if(!$this->singleUserCredential($user_data['email'], $user_data['first_name'],$user_data['last_name'], $user_data['username'], $rand_pass))
-                throw new \Exception('User email may incorrect!');
+                throw new \Exception('Email-server is unreachable!');
         }catch(\Exception $e){
             DB::rollback();
             return response()->json(['success'=>false, 'message'=>'User Creation unsuccessful!','error'=>$e->getMessage()],$this->failedStatus);

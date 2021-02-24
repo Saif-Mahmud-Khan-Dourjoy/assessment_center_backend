@@ -13,6 +13,7 @@ use App\QuestionSetAnswer;
 use App\QuestionSetAnswerDetail;
 use App\RoundCandidates;
 use App\Student;
+use App\User;
 use App\UserProfile;
 use Carbon\Carbon;
 use http\Env\Response;
@@ -20,6 +21,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class QuestionSetController extends Controller
 {
@@ -346,28 +348,37 @@ class QuestionSetController extends Controller
 
     public function attendQuestionSet($id)
     {   $st_time = microtime(true);
-        $this->out->writeln("Attending Student for the assessment-id: ".$id);
         try{
             $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
-            $question_set = QuestionSet::with(['question_set_details'])
-                ->where('id', $id)
-                ->get();
-            if (sizeof($question_set)<1)
-                return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
-            $now = now();
-            if(Carbon::parse($question_set[0]->start_time)>$now || Carbon::parse($question_set[0]->end_time)<$now)
-                return response()->json(['success' => false, 'message' => 'Invalid entering time, Assessment time may over or its too early to participate on this Assessment!'], $this->invalidStatus);
             if(QuestionSetCandidate::where('question_set_id',$id)->where('profile_id',$userProfile->id)->exists())
                 return response()->json(['success'=>false, "message"=>"You have already attended!"],$this->failedStatus);
             Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
-            $i = 0;
-            foreach ($question_set[0]->question_set_details as $question_detail){
-                $question = Question::with(['question_details', 'question_answer', 'question_tag'])
-                    ->where('id', $question_detail->question_id)
+            /*** Remove Comment if time-validation seems necessary ***
+            $now = now();
+            if(Carbon::parse($question_set[0]->start_time)>$now || Carbon::parse($question_set[0]->end_time)<$now)
+                return response()->json(['success' => false, 'message' => 'Invalid entering time, Assessment time may over or its too early to participate on this Assessment!'], $this->invalidStatus);
+            *****/
+
+            $this->out->writeln("Attending Student for the assessment-id: ".$id);
+
+            $question_set = Cache::remember($id, 60*60*24, function () use ($id) {
+                $this->out->writeln("Question-set Not found in cache!");
+                $question_set = QuestionSet::with(['question_set_details'])
+                    ->where('id', $id)
                     ->get();
-                $question_set[0]->question_set_details[$i++]['question']=$question;
-            }
+                if (sizeof($question_set)<1)
+                    return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
+                $i = 0;
+                foreach ($question_set[0]->question_set_details as $question_detail){
+                    $question = Question::with(['question_details', 'question_answer', 'question_tag'])
+                        ->where('id', $question_detail->question_id)
+                        ->get();
+                    $question_set[0]->question_set_details[$i++]['question']=$question;
+                }
+                return $question_set;
+            });
             $time_taken= microtime(true)-$st_time;
+            $this->out->writeln("Total time taken: ".$time_taken);
             $question_set_candidates = QuestionSetCandidate::create(['question_set_id'=>$question_set[0]->id, 'profile_id'=>$userProfile->id, 'attended'=>1]);
             return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
         }catch(\Exception $e){
