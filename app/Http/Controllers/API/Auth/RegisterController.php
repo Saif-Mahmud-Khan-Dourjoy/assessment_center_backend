@@ -68,7 +68,7 @@ class RegisterController extends Controller
             $role = RoleSetup::first();
             if(!$role)
                 throw new \Exception("Role not Found for this user!");
-            if( $input['role_id'] )
+            if(isset($input['role_id']))
                 $role_id = $input['role_id'];
             else{
                 $role = RoleSetup::first();
