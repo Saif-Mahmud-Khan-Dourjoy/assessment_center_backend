@@ -22,12 +22,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use mysql_xdevapi\Exception;
 
 class QuestionSetController extends Controller
 {
     public $successStatus = 200;
     public $failedStatus = 500;
     public $invalidStatus = 400;
+    protected $cacheKey;
 
     public $out;
     function __construct()
@@ -37,6 +40,7 @@ class QuestionSetController extends Controller
 //        $this->middleware('api_permission:question-set-edit', ['only' => ['update']]);
 //        $this->middleware('api_permission:question-set-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
+        $this->cacheKey= env("CACHE_KEY")."_question_set_";
     }
 
 
@@ -235,6 +239,81 @@ class QuestionSetController extends Controller
      */
     public function update(Request $request, $id)
     {
+        try{
+            $this->out->writeln("Updating Question Set...");
+            $user = Auth::user();
+            $userProfile = UserProfile::where('user_id', $user->id)->first();
+            request()->validate([
+                'title' => 'required',
+            ]);
+            $input = $request->all();
+            $institute_id = NULL;
+            $privacy = (!empty($_POST["privacy"])) ? $input['privacy'] : 0;
+            if($privacy == 1 && $userProfile->institute_id){
+                $institute_id = $userProfile->institute_id;
+            }
+            // Add question set
+            $questionsetData = [
+                'title' => $input['title'],
+                'type' => $input['type'],
+                'institute' => (!empty($_POST["institute"])) ? $input['institute'] : '',
+                'institute_id' => (!(empty($input['institute_id'] or is_null($input['institute_id'])))? $input['institute_id']:null),
+                'assessment_time' => $input['assessment_time'],
+                'start_time' => (!empty($input['start_time']) || !is_null($input['start_time'])? $input['start_time'] : ''),
+                'end_time'=>(!empty('end_time') || !is_null($input['end_time'])? $input['end_time']: ''),
+                'each_question_time' => (!empty($input['each_question_time']) || !is_null($input['each_question_time'])? $input['each_question_time']: 0),
+                'total_question' => $input['total_question'],
+                'total_mark' => $input['total_mark'],
+                'status' => $input['status'],
+                'privacy' => $privacy,
+                'approved_by' => $userProfile->id,//Profile ID
+                'round_id'=>$input['round_id'],
+                'updated_by'=>$user->id,
+            ];
+            // Question-Set Details data
+            $question_id = explode( ',', $input['question_id']);
+            $mark = explode( ',', $input['mark']);
+            $partial_marking_status = explode( ',', $input['partial_marking_status']);
+            if(!(is_null($input['question_time']) && $questionsetData['each_question_time']==0)){
+                $question_time = explode(',',$input['question_time']);
+            }
+            DB::beginTransaction();
+            try{
+                $questionset = QuestionSet::find($id);
+                // if( ! UserAcademicHistory::where(['profile_id' => $input['profile_id'], 'check_status' => $input['check_status']])->first() )
+                // UserAcademicHistory::where('profile_id', $input['profile_id'])->delete();
+                $questionset_status =  $questionset->update($questionsetData);
+                if(!$questionset_status)
+                    throw new \Exception("Question-Set Update failed!");
+                QuestionSetDetail::where(['question_set_id'=>$id])->delete();                                           // Remove question set details
+                for($i = 0; $i < count($question_id); $i++){                                                            // Add question set detail
+                    $questionOptionData = [
+                        'question_set_id' => $questionset->id,
+                        'question_id' => $question_id[$i],
+                        'mark' => $mark[$i],
+                        'question_time'=>($questionsetData['each_question_time']==0?0:$question_time[$i]),
+                        'partial_marking_status' => $partial_marking_status[$i],
+                    ];
+                    QuestionSetDetail::create($questionOptionData);
+                    Question::find($question_id[$i])->increment('no_of_used');                                              // Increment question total no of use
+                }
+            }catch(\Exception $inner){
+                DB::rollback();
+                $this->out->writeln("Question-set update failed! error: ".$inner->getMessage());
+                return response()->json(['success'=>false, "message"=>"Question-Set Update is unsuccessful!", "error"=>"Sequence of any transaction is failed & rollback everything! coz: ".$inner->getMessage()], $this->failedStatus);
+            }
+            Db::commit();
+            $question_sets = QuestionSet::with(['question_set_details'])->where('id', $questionset->id)->get();
+            Cache::forget($this->cacheKey.$id);
+            return response()->json(['success' => true, 'question_set' => $question_sets], $this->successStatus);
+        }catch (\Exception $e){
+            $this->out->writeln("Question-Set update is unsuccessful! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Question-Set Update is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
+        }
+    }
+
+    public function updateOld(Request $request, $id)
+    {
         $user = Auth::user();
         $userProfile = UserProfile::where('user_id', $user->id)->first();
         request()->validate([
@@ -271,34 +350,34 @@ class QuestionSetController extends Controller
         // UserAcademicHistory::where('profile_id', $input['profile_id'])->delete();
         $questionset_status =  $questionset->update($questionsetData);
         if($questionset_status){
-        //remove question set details
-        $questionsetdetail = QuestionSetDetail::where(['question_set_id'=>$id])->delete();
+            //remove question set details
+            $questionsetdetail = QuestionSetDetail::where(['question_set_id'=>$id])->delete();
 
-        // Add question set detail
-        $questionOptionData = [];
-        $question_id = explode( ',', $input['question_id']);
-        $mark = explode( ',', $input['mark']);
-        $partial_marking_status = explode( ',', $input['partial_marking_status']);
-        if(!(is_null($input['question_time']) && $questionsetData['each_question_time']==0)){
-            $question_time = explode(',',$input['question_time']);
-        }
-        for($i = 0; $i < count($question_id); $i++){
-            $questionOptionData = [
-                'question_set_id' => $questionset->id,
-                'question_id' => $question_id[$i],
-                'mark' => $mark[$i],
-                'question_time'=>($questionsetData['each_question_time']==0?0:$question_time[$i]),
-                'partial_marking_status' => $partial_marking_status[$i],
-            ];
-            QuestionSetDetail::create($questionOptionData);
-            // Increment question total no of use
-            Question::find($question_id[$i])->increment('no_of_used');
-        }
-        $question_sets = QuestionSet::with(['question_set_details'])->where('id', $questionset->id)->get();
-        if( $questionset )
-            return response()->json(['success' => true, 'question_set' => $question_sets], $this->successStatus);
-        else
-            return response()->json(['success' => false, 'message' => 'Question set update fail'], $this->failedStatus);
+            // Add question set detail
+            $questionOptionData = [];
+            $question_id = explode( ',', $input['question_id']);
+            $mark = explode( ',', $input['mark']);
+            $partial_marking_status = explode( ',', $input['partial_marking_status']);
+            if(!(is_null($input['question_time']) && $questionsetData['each_question_time']==0)){
+                $question_time = explode(',',$input['question_time']);
+            }
+            for($i = 0; $i < count($question_id); $i++){
+                $questionOptionData = [
+                    'question_set_id' => $questionset->id,
+                    'question_id' => $question_id[$i],
+                    'mark' => $mark[$i],
+                    'question_time'=>($questionsetData['each_question_time']==0?0:$question_time[$i]),
+                    'partial_marking_status' => $partial_marking_status[$i],
+                ];
+                QuestionSetDetail::create($questionOptionData);
+                // Increment question total no of use
+                Question::find($question_id[$i])->increment('no_of_used');
+            }
+            $question_sets = QuestionSet::with(['question_set_details'])->where('id', $questionset->id)->get();
+            if( $questionset )
+                return response()->json(['success' => true, 'question_set' => $question_sets], $this->successStatus);
+            else
+                return response()->json(['success' => false, 'message' => 'Question set update fail'], $this->failedStatus);
         }
     }
 
@@ -360,8 +439,7 @@ class QuestionSetController extends Controller
             *****/
 
             $this->out->writeln("Attending Student for the assessment-id: ".$id);
-
-            $question_set = Cache::remember($id, 60*60*24, function () use ($id) {
+            $question_set = Cache::remember($this->cacheKey.$id, 60*60*24, function () use ($id) {
                 $this->out->writeln("Question-set Not found in cache!");
                 $question_set = QuestionSet::with(['question_set_details'])
                     ->where('id', $id)
@@ -445,15 +523,18 @@ class QuestionSetController extends Controller
      */
     public function destroy($id)
     {
-        $question_set = QuestionSet::find($id);
-        if ( !$question_set )
-            return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
-
-        if ( $question_set->delete() )
+        try{
+            $this->out->writeln("Question-set Deleting: ".$id);
+            $question_set = QuestionSet::find($id);
+            if(!$question_set)
+                throw new \Exception("Question-Set not found!");
+            if ($question_set->delete())
+                Cache::forget($this->cacheKey.$id);
             return response()->json(['success' => true, 'message' => 'Question set deleted'], $this->successStatus);
-        else
-            return response()->json(['success' => false, 'message' => 'Question set can not be deleted'], $this->failedStatus);
-
+        }catch(\Exception $e){
+            $this->out->writeln("Question-Set Deletion Unsuccessful! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Question-Set Deletion unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
+        }
     }
 
     public function status($id){
