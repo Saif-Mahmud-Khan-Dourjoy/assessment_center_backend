@@ -278,7 +278,8 @@ class UserController extends Controller
             $userUpdate = User::find($user->user_id);
             $userUpdate->update($input);
             DB::table('model_has_roles')->where('model_id',$userUpdate->id)->delete();
-            $userUpdate->assignRole($input['role_id']);
+            if(isset($input['role_id']) && !empty($input['role_id']))
+                $userUpdate->assignRole($input['role_id']);
         }catch (\Exception $e){
             DB::rollback();
             $this->out->writeln("Unable to update user profile! error: ".$e->getMessage());
