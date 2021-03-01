@@ -277,8 +277,8 @@ class UserController extends Controller
             $input['name']=$input['first_name'].' '.$input['last_name'];
             $userUpdate = User::find($user->user_id);
             $userUpdate->update($input);
-            DB::table('model_has_roles')->where('model_id',$userUpdate->id)->delete();
             if(isset($input['role_id']) && !empty($input['role_id']))
+                DB::table('model_has_roles')->where('model_id',$userUpdate->id)->delete();
                 $userUpdate->assignRole($input['role_id']);
         }catch (\Exception $e){
             DB::rollback();
