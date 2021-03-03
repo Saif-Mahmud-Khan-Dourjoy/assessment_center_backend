@@ -14,7 +14,7 @@ class AddDefaultInstituteIdToRoleSetupsTable extends Migration
     public function up()
     {
         Schema::table('role_setups', function (Blueprint $table) {
-            $table->unsignedBigInteger("default_institute_id")->unsigned()->after('new_register_user_role_id')->default('1');
+            $table->unsignedBigInteger("default_institute_id")->unsigned()->after('new_register_user_role_id');
             $table->foreign("default_institute_id")->on("institutes")->references("id")->onDelete("cascade");
         });
     }
