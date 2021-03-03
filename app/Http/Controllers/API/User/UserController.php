@@ -51,10 +51,6 @@ class UserController extends Controller
      */
 
     public function index(Request $request){
-//        $payload = DB::table('failed_jobs')->first();
-//        $json_payload = json_decode($payload->payload);
-//        $data = unserialize($json_payload->data->command);
-//        dd($data);
         $user = auth()->user();
         $input = $request->all();
         $this->out->writeln('Get user-list!');
@@ -172,7 +168,7 @@ class UserController extends Controller
             'password' => $hashed_random_password,
             'phone'=>$input['phone'],
             'birth_date'=>$input['birth_date'],
-            'skype' => (!empty($input["skype"])) ? $input['skype'] : 0,
+            'skype' => (!empty($input["skype"])) ? $input['skype'] : 'n/a',
             'profession' => (!empty($input["profession"])) ? $input['profession'] : 'n/a',
             'skill' => (!empty($input["skill"])) ? $input['skill'] : 'n/a',
             'about' => (!empty($input["about"])) ? $input['about'] : 'n/a',
