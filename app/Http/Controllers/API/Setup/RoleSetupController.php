@@ -42,6 +42,7 @@ class RoleSetupController extends Controller
         request()->validate([
             'contributor_role_id' => 'required',
             'new_register_user_role_id' => 'required',
+            'default_institute_id'=>'required',
         ]);
         $input = $request->all();
 
@@ -57,6 +58,7 @@ class RoleSetupController extends Controller
             'contributor_role_id' => $input['contributor_role_id'],
             'student_role_id' => $input['student_role_id'],
             'new_register_user_role_id' => $input['new_register_user_role_id'],
+            'default_institute_id'=>$input['default_institute_id'],
         ];
         if( $role_setup ){
             $role_setup->update($data);

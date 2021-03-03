@@ -85,6 +85,7 @@ class CreateAdminUserSeeder extends Seeder
             'contributor_role_id' => 1,
             'student_role_id' => $student_role->id,
             'new_register_user_role_id' => 1,
+            'default_institute_id'=>1,
         ]);
     }
 }
