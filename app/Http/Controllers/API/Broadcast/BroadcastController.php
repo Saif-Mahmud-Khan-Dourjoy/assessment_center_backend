@@ -129,10 +129,11 @@ class BroadcastController extends Controller
                     throw new \Exception("Institution not Found!");
                 $all_profiles = User::with('user_profile')->where('institute_id','=',$input['broadcast_to'])->get();
             }else if($input['group']==1){ // Everyone Under given Assessment.
-                $round = QuestionSet::select('round_id')->where('round_id','=',$input['broadcast_to'])->first();
+                $round = QuestionSet::select('round_id')->where('id','=',$input['broadcast_to'])->first();
                 if(!$round)
                     throw new \Exception("Question-Set Not Found!");
                 $all_profiles = RoundCandidates::with(['user_profile'])->where('round_id',$round->round_id)->get();
+//                return $all_profiles;
             }else if($input['group']==2){   // Everyone Under one round
                 if(!Round::where('id',$input['broadcast_to'])->exists())
                     throw new \Exception("Round Not Found!");
