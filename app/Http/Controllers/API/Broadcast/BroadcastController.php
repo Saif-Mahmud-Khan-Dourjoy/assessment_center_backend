@@ -84,11 +84,13 @@ class BroadcastController extends Controller
             $delay = env("EMAIL_SERVER_JOB_DELAY");
             $url = env("EMAIL_SERVER_URL").'assessment-info';
             $client = new Client();
+            $institute = Institute::find(Auth::user()->institute_id);
             $body = [
                 "title"=>$title,
                 "body"=>$body,
                 "profiles"=>$profiles->toArray(),
                 "delay"=>$delay,
+                "institute"=>$institute->name,
             ];
             $response = $client->post($url, ["form_params"=>$body, 'http_errors' => false]);
             $this->out->writeln("Url: $url");
@@ -301,10 +303,12 @@ class BroadcastController extends Controller
             $delay = env("EMAIL_SERVER_JOB_DELAY");
             $url = env("EMAIL_SERVER_URL").'assessment-certificate';
             $client = new Client();
+            $institute = Institute::find(Auth::user()->institute_id);
             $body = [
                 "question_set"=>$question_set->toArray(),
                 "question_set_answers"=>$question_set_answers->toArray(),
                 "delay"=>$delay,
+                "institute"=>$institute->name,
             ];
 //            $this->out->writeln($question_set_answers);
             $response = $client->post($url, ["form_params"=>$body, 'http_errors' => false]);
