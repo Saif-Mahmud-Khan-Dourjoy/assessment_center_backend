@@ -79,7 +79,7 @@ class ForgotPasswordController extends Controller
                 $user->password = Hash::make($password);
                 $user->save();
             });
-            if($response != Password::PASSWORD_RESET)
+            if(!$response)
                 throw new \Exception("Response isn't matching with reset status!");
             return response()->json(['success' => true, "message" => "Password Reset Successful."], $this->successStatus);
         }catch(\Exception $e){
