@@ -23,6 +23,7 @@ Route::group(['prefix' => 'v1'], function() {
     })->middleware('auth:api');
 
     Route::post('check-email', 'API\Auth\RegisterController@checkEmail')->name('check-email');
+    Route::post('check-username', 'API\Auth\RegisterController@checkUsername')->name('check-username');
 
     Route::middleware('auth:api')->group( function () {
 

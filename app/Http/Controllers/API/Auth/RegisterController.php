@@ -132,4 +132,15 @@ class RegisterController extends Controller
         return response()->json(['success' => false], $this->failedStatus);
     }
 
+    public function checkUsername(Request $request){
+        try{
+            $input = $request->all();
+            if(User::where('username','=',$input['username'])->exists())
+                return response()->json(['success'=>true, "exists"=>1, "message"=>"Username is already exists!"], $this->successStatus);
+            return response()->json(['success'=>true, "exists"=>0, "message"=>"Username is not exists!"], $this->successStatus);
+        }catch (\Exception $e){
+            return response()->json(['success'=>false, "message"=>"Unable to check the username's existence!", "error"=>$e->getMessage()], $this->failedStatus);
+        }
+    }
+
 }
