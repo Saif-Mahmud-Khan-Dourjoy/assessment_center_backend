@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\ResetPassword;
+use mysql_xdevapi\Exception;
 
 class ForgotPasswordController extends Controller
 {
@@ -61,24 +62,29 @@ class ForgotPasswordController extends Controller
      */
     public function passwordReset(Request $request): JsonResponse
     {
-        $input = $request->only('username','email','token', 'password', 'password_confirmation');
-        $validator = Validator::make($input, [
-            'token' => 'required',
-            'username' => 'required',
-            'email'=>'required|email',
-            'password' => 'required|confirmed|min:8',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors());
+        try{
+            //        $input = $request->only('username','email','token', 'password', 'password_confirmation');
+            $validator = Validator::make($request->all(), [
+                'token' => 'required',
+                'username' => 'required',
+                'email'=>'required|email',
+                'password' => 'required|confirmed|min:8',
+            ]);
+            if ($validator->fails()) {
+                return response()->json($validator->errors());
+            }
+            $input = $request->all();
+            $this->out->writeln('Password Reset for: '.$input['username'].'|'.$input['email']);
+            $response = Password::reset($input, function ($user, $password) {
+                $user->password = Hash::make($password);
+                $user->save();
+            });
+            if($response != Password::PASSWORD_RESET)
+                throw new \Exception("Response isn't matching with reset status!");
+            return response()->json(['success' => true, "message" => "Password Reset Successful."], $this->successStatus);
+        }catch(\Exception $e){
+            $this->out->writeln("Password Reset is unsuccessful! error: ".$e->getMessage());
+            return response()->json(["success"=>false, "message"=>"Password Reset is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        $this->out->writeln('Password Reset for: '.$input['username'].'|'.$input['password'].'|'.$input['email']);
-        $response = Password::reset($input, function ($user, $password) {
-            $user->password = Hash::make($password);
-            $user->save();
-        });
-        $message = $response == Password::PASSWORD_RESET ? 'Password reset successfully' : 'Failed';
-
-        return response()->json(['success' => true, "message" => $message], $this->successStatus);
     }
 }
