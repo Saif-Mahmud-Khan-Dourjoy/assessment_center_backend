@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 use \Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -56,6 +57,7 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $this->out->writeln("Registering new user...");
+        Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Registering new user: ");
         request()->validate([
             'username'=>'required|unique:users',
             'email' => 'required|email',
@@ -113,12 +115,15 @@ class RegisterController extends Controller
                 $contributor = Contributor::create( $user_data );
             }catch(\Exception $e){
                 DB::rollback();
+                Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Rolled-back user registration for: ".$e->getMessage());
                 return response()->json(['success'=>false, 'message'=>'User Registration unsuccessful!','error'=>$e->getMessage()],$this->failedStatus);
             }
             Db::commit();
+            Log::channel("ac_info")->info("User Registration Successful: ".$user);
             return response()->json(['success' => true, 'message' =>"User Registration Successful"], $this->successStatus);
         }catch (\Exception $e){
             $this->out->writeln("User Registration is unsuccessful! error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# User Registration unsuccessful! for: ".$e->getMessage());
             return response()->json(['success'=>true, "message"=>"User Registration incomplete!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
@@ -134,11 +139,16 @@ class RegisterController extends Controller
 
     public function checkUsername(Request $request){
         try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Checking Username.");
             $input = $request->all();
-            if(User::where('username','=',$input['username'])->exists())
+            if(User::where('username','=',$input['username'])->exists()){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Username is already exists!");
                 return response()->json(['success'=>true, "exists"=>1, "message"=>"Username is already exists!"], $this->successStatus);
+            }
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Username is not exist.");
             return response()->json(['success'=>true, "exists"=>0, "message"=>"Username is not exists!"], $this->successStatus);
         }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."Unable to check username for : ".$e->getMessage());
             return response()->json(['success'=>false, "message"=>"Unable to check the username's existence!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
