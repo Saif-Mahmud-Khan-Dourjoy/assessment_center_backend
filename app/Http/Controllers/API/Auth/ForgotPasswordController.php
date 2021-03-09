@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\ResetPassword;
+use Lcobucci\JWT\Signer\Key\LocalFileReference;
 use mysql_xdevapi\Exception;
 
 class ForgotPasswordController extends Controller
@@ -19,6 +20,7 @@ class ForgotPasswordController extends Controller
     public $successStatus = 200;
     public $failedStatus = 500;
     public $invalidStatus = 400;
+    public $unAuthenticate= 401;
 
 
     public $out;
@@ -35,23 +37,28 @@ class ForgotPasswordController extends Controller
      */
     public function forgotPassword(Request $request): JsonResponse
     {
-//        die('Reseting password');
-        $input = $request->only('username');
-        $validator = Validator::make($input, [
-            'username' => "required"
-        ]);
-        if ($validator->fails()) {
-            return response()->json($validator->errors());
-        }
-        $this->out->writeln('Username: '.$input['username']);
-        $user_email = User::where('username',$input['username'])->first();
-        $this->out->writeln('user email: '.$user_email);
-        if($user_email){
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Forgetting Password.");
+            $input = $request->only('username');
+            $validator = Validator::make($input, [
+                'username' => "required"
+            ]);
+            if ($validator->fails())
+                throw new \Exception($validator->errors());
+            $user_email = User::where('username',$input['username'])->first();
+            if(!$user_email){
+                Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Username Not Found!");
+                return response()->json(['success'=>false, "message"=>"Username Not Found!"], $this->unAuthenticate);
+            }
             $response = Password::sendResetLink($input);
-            $message = $response == Password::RESET_LINK_SENT ? 'Mail send successfully' : 'Failed';
-            return response()->json(['success' => true, 'message' => $message], $this->successStatus);
+            if($response != Password::RESET_LINK_SENT)
+                throw new \Exception("Mailing Reset link is unsuccessful!");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Reset link is sent successfully!");
+            return response()->json(['success' => true, 'message' => "A reset link is sent to your email!"], $this->successStatus);
+        }catch(\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Exception occurred! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"There is a problem in forgot password!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return response()->json(['success'=> false, 'message'=>'Username not found'], '401');
     }
 
 
@@ -71,9 +78,8 @@ class ForgotPasswordController extends Controller
                 'email'=> 'required|email',
                 'password' => 'required|confirmed|min:8',
             ]);
-            if ($validator->fails()) {
-                return response()->json($validator->errors());
-            }
+            if ($validator->fails())
+                throw new \Exception($validator->errors());
             $input = $request->all();
             $response = Password::reset($input, function ($user, $password) {
                 $user->password = Hash::make($password);
