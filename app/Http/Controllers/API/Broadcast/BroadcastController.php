@@ -20,6 +20,7 @@ use GuzzleHttp\Client;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use \Illuminate\Http\JsonResponse;
@@ -50,7 +51,7 @@ class BroadcastController extends Controller
 
     public function index(){
         try{
-            Log::channel('ac_info')->info("");
+            Log::channel('ac_info')->info(__CLASS__."@".__FUNCTION__."# Fetching all broadcast lists.");
             $user = Auth::user();
             if($user->can('super-admin')){
                 $broadcasts = Broadcast::all();
@@ -61,6 +62,7 @@ class BroadcastController extends Controller
                 return response()->json(['success'=>true, 'broadcast'=>$broadcasts], $this->successStatus);
             }
         }catch (\Exception $e){
+            Log::channel('ac_error')->info(__CLASS__."@".__FUNCTION__."# Unable to fetch Broadcast-lists, error: ".$e->getMessage());
             return response()->json(['success'=>false, 'message'=>"Unable to fetch Broadcast lists!", 'error'=> $e->getMessage()], $this->failedStatus);
         }
     }
@@ -81,6 +83,7 @@ class BroadcastController extends Controller
 
     public function mailNoticeFromServer($title, $body, $profiles){
         try {
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Preparing Notice for Email-server.");
             $this->out->writeln("Requesting email server for Bulk-email..");
             $delay = env("EMAIL_SERVER_JOB_DELAY");
             $url = env("EMAIL_SERVER_URL").'assessment-info';
@@ -94,18 +97,22 @@ class BroadcastController extends Controller
                 "institute"=>$institute->name,
             ];
             $response = $client->post($url, ["form_params"=>$body, 'http_errors' => false]);
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Request Sent to email-server for broadcasting notice!");
             $this->out->writeln("Url: $url");
             if($response->getStatusCode()!=200)
                 throw new \Exception("Mail server is not responding, its may be down or something else! error: ".$response->getBody());
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Email-server responded Successfully!");
             return true;
         }catch(\Exception $e){
             $this->out->writeln("Unable to mail notice form email-server! error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to send notice info to email-server: ".$e->getMessage());
             return false;
         }
     }
 
     public function store(Request $request){
         $this->out->writeln('Broadcasting a notice to everyone');
+        Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Broadcasting notice.");
         request()->validate([
            'title'=>'required',
            'body'=>'required',
@@ -126,16 +133,18 @@ class BroadcastController extends Controller
         ];
         try{
             if($input['group']==0){  // Everyone under the given institution.
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Broadcasting to all under institution: ".$data['broadcast_to']);
                 if(!Institute::where('id',$input['broadcast_to'])->exists())
                     throw new \Exception("Institution not Found!");
                 $all_profiles = User::with('user_profile')->where('institute_id','=',$input['broadcast_to'])->get();
             }else if($input['group']==1){ // Everyone Under given Assessment.
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Broadcasting to all under Assessment: ".$data['broadcast_to']);
                 $round = QuestionSet::select('round_id')->where('id','=',$input['broadcast_to'])->first();
                 if(!$round)
                     throw new \Exception("Question-Set Not Found!");
                 $all_profiles = RoundCandidates::with(['user_profile'])->where('round_id',$round->round_id)->get();
-//                return $all_profiles;
             }else if($input['group']==2){   // Everyone Under one round
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Broadcasting to all under institution: ".$data['broadcast_to']);
                 if(!Round::where('id',$input['broadcast_to'])->exists())
                     throw new \Exception("Round Not Found!");
                 $all_profiles = RoundCandidates::with(['user_profile'])->where('round_id',$input['broadcast_to'])->get();
@@ -143,10 +152,11 @@ class BroadcastController extends Controller
                 throw new \Exception('No User Found to Broadcast!');
             }
             $broadcast = Broadcast::create($data);
-//            return $all_profiles;
             $this->mailNoticeFromServer($input['title'],$input['body'], $all_profiles);
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Broadcasting notice Successful!");
             return response()->json(['success'=>true, 'broadcast'=>$broadcast],$this->successStatus);
         }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to broadcast! error: ".$e->getMessage());
             return response()->json(['success'=>false, 'message'=>"Broadcasting Notice Unsuccessful!", 'error'=>$e->getMessage()], $this->failedStatus);
         }
     }
