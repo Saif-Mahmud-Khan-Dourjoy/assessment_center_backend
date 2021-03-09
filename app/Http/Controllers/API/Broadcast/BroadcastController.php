@@ -50,6 +50,7 @@ class BroadcastController extends Controller
 
     public function index(){
         try{
+            Log::channel('ac_info')->info("");
             $user = Auth::user();
             if($user->can('super-admin')){
                 $broadcasts = Broadcast::all();

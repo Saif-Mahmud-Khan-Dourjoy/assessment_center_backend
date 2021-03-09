@@ -8,6 +8,7 @@ use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\ResetPassword;
@@ -63,27 +64,27 @@ class ForgotPasswordController extends Controller
     public function passwordReset(Request $request): JsonResponse
     {
         try{
-            //        $input = $request->only('username','email','token', 'password', 'password_confirmation');
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Password is resetting.");
             $validator = Validator::make($request->all(), [
                 'token' => 'required',
                 'username' => 'required',
-                'email'=>'required|email',
+                'email'=> 'required|email',
                 'password' => 'required|confirmed|min:8',
             ]);
             if ($validator->fails()) {
                 return response()->json($validator->errors());
             }
             $input = $request->all();
-            $this->out->writeln('Password Reset for: '.$input['username'].'|'.$input['email']);
             $response = Password::reset($input, function ($user, $password) {
                 $user->password = Hash::make($password);
                 $user->save();
             });
-            if(!$response)
-                throw new \Exception("Response isn't matching with reset status!");
+            if($response!=Password::PASSWORD_RESET)
+                throw new \Exception("Response isn't matching with reset status! Response: ".$response);
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Password reset successful.");
             return response()->json(['success' => true, "message" => "Password Reset Successful."], $this->successStatus);
         }catch(\Exception $e){
-            $this->out->writeln("Password Reset is unsuccessful! error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Exception occurred! Error: ".$e->getMessage());
             return response()->json(["success"=>false, "message"=>"Password Reset is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
