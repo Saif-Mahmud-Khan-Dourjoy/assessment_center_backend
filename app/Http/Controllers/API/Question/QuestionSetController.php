@@ -17,12 +17,14 @@ use App\User;
 use App\UserProfile;
 use Carbon\Carbon;
 use http\Env\Response;
+use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use mysql_xdevapi\Exception;
 
 class QuestionSetController extends Controller
@@ -51,41 +53,50 @@ class QuestionSetController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
-        $userProfile = UserProfile::where('user_id', $user->id)->first();
-        $i=0;
-        if($user->can('super-admin')){
-            $question_sets = QuestionSet::with(['question_set_details'])->get();
-            foreach($question_sets as $question_set){
-                $question_set_id = $question_set->id;
-                if(QuestionSetAnswer::where('question_set_id','=',$question_set_id)->where('profile_id','=',$userProfile->id)->exists()){
-                    $question_sets[$i]['attended']=1;
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetching all assessments.");
+            $user = Auth::user();
+            $userProfile = UserProfile::where('user_id', $user->id)->first();
+            $i=0;
+            if($user->can('super-admin')){
+                $question_sets = QuestionSet::with(['question_set_details'])->get();
+                foreach($question_sets as $question_set){
+                    $question_set_id = $question_set->id;
+                    if(QuestionSetAnswer::where('question_set_id','=',$question_set_id)->where('profile_id','=',$userProfile->id)->exists()){
+                        $question_sets[$i]['attended']=1;
+                    }
+                    else{
+                        $question_sets[$i]['attended']=0;
+                    }
+                    $i++;
                 }
-                else{
-                    $question_sets[$i]['attended']=0;
-                }
-                $i++;
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Returning all the assessments for super-admin.");
+                return response()->json(['success' => true, 'question_set' => $question_sets], $this-> successStatus);
             }
-            return response()->json(['success' => true, 'question_set' => $question_sets], $this-> successStatus);
-        }
 
-        if($userProfile->institute_id) {
-            $question_sets = QuestionSet::with(['question_set_details'])
-                ->where('institute_id', '=', $userProfile->institute_id)
-                ->get();
+            if($userProfile->institute_id) {
+                $question_sets = QuestionSet::with(['question_set_details'])
+                    ->where('institute_id', '=', $userProfile->institute_id)
+                    ->get();
 
-            foreach ($question_sets as $question_set) {
-                $question_set_id = $question_set->id;
-                if (QuestionSetAnswer::where('question_set_id', '=', $question_set_id)->where('profile_id', '=', $userProfile->id)->exists()) {
-                    $question_sets[$i]['attended'] = 1;
-                } else {
-                    $question_sets[$i]['attended'] = 0;
+                foreach ($question_sets as $question_set) {
+                    $question_set_id = $question_set->id;
+                    if (QuestionSetAnswer::where('question_set_id', '=', $question_set_id)->where('profile_id', '=', $userProfile->id)->exists()) {
+                        $question_sets[$i]['attended'] = 1;
+                    } else {
+                        $question_sets[$i]['attended'] = 0;
+                    }
+                    $i++;
                 }
-                $i++;
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Returning all the assessments for inst-id: ".$user->institute_id);
+                return response()->json(['success' => true, 'question_set' => $question_sets], $this-> successStatus);
             }
-            return response()->json(['success' => true, 'question_set' => $question_sets], $this-> successStatus);
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# No Assessment Found!");
+            return response()->json(['success' => true, 'question_set' => []], $this-> successStatus);
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to fetch assessments! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Unable to fetch assessments!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return response()->json(['success' => true, 'question_set' => []], $this-> successStatus);
     }
 
     public function index_old(){
@@ -143,15 +154,20 @@ class QuestionSetController extends Controller
      */
     public function assessmentTimeValidator($start_time, $end_time, $duration){
         try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Validating assessment time.");
             $startTime = Carbon::parse($start_time);
             $endTime = Carbon::parse($end_time);
             $this->out->writeln('Start time: '.$startTime." ****** End time: ".$endTime);
             if ($startTime->addMinutes($duration)>$endTime){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Invalid assessment time.");
                 return false;
             }
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Assessment time is valid.");
             return true;
         }catch(\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to validate assessment time! error: ".$e->getMessage());
             $this->out->writeln("Unable to validate Assessment Time! error: ".$e->getMessage());
+            return null;
         }
     }
     /**
@@ -162,71 +178,78 @@ class QuestionSetController extends Controller
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
-        $userProfile = UserProfile::where('user_id', $user->id)->first();
-        request()->validate([
-            'title' => 'required',
-        ]);
-        $input = $request->all();
-        $institute_id = NULL;
-        $privacy = (!empty($_POST["privacy"])) ? $input['privacy'] : 0;
-        if($privacy == 1 && $userProfile->institute_id){
-            $institute_id = $userProfile->institute_id;
-        }
-        // Time calculations
-        $assessment_time = $input['assessment_time'];
-        $start_time = (!empty($input['start_time']) || !is_null($input['start_time'])? $input['start_time'] : '');
-        $end_time = (!empty('end_time') || !is_null($input['end_time'])? $input['end_time']: '');
-        $this->out->writeln('Start time: '.$start_time." End time: ". $end_time." lLaravel timestamp: ".now());
-        if(!($this->assessmentTimeValidator($start_time, $end_time, $input['assessment_time']))){
-            return response()->json(['success'=>false, 'message'=>'Invalid Exam time and duration!'], $this->invalidStatus);
-        }
-        // Add question set
-        $questionData = [
-            'title' => $input['title'],
-            'type' => $input['type'],
-            'institute' => (!empty($_POST["institute"])) ? $input['institute'] : '',
-            'institute_id' => (!(empty($input['institute_id'] or is_null($input['institute_id'])))? $input['institute_id']:null),
-            'assessment_time' => $input['assessment_time'],
-            'start_time' => $start_time,
-            'end_time'=>$end_time,
-            'each_question_time' => (!empty('each_question_time') || !is_null($input['each_question_time'])? $input['each_question_time']: 0),
-            'total_question' => $input['total_question'],
-            'total_mark' => $input['total_mark'],
-            'status' => $input['status'],
-            'privacy' => $privacy,
-            'approved_by' => $userProfile->id,//Profile ID
-            'round_id'=>$input['round_id'],
-            'created_by' => $user->id,//User ID
-            'updated_by' => $user->id,
-        ];
-        $question = QuestionSet::create($questionData);
-
-        // Add question detail
-        $questionOptionData = [];
-        $question_id = explode( ',', $input['question_id']);
-        $mark = explode( ',', $input['mark']);
-        $partial_marking_status = explode( ',', $input['partial_marking_status']);
-        if(!(is_null($input['question_time']) && $questionData['each_question_time']==0)){
-            $question_time = explode(',',$input['question_time']);
-        }
-        for($i = 0; $i < count($question_id); $i++){
-            $questionOptionData = [
-                'question_set_id' => $question->id,
-                'question_id' => $question_id[$i],
-                'mark' => $mark[$i],
-                'question_time'=>($questionData['each_question_time']==0?0:$question_time[$i]),
-                'partial_marking_status' => $partial_marking_status[$i],
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Storing Assessment.");
+            $user = Auth::user();
+            $userProfile = UserProfile::where('user_id', $user->id)->first();
+            request()->validate([
+                'title' => 'required',
+            ]);
+            $input = $request->all();
+            $institute_id = NULL;
+            $privacy = (!empty($_POST["privacy"])) ? $input['privacy'] : 0;
+            if($privacy == 1 && $userProfile->institute_id){
+                $institute_id = $userProfile->institute_id;
+            }
+            // Time calculations
+            $assessment_time = $input['assessment_time'];
+            $start_time = (!empty($input['start_time']) || !is_null($input['start_time'])? $input['start_time'] : '');
+            $end_time = (!empty('end_time') || !is_null($input['end_time'])? $input['end_time']: '');
+            $this->out->writeln('Start time: '.$start_time." End time: ". $end_time." lLaravel timestamp: ".now());
+            if(!($this->assessmentTimeValidator($start_time, $end_time, $input['assessment_time']))){
+                return response()->json(['success'=>false, 'message'=>'Invalid Exam time and duration!'], $this->invalidStatus);
+            }
+            // Add question set
+            $questionData = [
+                'title' => $input['title'],
+                'type' => $input['type'],
+                'institute' => (!empty($_POST["institute"])) ? $input['institute'] : '',
+                'institute_id' => (!(empty($input['institute_id'] or is_null($input['institute_id'])))? $input['institute_id']:null),
+                'assessment_time' => $input['assessment_time'],
+                'start_time' => $start_time,
+                'end_time'=>$end_time,
+                'each_question_time' => (!empty('each_question_time') || !is_null($input['each_question_time'])? $input['each_question_time']: 0),
+                'total_question' => $input['total_question'],
+                'total_mark' => $input['total_mark'],
+                'status' => $input['status'],
+                'privacy' => $privacy,
+                'approved_by' => $userProfile->id,//Profile ID
+                'round_id'=>$input['round_id'],
+                'created_by' => $user->id,//User ID
+                'updated_by' => $user->id,
             ];
-            QuestionSetDetail::create($questionOptionData);
-            // Increment question total no of use
-            Question::find($question_id[$i])->increment('no_of_used');
-        }
-        $question_sets = QuestionSet::with(['question_set_details'])->where('id', $question->id)->get();
-        if( $question )
+            $question = QuestionSet::create($questionData);
+            if(!$question)
+                throw new \Exception("Question-set Creation unsuccessful!");
+            // Add question detail
+            $questionOptionData = [];
+            $question_id = explode( ',', $input['question_id']);
+            $mark = explode( ',', $input['mark']);
+            $partial_marking_status = explode( ',', $input['partial_marking_status']);
+            if(!(is_null($input['question_time']) && $questionData['each_question_time']==0)){
+                $question_time = explode(',',$input['question_time']);
+            }
+            for($i = 0; $i < count($question_id); $i++){
+                $questionOptionData = [
+                    'question_set_id' => $question->id,
+                    'question_id' => $question_id[$i],
+                    'mark' => $mark[$i],
+                    'question_time'=>($questionData['each_question_time']==0?0:$question_time[$i]),
+                    'partial_marking_status' => $partial_marking_status[$i],
+                ];
+                QuestionSetDetail::create($questionOptionData);
+                // Increment question total no of use
+                Question::find($question_id[$i])->increment('no_of_used');
+            }
+            $question_sets = QuestionSet::with(['question_set_details'])->where('id', $question->id)->get();
+            if(!$question_sets)
+                throw new \Exception("Question-set not found!");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Storing Assessment successful.");
             return response()->json(['success' => true, 'question_set' => $question_sets], $this->successStatus);
-        else
-            return response()->json(['success' => false, 'message' => 'Question set added fail'], $this->failedStatus);
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to store Assessment! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Unable create Assessment!", "error"=>$e->getMessage()], $this->failedStatus);
+        }
     }
 
 
@@ -240,7 +263,7 @@ class QuestionSetController extends Controller
     public function update(Request $request, $id)
     {
         try{
-            $this->out->writeln("Updating Question Set...");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Updating Assessment.");
             $user = Auth::user();
             $userProfile = UserProfile::where('user_id', $user->id)->first();
             request()->validate([
@@ -300,14 +323,17 @@ class QuestionSetController extends Controller
             }catch(\Exception $inner){
                 DB::rollback();
                 $this->out->writeln("Question-set update failed! error: ".$inner->getMessage());
+                Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to upgrade Assessment! error: ".$inner->getMessage());
                 return response()->json(['success'=>false, "message"=>"Question-Set Update is unsuccessful!", "error"=>"Sequence of any transaction is failed & rollback everything! coz: ".$inner->getMessage()], $this->failedStatus);
             }
             Db::commit();
             $question_sets = QuestionSet::with(['question_set_details'])->where('id', $questionset->id)->get();
             Cache::forget($this->cacheKey.$id);
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Assessment Upgrading successful.");
             return response()->json(['success' => true, 'question_set' => $question_sets], $this->successStatus);
         }catch (\Exception $e){
             $this->out->writeln("Question-Set update is unsuccessful! error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to upgrade Assessment! error: ".$e->getMessage());
             return response()->json(['success'=>false, "message"=>"Question-Set Update is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
@@ -382,16 +408,24 @@ class QuestionSetController extends Controller
     }
 
     public function initQuestionSetAnswer($question_set_id){
-        $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
-        $questionAnswerData = [
-            'question_set_id'=>$question_set_id,
-            'profile_id'=>$userProfile->id,
-            'time_taken'=>0,
-            'total_mark'=>0,
-        ];
-        $question_answer = QuestionSetAnswer::create($questionAnswerData);
+        try {
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Initialize Question-set Answer.");
+            $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
+            $questionAnswerData = [
+                'question_set_id'=>$question_set_id,
+                'profile_id'=>$userProfile->id,
+                'time_taken'=>0,
+                'total_mark'=>0,
+            ];
+            $question_answer = QuestionSetAnswer::create($questionAnswerData);
 //        $student = Student::where('profile_id','=',$question_answer)->first();
-        Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
+            Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Initialization Question-set Answer Successful.");
+            return response()->json(['success'=>true, "message"=>"Question-set initialization successful!"], $this->successStatus);
+        }catch(\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to initialize! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Unable to initialize Question", "error"=>$e->getMessage()], $this->failedStatus);
+        }
     }
 
 
@@ -403,32 +437,40 @@ class QuestionSetController extends Controller
      */
     public function show($id)
     {
-        $this->out->writeln('Fetching Question set with all questions, question-set id: '.$id);
-        $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
-        $question_set = QuestionSet::inRandomOrder()->with(['question_set_details'])
-            ->where('id', $id)
-            ->get();
-        if (sizeof($question_set)<1)
-            return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
-        $i = 0;
-//        $question_set_details = $question_set[0]->question_set_details;
-        $question_set_details = json_decode($question_set[0]->question_set_details, true);
-        shuffle($question_set_details);
-        foreach ($question_set[0]->question_set_details as $question_detail){
-            $this->out-> writeln('Question set details: '.$question_detail);
-            $this->out->writeln('Question ID: '.$question_detail->question_id);
-            $question = Question::with(['question_details', 'question_answer', 'question_tag'])
-                ->where('id', $question_detail->question_id)
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetching Question-set.");
+            $this->out->writeln('Fetching Question set with all questions, question-set id: '.$id);
+            $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
+            $question_set = QuestionSet::inRandomOrder()->with(['question_set_details'])
+                ->where('id', $id)
                 ->get();
-            $question_set[0]->question_set_details[$i++]['question']=$question;
+            if (sizeof($question_set)<1)
+                return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
+            $i = 0;
+//        $question_set_details = $question_set[0]->question_set_details;
+            $question_set_details = json_decode($question_set[0]->question_set_details, true);
+            shuffle($question_set_details);
+            foreach ($question_set[0]->question_set_details as $question_detail){
+                $this->out-> writeln('Question set details: '.$question_detail);
+                $this->out->writeln('Question ID: '.$question_detail->question_id);
+                $question = Question::with(['question_details', 'question_answer', 'question_tag'])
+                    ->where('id', $question_detail->question_id)
+                    ->get();
+                $question_set[0]->question_set_details[$i++]['question']=$question;
+            }
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetching Question-set successful.");
+            return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
+        }catch(\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to fetch Question-set! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Unable to show Assessment!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
     }
 
     public function attendQuestionSet($id)
     {   $st_time = microtime(true);
         try{
             $userProfile = UserProfile::where('user_id','=',Auth::id())->first();
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Attending Question-set: $id, Profile-id: ".$userProfile->id);
             if(QuestionSetCandidate::where('question_set_id',$id)->where('profile_id',$userProfile->id)->exists())
                 return response()->json(['success'=>false, "message"=>"You have already attended!"],$this->failedStatus);
             Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
@@ -458,9 +500,10 @@ class QuestionSetController extends Controller
             $time_taken= microtime(true)-$st_time;
             $this->out->writeln("Total time taken: ".$time_taken);
             $question_set_candidates = QuestionSetCandidate::create(['question_set_id'=>$question_set[0]->id, 'profile_id'=>$userProfile->id, 'attended'=>1]);
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Successfully attended on Question-set: $id, Profile-id: ".$userProfile->id);
             return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
         }catch(\Exception $e){
-            $this->out->writeln("Unable to fetch Question-set for attend! error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Successfully attended on Question-set: $id, Profile-id: ".$userProfile->id.", error: ".$e->getMessage());
             return response()->json(['success'=>false, "message"=>"Unable to fetch Question-set for attend!","error"=>$e->getMessage()], $this->failedStatus);
         }
     }
@@ -524,31 +567,39 @@ class QuestionSetController extends Controller
     public function destroy($id)
     {
         try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Deleting Question-set: $id.");
             $this->out->writeln("Question-set Deleting: ".$id);
             $question_set = QuestionSet::find($id);
             if(!$question_set)
                 throw new \Exception("Question-Set not found!");
             if ($question_set->delete())
                 Cache::forget($this->cacheKey.$id);
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Successfully deleted Question-set: $id");
             return response()->json(['success' => true, 'message' => 'Question set deleted'], $this->successStatus);
         }catch(\Exception $e){
-            $this->out->writeln("Question-Set Deletion Unsuccessful! error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to delete question-set: $id! error: ".$e->getMessage());
             return response()->json(['success'=>false, "message"=>"Question-Set Deletion unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
 
     public function status($id){
-        $this->out->write('Publish or Un-Publish status of Assessments!');
-        $question_st = QuestionSet::find($id);
-        if(!$question_st){
-            return response()->json(['success'=>false, 'message'=>'Question Set Not Found, id: '.$id],$this->invalidStatus);
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Changing Assessment-Status: $id");
+            $question_st = QuestionSet::find($id);
+            if(!$question_st){
+                return response()->json(['success'=>false, 'message'=>'Question Set Not Found, id: '.$id],$this->invalidStatus);
+            }
+//        $question_st->status = ($question_st['status']==0 ? 1:0);
+            $question_st['status']=1-$question_st['status'];
+            if($question_st->save()){
+                return response()->json(['success'=>true, 'question_set'=>$question_st],$this->successStatus);
+            }
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Changing Assessment-Status: $id");
+            return response()->json(['success'=>false, 'message'=>'Failed to change question set publish status'],$this->failedStatus);
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Failed to change ac-status: $id! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Changing assessment status unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        $question_st->status = ($question_st['status']==0 ? 1:0);
-        if($question_st->save()){
-            return response()->json(['success'=>true, 'question_set'=>$question_st],$this->successStatus);
-        }
-        return response()->json(['success'=>false, 'message'=>'Failed to change question set publish status'],$this->failedStatus);
-
     }
 
     /**
