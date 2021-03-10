@@ -31,8 +31,10 @@ class LoginController extends Controller
     public function login(){
         try{
             Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# User Logging is processing.");
-            if(!Auth::attempt(['username' => request('username'), 'password' => request('password')]))
+            if(!Auth::attempt(['username' => request('username'), 'password' => request('password')])){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# User Login is unsuccessful!");
                 return response()->json(['success'=>false, "message"=>"Username or Password may incorrect!"], $this->unAuthenticated);
+            }
             $user = Auth::user();
             Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# User Logging credential Authenticated: ".$user->username);
             if (UserAccessToken::where('user_id', $user->id)->exists()) {

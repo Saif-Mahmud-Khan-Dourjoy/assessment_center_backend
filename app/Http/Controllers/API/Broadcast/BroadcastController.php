@@ -209,7 +209,7 @@ class BroadcastController extends Controller
     public function resultEmailFromServer($question_set, $question_set_answers, $institute_name)
     {
         try{
-            $this->out->writeln("Requesting email server for Bulk-email..");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Preparing result for email server.");
             $delay = env("EMAIL_SERVER_JOB_DELAY");
             $url = env("EMAIL_SERVER_URL").'students-result';
             $client = new Client();
@@ -223,9 +223,11 @@ class BroadcastController extends Controller
             $this->out->writeln("Url: $url");
             if($response->getStatusCode()!=200)
                 throw new \Exception("Mail server is not responding, its may be down or something else!");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Result sent to email-server for Broadcasting.");
             return true;
         }catch(\Exception $e){
             $this->out->writeln("Unable to send-credential to user! error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# There is a problem in email-server! error: ".$e->getMessage());
             return false;
         }
     }
@@ -234,6 +236,7 @@ class BroadcastController extends Controller
     {
         $this->out->writeln('Broadcasting result according to the Assessment-id');
         try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Broadcasting result.");
             request()->validate([
                 'institute_id'=>'required',
                 'question_set_id'=>'required',
@@ -275,8 +278,12 @@ class BroadcastController extends Controller
 //                return ($student1['total_mark'] < $student2['total_mark']) || ($student1['total_mark'] == $student2['total_mark'] && $student1['time_taken'] > $student2['time_taken']);
 //            });
             $response = $this->resultEmailFromServer($question_set, $question_set_answer, $institution->name);
+            if(!$response)
+                throw new \Exception("Email server isn't responding properly!");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Broadcast result successful.");
             return response()->json(['success'=>true, 'broadcast'=>$broadcast, 'question_set_answer'=>$question_set_answer, "response"=>$response], $this->successStatus);
         }catch(\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to broadcast result! error: ".$e->getMessage());
             return response()->json(['success'=>false, "message"=>"Broadcasting Result Failed!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
@@ -311,7 +318,7 @@ class BroadcastController extends Controller
     public function certificateEmailFromServer($question_set, $question_set_answers)
     {
         try{
-            $this->out->writeln("Requesting email server for Bulk-email..");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Preparing certificate for email server.");
             $delay = env("EMAIL_SERVER_JOB_DELAY");
             $url = env("EMAIL_SERVER_URL").'assessment-certificate';
             $client = new Client();
@@ -327,15 +334,18 @@ class BroadcastController extends Controller
             $this->out->writeln("Url: $url");
             if($response->getStatusCode()!=200)
                 throw new \Exception("Mail server is not responding, its may be down or something else!");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Certificate info sent to email-server.");
             return true;
         }catch(\Exception $e){
             $this->out->writeln("Unable to send-credential to user! error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to email certificate! error: ".$e->getMessage());
             return false;
         }
     }
 
     public function broadcastCertificate(Request $request){
         try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Broadcasting Certificate.");
             request()->validate([
                 'institute_id'=>'required',
                 'question_set_id'=>'required',
@@ -362,9 +372,12 @@ class BroadcastController extends Controller
             $question_set_answer = QuestionSetAnswer::with(['user_profile'])->where('question_set_id','=',$input['question_set_id'])->get();
             if(!$question_set_answer)
                 throw new \Exception("Question-Set-Answer Not Found");
-            $this->certificateEmailFromServer($question_set, $question_set_answer);
+            if(!$this->certificateEmailFromServer($question_set, $question_set_answer))
+                throw new \Exception("Email-server isn't responding properly!");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Broadcast result successful.");
             return response()->json(['success'=>true, 'broadcast'=>$broadcast, 'question_set_answer'=>$question_set_answer], $this->successStatus);
         }catch(\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to broadcast certificate! error: ".$e->getMessage());
             return response()->json(['success'=>false, "message"=>"Broadcasting Certification is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
