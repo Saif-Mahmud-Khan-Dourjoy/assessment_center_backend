@@ -7,7 +7,7 @@ use App\QuestionCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class QuestionCategoryController extends Controller
+class  QuestionCategoryController extends Controller
 {
     public $successStatus = 200;
     public $failedStatus = 500;

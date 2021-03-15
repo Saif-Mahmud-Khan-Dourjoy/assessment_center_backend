@@ -11,6 +11,8 @@ use Carbon\Carbon;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Monolog\Formatter\LogstashFormatter;
 
 class RoundController extends Controller
 {
@@ -28,18 +30,26 @@ class RoundController extends Controller
     }
 
     public function index(){
-        $this->out->writeln('Fetching all the rounds');
-        $user = Auth::user();
-        $user_profile = UserProfile::where('user_id','=',$user->id)->first();
-        if($user->can('super-admin')){
-            $rounds = Round::all();
-            return response()->json(['success'=>true,'rounds'=>$rounds],$this->successStatus);
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetching rounds.");
+            $user = Auth::user();
+            $user_profile = UserProfile::where('user_id','=',$user->id)->first();
+            if($user->can('super-admin')){
+                $rounds = Round::all();
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetched rounds successfully for super-admin.");
+                return response()->json(['success'=>true,'rounds'=>$rounds],$this->successStatus);
+            }
+            if($user_profile->institute_id){
+                $rounds = Round::where('institute_id','=',$user_profile->institute_id)->get();
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetched rounds successfully based on the institute.");
+                return response()->json(['success'=>true,'rounds'=>$rounds],$this->successStatus);
+            }
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# No round found to show.");
+            return response()->json(['success'=>true,'rounds'=>[]],$this->successStatus);
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to fetch rounds! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Fetching Rounds Unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        if($user_profile->institute_id){
-            $rounds = Round::where('institute_id','=',$user_profile->institute_id)->get();
-            return response()->json(['success'=>true,'rounds'=>$rounds],$this->successStatus);
-        }
-        return response()->json(['success'=>true,'rounds'=>[]],$this->successStatus);
     }
 
 
@@ -51,31 +61,37 @@ class RoundController extends Controller
      */
 
     public function availableRounds(){
-        $this->out->writeln('Fetching available rounds!');
-        $user= UserProfile::where('user_id','=',Auth::id())->first();
-        if(is_null($user->institute_id)){
-            $this->out->writeln('Institute id null!');
-            $rounds =Round::all();
-        }else{
-            $rounds = Round::where('institute_id','=',$user->institute_id)->get();
-            $this->out->writeln('All rounds: '.$rounds);
-        }
-        if(empty($rounds)){
-            return response()->json(['success'=>true, 'rounds'=>$rounds],$this->successStatus);
-        }
-        $available_rounds = [];
-        $i=0;
-        foreach ($rounds as $round){
-            $this->out->writeln('rounds: '.$round->id);
-            if(QuestionSet::where('round_id','=',$round->id)->exists()){
-                $rounds[$i]['have_assessment']=1;
+        try {
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetching available rounds for assessment creation.");
+            $user= UserProfile::where('user_id','=',Auth::id())->first();
+            if(is_null($user->institute_id)){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Institute-id is null. Fetching all rounds!");
+                $rounds =Round::all();
             }else{
-                $rounds[$i]['have_assessment']=0;
+                $rounds = Round::where('institute_id','=',$user->institute_id)->get();
             }
-            array_push($available_rounds, $round);
-            $i++;
+            if(empty($rounds)){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# No Round is found!");
+                return response()->json(['success'=>true, 'rounds'=>$rounds],$this->successStatus);
+            }
+            $available_rounds = [];
+            $i=0;
+            foreach ($rounds as $round){
+                $this->out->writeln('rounds: '.$round->id);
+                if(QuestionSet::where('round_id','=',$round->id)->exists()){
+                    $rounds[$i]['have_assessment']=1;
+                }else{
+                    $rounds[$i]['have_assessment']=0;
+                }
+                array_push($available_rounds, $round);
+                $i++;
+            }
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetching available rounds for assessment creation is successful.");
+            return response()->json(['success'=>true, 'rounds'=>$available_rounds],$this->successStatus);
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to fetch available round! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Fetching Available-round is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return response()->json(['success'=>true, 'rounds'=>$available_rounds],$this->successStatus);
     }
 
     /**
@@ -84,64 +100,79 @@ class RoundController extends Controller
      */
 
     public function validRounds(){
-        $user= UserProfile::where('user_id','=',Auth::id())->first();
-        if(is_null($user->institute_id)){
-            $this->out->writeln('Institute id null');
-            $rounds =Round::all();
-        }else{
-            $rounds = Round::where('institute_id','=',$user->institute_id)->get();
-        }
-        if(empty($rounds)){
-            return response()->json(['success'=>true, 'rounds'=>$rounds],$this->successStatus);
-        }
-        $available_rounds = [];
-        $i=0;
-        foreach ($rounds as $round){
-            $this->out->writeln('rounds: '.$round->id);
-            $this->out->writeln("Time now: ".Carbon::now());
-            $round['have_assessment']=0;
-            $round['time_out']=0;
-            if(QuestionSet::where('round_id','=',$round->id)->where('end_time','<', Carbon::now())->exists()){
-                $this->out->writeln("Invalid round: $round->id");
-                $round['have_assessment']=1;
-                $round['time_out']=1;
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetching valid rounds for student promotion.");
+            $user= UserProfile::where('user_id','=',Auth::id())->first();
+            if(is_null($user->institute_id)){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetching all valid rounds as institute-id is null.");
+                $rounds =Round::all();
+            }else{
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetching all-valid rounds based on the institution-id.");
+                $rounds = Round::where('institute_id','=',$user->institute_id)->get();
             }
-            else if(QuestionSet::where('round_id','=',$round->id)->exists()){
-                $this->out->writeln("Round have Assessment: $round->id");
-                $round['have_assessment']=1;
+            if(empty($rounds)){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# No valid round found!");
+                return response()->json(['success'=>true, 'rounds'=>$rounds],$this->successStatus);
             }
-            array_push($available_rounds, $round);
-
+            $available_rounds = [];
+            $i=0;
+            foreach ($rounds as $round){
+                $this->out->writeln('rounds: '.$round->id);
+                $this->out->writeln("Time now: ".Carbon::now());
+                $round['have_assessment']=0;
+                $round['time_out']=0;
+                if(QuestionSet::where('round_id','=',$round->id)->where('end_time','<', Carbon::now())->exists()){
+                    $this->out->writeln("Invalid round: $round->id");
+                    $round['have_assessment']=1;
+                    $round['time_out']=1;
+                }
+                else if(QuestionSet::where('round_id','=',$round->id)->exists()){
+                    $this->out->writeln("Round have Assessment: $round->id");
+                    $round['have_assessment']=1;
+                }
+                array_push($available_rounds, $round);
+            }
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetching valid rounds for student promotion is successful.");
+            return response()->json(['success'=>true, 'rounds'=>$available_rounds],$this->successStatus);
+        }catch(\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to fetch valid Rounds! error".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Fetching Valid Round is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return response()->json(['success'=>true, 'rounds'=>$available_rounds],$this->successStatus);
     }
 
     public function store(Request $request){
-        $this->out->writeln('Storing the rounds...');
-        request()->validate([
-            'name'=>'required',
-            'passing_criteria'=>'required',
-            'number'=>'required',
-        ]);
-        $input = $request->all();
-        $user = UserProfile::where('user_id',Auth::id())->first();
-        $this->out->writeln($user);
-        $data = [
-            'name'=>$input['name'],
-            'institute_id'=> $user->institute_id,
-            'passing_criteria'=>$input['passing_criteria'],
-            'number'=>$input['number'],
-            'created_by'=>$user->user_id,
-            'updated_by'=>$user->user_id,
-        ];
-        if(Round::where('name',$input['name'])->where('institute_id','=',$user->institute_id)->exists()){
-            return response()->json(['success'=>false, 'message'=>'Round Name is already available for this institution!'],$this->invalidStatus);
-        }
-        $round = Round::create($data);
-        if($round){
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Storing round!");
+            request()->validate([
+                'name'=>'required',
+                'passing_criteria'=>'required',
+                'number'=>'required',
+            ]);
+            $input = $request->all();
+            $user = UserProfile::where('user_id',Auth::id())->first();
+            $this->out->writeln($user);
+            $data = [
+                'name'=>$input['name'],
+                'institute_id'=> $user->institute_id,
+                'passing_criteria'=>$input['passing_criteria'],
+                'number'=>$input['number'],
+                'created_by'=>$user->user_id,
+                'updated_by'=>$user->user_id,
+            ];
+            if(Round::where('name',$input['name'])->where('institute_id','=',$user->institute_id)->exists()){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Duplicate round-name!");
+                return response()->json(['success'=>false, 'message'=>'Round Name is already available for this institution!'],$this->invalidStatus);
+            }
+            $round = Round::create($data);
+            if(!$round)
+                throw new \Exception("Round Creation unsuccessful");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Storing round is successful.");
             return response()->json(['success'=>true, 'round'=>$round], $this->successStatus);
+//            return reseponse()->json(['success'=>false, 'message' =>'Unable to fetch rounds'],$this->failedStatus);
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to store round! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Creating Round is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return reseponse()->json(['success'=>false, 'message' =>'Unable to fetch rounds'],$this->failedStatus);
     }
 
     public function getInstituteRound(Request $request, $institute){
