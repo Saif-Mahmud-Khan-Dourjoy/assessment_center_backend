@@ -19,6 +19,7 @@ use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use mysql_xdevapi\Exception;
 use PDF;
@@ -128,6 +129,7 @@ class QuestionSetAnswerController extends Controller
     public function store(Request $request)
     {
         $this->out->writeln('Storing questions Set answer');
+        Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Request accepted for question-set storing (assessment-submission).");
         try{
             request()->validate([
                 'question_set_id' => 'required',
@@ -174,9 +176,11 @@ class QuestionSetAnswerController extends Controller
             $question_set_answer['question_set_answer_details']=$question_set_answer_detail;
             if(!$question_set_answer )
                 throw new \Exception("Assessment Submission unsuccessful!");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Successfully stored question-set (assessment-submitted) with question answers.");
             return response()->json(['success' => true, 'question_set_answer' => $question_set_answer], $this->successStatus);
         }catch(\Exception $e){
             $this->out->writeln("Storing Question set answer is unsuccessful! error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Storing question-set (assessment-submission) unsuccessful! error: ".$e->getMessage());
             return response()->json(['success'=>false, "message"=>"Submitting Assessment Answer is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
@@ -259,12 +263,15 @@ class QuestionSetAnswerController extends Controller
     public function show($id)
     {
         try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Request for showing question-set.");
             $question_answer = QuestionSetAnswer::with(['question_set_answer_details'])->where('id', $id)->get();
             if(!$question_answer)
                 return response()->json(['success' => false, 'message' => 'Question set answer not found'], $this->invalidStatus);
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Request served successfully for showing question-set.");
             return response()->json(['success' => true, 'question_set_answer' => $question_answer], $this->successStatus);
         }catch(\Exception $e){
             $this->out->writeln("Fetching Question Set Answer is Unsuccessful! error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Showing question-set unsuccessful! error: ".$e->getMessage());
             return response()->json(['success'=>false, "message"=>"Fetching Question Set Answer is unsuccessful!", 'error'=>$e->getMessage()], $this->failedStatus);
         }
     }
@@ -279,6 +286,7 @@ class QuestionSetAnswerController extends Controller
     {
         $this->out->writeln('Fetching students attended!');
         try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Assessment-wise all student fetching.");
             $questionSet = QuestionSet::find($id);
             if(!$questionSet)
                 throw new \Exception("Assessment Not Found!");
@@ -336,8 +344,10 @@ class QuestionSetAnswerController extends Controller
                     continue;
                 $position++;
             }
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Assessment-wise all student fetching Successful.");
             return response()->json(['success' => true, 'question_set'=>$questionSet , 'question_set_answer' => $question_answer], $this->successStatus);
         }catch(\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Assessment-wise all student fetching is unsuccessful! error: ".$e->getMessage());
             return response()->json(['success'=>false, 'message'=>"All Students standing fetching un-successful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
@@ -348,8 +358,9 @@ class QuestionSetAnswerController extends Controller
             'question_set_id'=>'required',
             'profile_id'=>'required',
         ]);
-        $input = $request->all();
         try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Ranking student for certificate.");
+            $input = $request->all();
             $question_set = QuestionSet::find($input['question_set_id']);
             if(!$question_set || empty($question_set))
                 throw new \Exception('No Assessment Found!');
@@ -378,6 +389,7 @@ class QuestionSetAnswerController extends Controller
                 if($question_set_answers[$rank]['profile_id']==$input['profile_id']){
                     $question_set_answers[$rank]['position']=$position+1;
                     $question_set_answers[$rank]['rank']=$rank+1;
+                    Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Ranking student with certificate is Successful.");
                     return response()->json(['success'=>true, 'question_set_answer'=>$question_set_answers[$rank]],$this->successStatus);
                 }
                 if($rank+1<$total_student && $question_set_answers[$rank]['total_mark'] ==$question_set_answers[$rank+1]['total_mark'] && $question_set_answers[$rank]['time_taken']==$question_set_answers[$rank+1]['time_taken'])
@@ -387,6 +399,7 @@ class QuestionSetAnswerController extends Controller
             throw new \Exception("User may not attended");
         }catch(\Exception $e){
             $this->out->writeln("Fetching Certificate with rank is unsuccessful!, error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to rank student with certificate! error: ".$e->getMessage());
             return response()->json(['success'=>false, 'message'=>'Fetching Certificate with rank is unsuccessful!', 'error'=>$e->getMessage()],$this->failedStatus);
         }
     }
@@ -394,7 +407,7 @@ class QuestionSetAnswerController extends Controller
 
     /**
      * Generate PDF and Send email.
-     *
+     * Purpose: For testing, whether the certificate is generating successfully or not
      * @param Request $request
      * @return mixed
      */
@@ -426,6 +439,7 @@ class QuestionSetAnswerController extends Controller
     {
         $this->out->writeln('Each Student Assessment Answer...');
         try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Student-wise all assessment(question-set) fetching.");
             request()->validate([
                 'profile_id'=>'required',
                 'question_set_id'=>'required'
@@ -436,9 +450,11 @@ class QuestionSetAnswerController extends Controller
                 ->first();
             if(!$question_set_answer)
                 return response()->json(['success'=>false, 'message'=>'Assessment not found for this profile'],$this->invalidStatus);
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Student-wise all assessment fetching Successful.");
             return response()->json(['success'=>true, 'question_set_answer'=>$question_set_answer],$this->successStatus);
         }catch (\Exception $e){
             $this->out->writeln("Unable to fetch Each Student Assessments! error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to fetch all assessment for student! error: ".$e->getMessage());
             return response()->json(['success'=>false, "message"=>"Unable to fetch Each Student Assessments!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }

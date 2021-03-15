@@ -11,13 +11,16 @@ use App\RoundCandidates;
 use App\User;
 use App\UserProfile;
 use Carbon\Carbon;
+use Dompdf\Image\Cache;
 use GuzzleHttp\Client;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use phpDocumentor\Reflection\Types\Null_;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Cache as CacheCandidates;
 
 class RoundCandidatesController extends Controller
 {
@@ -25,8 +28,11 @@ class RoundCandidatesController extends Controller
     public $failedStatus = 500;
     public $invalidStatus = 400;
     public $out;
+    public $cacheKey;
+
     function __construct(){
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
+        $this->cacheKey = env("CACHE_KEY")."_round_candidates_";
     }
 
     public function index(Request $request){
@@ -68,9 +74,39 @@ class RoundCandidatesController extends Controller
         }
     }
 
+    public function cacheIn($round_id, $value){
+        try{
+            $this->out->writeln("********* CAching round candidates!");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Caching round: $round_id");
+            $key = $this->cacheKey.$round_id;
+            CacheCandidates::forget($key);
+            CacheCandidates::put($key, $value);
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Caching successful.");
+        }catch (\Exception $e){
+            $this->out->writeln("Unable to cache!error: ".$e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to cached! error: ".$e->getMessage());
+            return false;
+        }
+    }
+
+    public function candidatesOnly($round_id){
+        try{
+            $round_candidates = RoundCandidates::select('student_id')->where('round_id','=',$round_id)->get();
+            $candidates = [];
+            foreach ($round_candidates as $rc){
+                array_push($candidates, $rc['student_id']);
+            }
+            return $candidates;
+        }catch (\Exception $e){
+            return false;
+        }
+
+    }
+
     public function store(Request $request){
         $this->out->writeln('Storing Candidates based on the round-id');
         try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Storing Candidates to round(id): ".$request['round_id']);
             request()->validate([
                 'round_id'=> 'required',
                 'candidate_students'=>'required',
@@ -97,11 +133,15 @@ class RoundCandidatesController extends Controller
             if(!is_null($confirm_candidates)){
                 $round = Round::with('question_set')->where('id',$input['round_id'])->first();
                 $temp_string = substr($confirm_candidates,0,strlen($confirm_candidates)-1);
-//                return $temp_string;
-//                return $confirm_candidates;
+                $candidates = $this->candidatesOnly($round->id);
+                $this->cacheIn($round->id, $candidates);
                 $this->roundConfirmFromServer($round, $confirm_candidates);
+//                if (CacheCandidates::has($this->cacheKey.$round->id)) {
+//                    return CacheCandidates::get($this->cacheKey.$round->id);
+//                }
                 return response()->json(['success'=>true, 'confirmed_candidates'=>$confirm_candidates, 'failed_candidates'=>$failed_candidates],$this->successStatus);
             }
+//            return $this->candidatesOnly();
             return response()->json(['success'=>false, 'confirmed_candidates'=>$confirm_candidates, 'failed_candidates'=>$failed_candidates], $this->failedStatus);
         }catch (\Exception $e){
             $this->out->writeln("Unable to Enroll the Round-candidates, error");
@@ -151,7 +191,7 @@ class RoundCandidatesController extends Controller
                 "delay"=>$delay,
             ];
             if(!is_null($round->question_set)){
-                $this->out->writeln("There is no assessment for this project!");
+                $this->out->writeln("There is no assessment for this round!");
                 $title = $round->question_set['title'];
                 $assessment_start_time = Carbon::parse($round->question_set->start_time);
                 $body['body']= "You are promoted to the round **\"".$body['round_name']."\"**. Exam Title: **\"".$round->question_set['title']."\"**. Your Exam will start at: **".$assessment_start_time->toDayDateTimeString()."**.";

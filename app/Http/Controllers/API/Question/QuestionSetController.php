@@ -23,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+//use Illuminate\Support\Facades\Cache as CacheCandidates;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use mysql_xdevapi\Exception;
@@ -33,6 +34,7 @@ class QuestionSetController extends Controller
     public $failedStatus = 500;
     public $invalidStatus = 400;
     protected $cacheKey;
+    protected $roundCachekey;
 
     public $out;
     function __construct()
@@ -43,6 +45,7 @@ class QuestionSetController extends Controller
 //        $this->middleware('api_permission:question-set-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
         $this->cacheKey= env("CACHE_KEY")."_question_set_";
+        $this->roundCachekey = env('CACHE_KEY')."_round_candidates_";
     }
 
 
@@ -474,12 +477,14 @@ class QuestionSetController extends Controller
             if(QuestionSetCandidate::where('question_set_id',$id)->where('profile_id',$userProfile->id)->exists())
                 return response()->json(['success'=>false, "message"=>"You have already attended!"],$this->failedStatus);
             Student::where('profile_id','=',$userProfile->id)->increment('total_complete_assessment');
+//            if (Cache::has($this->roundCachekey.)) {
+//                return CacheCandidates::get($this->cacheKey.$round->id);
+//            }
             /*** Remove Comment if time-validation seems necessary ***
             $now = now();
             if(Carbon::parse($question_set[0]->start_time)>$now || Carbon::parse($question_set[0]->end_time)<$now)
                 return response()->json(['success' => false, 'message' => 'Invalid entering time, Assessment time may over or its too early to participate on this Assessment!'], $this->invalidStatus);
             *****/
-
             $this->out->writeln("Attending Student for the assessment-id: ".$id);
             $question_set = Cache::remember($this->cacheKey.$id, 60*60*24, function () use ($id) {
                 $this->out->writeln("Question-set Not found in cache!");
@@ -609,51 +614,57 @@ class QuestionSetController extends Controller
      */
 
     public function studentHaveAssessments(Request $request){
-        $this->out->writeln('Students permitted assessment list');
-        $input = $request->all();
-        $user = Auth::user();
-        $userProfile = UserProfile::where('user_id', $user->id)->first();
-        $i=0;
-        $question_sets =[];
-        if(is_null($input['is_student']) or empty($input['is_student']) or !$input['is_student']){
-            return response()->json(['success'=>false, 'question_sets'=>$question_sets],$this->invalidStatus);
-        }
-        $rounds = RoundCandidates::where('student_id','=',$userProfile->id)->get(['round_id']);
-        if(!$rounds){
-            return response()->json(['success'=>true, 'question_sets'=>$question_sets],$this->successStatus);
-        }
-        $this->out->writeln('Rounds: '.$rounds. 'user id: '.$user->id);
-        foreach ($rounds as $round){
-            $round_id = $round->round_id;
-            $this->out->writeln('Round Id: '.$round_id);
-            $question_set = QuestionSet::with('rounds')
-                                        ->where('round_id','=',$round_id)
-                                        ->first();
-            if(!$question_set){
-                continue;
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Request accepted!");
+            $input = $request->all();
+            $user = Auth::user();
+            $userProfile = UserProfile::where('user_id', $user->id)->first();
+            $i=0;
+            $question_sets =[];
+            if(is_null($input['is_student']) or empty($input['is_student']) or !$input['is_student']){
+                return response()->json(['success'=>false, 'question_sets'=>$question_sets],$this->invalidStatus);
             }
-            if(QuestionSetAnswer::where('question_set_id','=',$question_set->id)
-                                ->where('profile_id','=',$userProfile->id)
-                                ->exists()
-            ){
-                $this->out->writeln('Attended status: 1>'.$question_set->id);
-                $question_set['submitted']=1;
-            }else{
-                $question_set['submitted']=0;
-                $this->out->writeln('Attended status: 0>'.$question_set->id);
+            $rounds = RoundCandidates::where('student_id','=',$userProfile->id)->get(['round_id']);
+            if(!$rounds){
+                return response()->json(['success'=>true, 'question_sets'=>$question_sets],$this->successStatus);
             }
-            if(QuestionSetCandidate::where('question_set_id','=',$question_set->id)
-                ->where('profile_id','=',$userProfile->id)
-                ->exists()
-            ){
-                $this->out->writeln('Attended status: 1>'.$question_set->id);
-                $question_set['attended']=1;
-            }else{
-                $question_set['attended']=0;
-                $this->out->writeln('Attended status: 0>'.$question_set->id);
+            $this->out->writeln('Rounds: '.$rounds. 'user id: '.$user->id);
+            foreach ($rounds as $round){
+                $round_id = $round->round_id;
+                $this->out->writeln('Round Id: '.$round_id);
+                $question_set = QuestionSet::with('rounds')
+                    ->where('round_id','=',$round_id)
+                    ->first();
+                if(!$question_set){
+                    continue;
+                }
+                if(QuestionSetAnswer::where('question_set_id','=',$question_set->id)
+                    ->where('profile_id','=',$userProfile->id)
+                    ->exists()
+                ){
+                    $this->out->writeln('Attended status: 1>'.$question_set->id);
+                    $question_set['submitted']=1;
+                }else{
+                    $question_set['submitted']=0;
+                    $this->out->writeln('Attended status: 0>'.$question_set->id);
+                }
+                if(QuestionSetCandidate::where('question_set_id','=',$question_set->id)
+                    ->where('profile_id','=',$userProfile->id)
+                    ->exists()
+                ){
+                    $this->out->writeln('Attended status: 1>'.$question_set->id);
+                    $question_set['attended']=1;
+                }else{
+                    $question_set['attended']=0;
+                    $this->out->writeln('Attended status: 0>'.$question_set->id);
+                }
+                array_push($question_sets,$question_set);
             }
-            array_push($question_sets,$question_set);
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Successfully fetched student assessments.");
+            return response()->json(['success'=>true,'question_sets'=>$question_sets],$this->successStatus);
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to fetch student-assessment! error: ".$e->getMessage());
+            return response()->json(['success'=>false, 'message'=>"Fetching Assessment Failed!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return response()->json(['success'=>true,'question_sets'=>$question_sets],$this->successStatus);
     }
 }
