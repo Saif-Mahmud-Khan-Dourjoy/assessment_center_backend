@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Monolog\Formatter\LogstashFormatter;
+use mysql_xdevapi\Exception;
 
 class RoundController extends Controller
 {
@@ -176,77 +177,103 @@ class RoundController extends Controller
     }
 
     public function getInstituteRound(Request $request, $institute){
-        $this->out->writeln('Fetching institutions based rounds, institute-id: '.$institute);
-//        $institute = UserProfile::select('institute_id')->where('user_id', Auth::id())->find();
-        $rounds = Round::where('institute_id', $institute)->get();
-        $this->out->writeln('All rounds of this institutes: '.$rounds);
-        if($rounds){
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Fetching rounds based on the institution: ".$institute);
+            $rounds = Round::where('institute_id', $institute)->get();
+            if(!$rounds)
+                throw new \Exception("No Round Found!");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Successfully Fetched rounds based on the institution: ".$institute);
             return response()->json(['success'=>true, 'rounds'=>$rounds], $this->successStatus);
+        }catch (\Exception $e){
+            Log::channel('ac_error')->info(__CLASS__."@".__FUNCTION__."# Unable to fetch institute-round! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Getting Institute-round is unsuccessful!", "error"=>$e->getMessage()], $this->successStatus);
         }
-        return response()->json(['success'=>false, 'message'=>'Unable to fetch rounds'], $this->failedStatus);
     }
 
     public function show($id){
-        $this->out->writeln('Fetching round, whose id is: '.$id);
-        $round = Round::find($id);
-        if($round){
+        try {
+            Log::channel('ac_info')->info(__CLASS__."@".__FUNCTION__."# Fetching round: ".$id);
+            $round = Round::find($id);
+            if(!$round){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# No Round found with id: ".$id);
+                return response()->json(['success'=>false, 'message'=>'Unable to find this round!'], $this->invalidStatus);
+            }
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Successfully fetched round: ".$id);
             return response()->json(['success'=>true, 'round'=>$round],$this->successStatus);
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to get round! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Getting Round is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return response()->json(['success'=>false, 'message'=>'Unable to find this round!'], $this->invalidStatus);
     }
 
     public function update(Request $request, $id){
-        $this->out->writeln('Updating Round...');
-        request()->validate([
-            'name'=>'required',
-            'passing_criteria'=>'required',
-            'number'=>'required',
-            'institute_id'=>'required',
-        ]);
-        $input = $request->all();
-        $user_id = Auth::id();
-        $data = [
-            'name'=> $input['name'],
-            'passing_criteria'=> $input['passing_criteria'],
-            'number'=>$input['number'],
-            'updated_by'=>$user_id,
-        ];
-        if(Round::where('name',$input['name'])->where('institute_id','=',$input['institute_id'])->where('id','!=',$id)->exists()){
-            return response()->json(['success'=>false, 'message'=>'Round Name is already available for this institution!'],$this->invalidStatus);
-        }
-        $round = Round::find($id);
-        $round->update($data);
-        $round->save();
-        if($round){
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Updating round: ".$id);
+            request()->validate([
+                'name'=>'required',
+                'passing_criteria'=>'required',
+                'number'=>'required',
+                'institute_id'=>'required',
+            ]);
+            $user_id = Auth::id();
+            $input = $request->all();
+            $data = [
+                'name'=> $input['name'],
+                'passing_criteria'=> $input['passing_criteria'],
+                'number'=>$input['number'],
+                'updated_by'=>$user_id,
+            ];
+            if(Round::where('name',$input['name'])->where('institute_id','=',$input['institute_id'])->where('id','!=',$id)->exists()){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Round Name is already taken for this institution");
+                return response()->json(['success'=>false, 'message'=>'Round Name is already available for this institution!'],$this->invalidStatus);
+            }
+            $round = Round::find($id);
+            $round->update($data);
+            if(!$round)
+                throw new \Exception("Round updated value failed to save!");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Successfully Updated round with id: ".$id);
             return response()->json(['success'=>true, 'round'=>$round], $this->successStatus);
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to update round with id: ".$id);
+            return response()->json(['success'=>false, "message"=>"Round Update failed!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return response()->json(['success'=>false, 'message'=>'Unable to update Round!'], $this->failedStatus);
     }
 
     public function destroy($id){
-        $this->out->writeln('Deleting Round: '.$id);
-        $round = Round::find($id);
-        if(!$round){
-            return response()->json(['success'=>false, 'message'=>'Round not found, id: '.$id],$this->invalidStatus);
-        }
-        if(QuestionSet::where('round_id',$id)->exists()){
-            return response()->json(['success'=>false, 'message'=>'Round is already in Use!'],$this->invalidStatus);
-        }
-        if($round->delete()){
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Round is deleting with id: ".$id);
+            $round = Round::find($id);
+            if(!$round){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Round is not found with id: ".$id);
+                return response()->json(['success'=>false, 'message'=>'Round not found, id: '.$id],$this->invalidStatus);
+            }
+            if(QuestionSet::where('round_id',$id)->exists()){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Round is already in use with id: ".$id);
+                return response()->json(['success'=>false, 'message'=>'Round is already in Use!'],$this->invalidStatus);
+            }
+            if($round->delete())
+                throw new \Exception("Round isn't deleted!");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Successfully deleted round with id: ".$id);
             return response()->json(['success'=>true, 'message'=>'Round is deleted, id: '.$id], $this->successStatus);
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to delete! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Deleting Round is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return reponse()->json(['success'=>false, 'message'=>'Unable to delete round, id: '.$id], $this->failedStatus);
     }
     public function status($id){
-        $this->out->writeln('Updating Status, id: '.$id);
-        $round = Round::find($id);
-        if(!$round){
-            return response()->json(['success'=>false, 'message'=>'Round not found, id: '.$id], $this->invalidStatus);
-        }
-        $round->status = ($round['status']==0 ? 1:0);
-        if($round->save()){
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Round status updating.");
+            $round = Round::find($id);
+            if(!$round)
+                throw new \Exception("Round not found!");
+            $round->status = 1-$round->status;
+            if(!$round->save())
+                throw new \Exception("Round status isn't saved!");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Successfully updated round status");
             return response()->json(['success'=>true, 'round'=>$round],$this->successStatus);
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to change round status! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Round Status change unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
         }
-        return reponse()->json(['success'=>false, 'message'=>'Unable to update round\'s status'], $this->successStatus);
     }
 }
