@@ -15,4 +15,21 @@ class ExampleTest extends TestCase
     {
         $this->assertTrue(true);
     }
+
+    /**
+     * Demo unit test case
+     *
+     * @return void
+     */
+    public function testDemoUnitTest()
+    {
+        $expected = ["assessment-center"];
+        $actual = ["assessment-center"];
+
+        $this->assertEquals(
+            $expected,
+            $actual,
+            "actual value is not equals to expected"
+        );
+    }
 }

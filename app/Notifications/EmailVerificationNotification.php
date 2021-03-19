@@ -2,14 +2,24 @@
 
 namespace App\Notifications;
 
+use Closure;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Lang;
 
 class EmailVerificationNotification extends Notification
 {
-    use Queueable;
+    /**
+     * The callback that should be used to build the mail message.
+     *
+     * @var Closure|null
+     */
+    public static $toMailCallback;
 
     /**
      * Create a new notification instance.
@@ -33,20 +43,53 @@ class EmailVerificationNotification extends Notification
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Build the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return MailMessage
+     * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail($notifiable): MailMessage
+    public function toMail($notifiable)
     {
-        $front_end = env('FRONT_END_HOME');
+        $verificationUrl = $this->verificationUrl($notifiable);
+
+        if (static::$toMailCallback) {
+            return call_user_func(static::$toMailCallback, $notifiable, $verificationUrl);
+        }
+
         return (new MailMessage)
-            ->greeting('Hello,')
-            ->line('You are receiving this email because we received a password reset request for your account.')
-            ->action('Reset Password', "$front_end/password/reset?&email=$notifiable->email&username=$notifiable->username")
-            //->line('This password reset link will expire in 60 minutes.')
-            ->line('If you did not request a password reset, no further action is required.');
+            ->subject(Lang::get('Verify Email Address'))
+            ->line(Lang::get('Please click the button below to verify your email address.'))
+            ->action(Lang::get('Verify Email Address'), $verificationUrl)
+            ->line(Lang::get('If you did not create an account, no further action is required.'));
+    }
+
+    /**
+     * Get the verification URL for the given notifiable.
+     *
+     * @param  mixed  $notifiable
+     * @return string
+     */
+    protected function verificationUrl($notifiable): string
+    {
+        return URL::temporarySignedRoute(
+            'verification.verify',
+            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $notifiable->getKey(),
+                'hash' => sha1($notifiable->getEmailForVerification()),
+            ]
+        );
+    }
+
+    /**
+     * Set a callback that should be used when building the notification mail message.
+     *
+     * @param  Closure  $callback
+     * @return void
+     */
+    public static function toMailUsing($callback)
+    {
+        static::$toMailCallback = $callback;
     }
 
     /**
