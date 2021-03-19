@@ -119,6 +119,7 @@ class RegisterController extends Controller
                 return response()->json(['success'=>false, 'message'=>'User Registration unsuccessful!','error'=>$e->getMessage()],$this->failedStatus);
             }
             Db::commit();
+            $user->sendEmailVerificationNotification();
             Log::channel("ac_info")->info("User Registration Successful: ".$user);
             return response()->json(['success' => true, 'message' =>"User Registration Successful"], $this->successStatus);
         }catch (\Exception $e){

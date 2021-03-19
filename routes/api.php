@@ -25,6 +25,11 @@ Route::group(['prefix' => 'v1'], function() {
     Route::post('check-email', 'API\Auth\RegisterController@checkEmail')->name('check-email');
     Route::post('check-username', 'API\Auth\RegisterController@checkUsername')->name('check-username');
 
+    Route::middleware(['auth:api'])->group( function () {
+        Route::get('email/verify/{id}/{hash}', 'API\Auth\VerificationApiController@verify')->name('verification.verify');
+        Route::get('email/resend', 'API\Auth\VerificationApiController@resend')->name('verification.resend');
+    });
+
     Route::middleware('auth:api')->group( function () {
 
         Route::get('dashboard/{id}', 'API\DashboardController@index')->name('dashboard');
