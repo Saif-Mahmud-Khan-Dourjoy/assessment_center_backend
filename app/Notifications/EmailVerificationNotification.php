@@ -56,10 +56,12 @@ class EmailVerificationNotification extends Notification
             return call_user_func(static::$toMailCallback, $notifiable, $verificationUrl);
         }
 
+        $updateVerificationUrl =  str_replace(env('APP_URL'), env('FRONT_END_HOME'), $verificationUrl);
+
         return (new MailMessage)
             ->subject(Lang::get('Verify Email Address'))
             ->line(Lang::get('Please click the button below to verify your email address.'))
-            ->action(Lang::get('Verify Email Address'), $verificationUrl)
+            ->action(Lang::get('Verify Email Address'), $updateVerificationUrl)
             ->line(Lang::get('If you did not create an account, no further action is required.'));
     }
 
