@@ -185,74 +185,6 @@ class QuestionSetAnswerController extends Controller
         }
     }
 
-    /**
-     * As we created question set answer at the time of serving the question set, now in this endpoint candidates mark
-     * will be updated according to the data he/she submitted.
-     * @param Request $request
-     * @return JsonResponse
-     */
-
-    public function storePrevious(Request $request)
-    {
-        $this->out->writeln('questions et answer');
-        request()->validate([
-            'question_set_id' => 'required',
-            'profile_id' => 'required',
-            'question_set_answer_id'=>'required',
-        ]);
-        $input = $request->all();
-
-        // Add question set
-        $student = Student::where('profile_id', $input['profile_id'])->first();
-        if( ! $student ){
-            return response()->json(['success' => true, 'message' => 'Student not found'], $this->successStatus);
-        }
-
-        $question_set_answer = QuestionSetAnswer::find($input['question_set_answer_id']);
-        if(!$question_set_answer)
-            return response()->json(['success'=>false, 'message'=>'Question Set Answer Id may not correct!'], $this->failedStatus);
-
-        // Add answer detail
-        $question_id = explode( '|', $input['question_id']);
-        $answer = explode( '|', $input['answer']);
-        $mark_given = (!empty($_POST["mark"])) ? explode( '|', $input['mark']) : '';
-        $t_mark = 0;
-        for($i = 0; $i < count($question_id); $i++){
-            $get_answer = QuestionAnswer::where('question_id', $question_id[$i])->first();
-            $get_mark = QuestionSetDetail::where(['question_id' => $question_id[$i], 'question_set_id' => $input['question_set_id']])->first();
-            $answer_data = explode(',', $get_answer->answer);
-            $given_answer = explode(',', $answer[$i]);
-            if( sizeof(array_diff($answer_data, $given_answer)) == 0 ){
-                $mark = $get_mark->mark;
-            }
-            else{
-                $mark = 0;
-            }
-            $questionAnswerDetailsData = [
-                'answer' => $answer[$i],
-                'mark' => $mark,
-            ];
-            $this->out->writeln("Checking...");
-//            return $question_set_answer;
-            QuestionSetAnswerDetail::where('question_set_answer_id','=',$question_set_answer->id)
-                                    ->where('question_id',$question_id[$i])
-                                    ->update($questionAnswerDetailsData);
-            $t_mark = $t_mark+$mark;
-        }
-        $questionAnswerData = [
-            'time_taken' => $input['time_taken'],
-            'total_mark' => $t_mark,
-        ];
-//        $question_answer_data = QuestionSetAnswer::find($question_set_answer->id);
-        $question_set_answer->update($questionAnswerData);
-        $question_set_answer_detail = QuestionSetAnswerDetail::where('question_set_answer_id',$question_set_answer->id)->get();
-        $question_set_answer['question_set_answer_details']=$question_set_answer_detail;
-
-        if( $question_set_answer )
-            return response()->json(['success' => true, 'question_set_answer' => $question_set_answer], $this->successStatus);
-        return response()->json(['success' => false, 'message' => 'Question set answer added fail'], $this->failedStatus);
-    }
-
 
     /**
      * Display the specified resource.
@@ -277,8 +209,7 @@ class QuestionSetAnswerController extends Controller
     }
 
     /**
-     * Get all student based on the assessment.
-     *
+     * Purpose: Get All the student based on a specific Assessment (Question-set)     *
      * @param $id
      * @return JsonResponse
      */
@@ -352,8 +283,13 @@ class QuestionSetAnswerController extends Controller
         }
     }
 
+    /***
+     * Purpose: Serving Certificate to the student into his dashboard with the rank he/she obtained
+     * @param Request $request
+     * @return JsonResponse containing rank with certificate
+     */
+
     public function rankCertificate(Request $request){
-        $this->out->writeln("Certificate with obtained Rank...");
         request()->validate([
             'question_set_id'=>'required',
             'profile_id'=>'required',
@@ -437,7 +373,6 @@ class QuestionSetAnswerController extends Controller
      */
     public function eachStudentAssessment(Request $request): JsonResponse
     {
-        $this->out->writeln('Each Student Assessment Answer...');
         try{
             Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Student-wise all assessment(question-set) fetching.");
             request()->validate([
@@ -453,7 +388,6 @@ class QuestionSetAnswerController extends Controller
             Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Student-wise all assessment fetching Successful.");
             return response()->json(['success'=>true, 'question_set_answer'=>$question_set_answer],$this->successStatus);
         }catch (\Exception $e){
-            $this->out->writeln("Unable to fetch Each Student Assessments! error: ".$e->getMessage());
             Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to fetch all assessment for student! error: ".$e->getMessage());
             return response()->json(['success'=>false, "message"=>"Unable to fetch Each Student Assessments!", "error"=>$e->getMessage()], $this->failedStatus);
         }

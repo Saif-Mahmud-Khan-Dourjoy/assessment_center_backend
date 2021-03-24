@@ -242,6 +242,5 @@ class QuestionController extends Controller
             return response()->json(['success' => true, 'message' => 'Question deleted'], $this->successStatus);
         else
             return response()->json(['success' => false, 'message' => 'Question can not be deleted'], $this->failedStatus);
-
     }
 }

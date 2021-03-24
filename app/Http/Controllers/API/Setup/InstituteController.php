@@ -31,7 +31,6 @@ class InstituteController extends Controller
      */
     public function index()
     {
-
         $this->out->writeln('Fetching all the Institutes');
         $user = Auth::user();
         $user_profile = UserProfile::where('user_id','=',$user->id)->first();
