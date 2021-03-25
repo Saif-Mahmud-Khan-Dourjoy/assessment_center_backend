@@ -477,65 +477,6 @@ class UserController extends Controller
     }
 
     /**
-     * Show a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function getRoleWiseUsersList_old(Request $request)
-    {
-        $input = $request->all();
-        $users = User::with(['user_profile', 'roles'])->get();
-        if (!empty($_POST["role_name"]) && $input['role_name']){
-            $users = User::with(['user_profile'])->role($input['role_name'])->get();
-        }
-        return response()->json(['success' => true, 'users' => $users], $this->successStatus);
-    }
-
-    public function getRoleWiseUsersList(Request $request)
-    {
-        $user = auth()->user();
-        $userProfile = UserProfile::where('user_id','=',$user->id)->first();
-        $input = $request->all();
-        $this->out->writeln('Get Role Wise userlist!');
-        if($user->can('super-admin')){
-            $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();
-            if (!empty($_POST["role_name"]) && $input['role_name']){
-                $users = User::with(['user_profile'])->role($input['role_name'])->get();
-            }
-            return response()->json(['success'=>true,'users'=>$users],$this->successStatus);
-        }
-        $valid_users=[];
-//        $this->out->writeln("Role Name: ".$input['role_name']);
-        if (!empty($_POST["role_name"]) && $input['role_name']){
-            $this->out->writeln('Role-wise user list fetching: '.$input['role_name']);
-            $users = User::with(['user_profile'])->role($input['role_name'])->get();
-            foreach ($users as $u) {
-                $up = UserProfile::where('user_id','=',$u->id)->first();
-                if($userProfile->institute_id==$up->institute_id){
-                    array_push($valid_users, $u);
-                }
-            }
-            return response()->json(['success' => true, 'users' => $valid_users], $this->successStatus);
-        }
-
-        if($userProfile->institute_id){
-            $this->out->writeln('User fetching based on the institution.');
-            $users = User::with(['user_profile', 'roles'])->where('id','!=',$user->id)->get();
-            foreach ($users as $u) {
-                $up = UserProfile::where('user_id','=',$u->id)->first();
-                if($userProfile->institute_id==$up->institute_id){
-                    array_push($valid_users, $u);
-                }
-
-            }
-            return response()->json(['success'=>true,'users'=>$valid_users],$this->successStatus);
-        }
-        return response()->json(['success' => true, 'users' => $valid_users], $this->successStatus);
-    }
-
-
-    /**
      * Update resource in storage.
      *
      * @param $id

@@ -30,7 +30,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::get('email/resend', 'API\Auth\VerificationApiController@resend')->name('verification.resend');
     });
 
-    Route::middleware('auth:api')->group( function () {
+    Route::middleware(['auth:api', 'api_email_verified'])->group( function () {
 
         Route::get('dashboard/{id}', 'API\DashboardController@index')->name('dashboard');
 
