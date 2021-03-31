@@ -6,11 +6,20 @@
     'aliases' => 
     array (
     ),
-    'reference' => '3c5d7bb9d01fa4306181c5698ccd47c66ba7fead',
+    'reference' => '5995f6ec10d21d8f9bbf30db30e8449eaf5e85dc',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
   array (
+    'asm89/stack-cors' => 
+    array (
+      'pretty_version' => 'v2.0.3',
+      'version' => '2.0.3.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '9cb795bf30988e8c96dd3c40623c48a877bc6714',
+    ),
     'barryvdh/laravel-dompdf' => 
     array (
       'pretty_version' => 'v0.9.0',
@@ -159,6 +168,15 @@
       array (
       ),
       'reference' => 'feb0e820b8436873675fd3aca04f3728eb2185cb',
+    ),
+    'fruitcake/laravel-cors' => 
+    array (
+      'pretty_version' => 'v2.0.3',
+      'version' => '2.0.3.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '01de0fe5f71c70d1930ee9a80385f9cc28e0f63a',
     ),
     'fzaninotto/faker' => 
     array (
@@ -460,7 +478,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '3c5d7bb9d01fa4306181c5698ccd47c66ba7fead',
+      'reference' => '5995f6ec10d21d8f9bbf30db30e8449eaf5e85dc',
     ),
     'laravel/passport' => 
     array (
