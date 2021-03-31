@@ -23,8 +23,14 @@ Route::group(['prefix' => 'v1'], function() {
     })->middleware('auth:api');
 
     Route::post('check-email', 'API\Auth\RegisterController@checkEmail')->name('check-email');
+    Route::post('check-username', 'API\Auth\RegisterController@checkUsername')->name('check-username');
 
-    Route::middleware('auth:api')->group( function () {
+    Route::middleware(['auth:api'])->group( function () {
+        Route::get('email/verify/{id}/{hash}', 'API\Auth\VerificationApiController@verify')->name('verification.verify');
+        Route::get('email/resend', 'API\Auth\VerificationApiController@resend')->name('verification.resend');
+    });
+
+    Route::middleware(['auth:api', 'api_email_verified'])->group( function () {
 
         Route::get('dashboard/{id}', 'API\DashboardController@index')->name('dashboard');
 
@@ -43,6 +49,7 @@ Route::group(['prefix' => 'v1'], function() {
         Route::post('get-role-wise-user', 'API\User\UserController@getRoleWiseUsersList')->name('get-role-wise-user');
 
         Route::get('get-profile/{id}', 'API\User\UserController@getUser')->name('get-profile');
+        Route::get('get-profile-pid/{pid}','API\User\UserController@getProfileByPID')->name('get-profile-pid');
         Route::post('update-profile', 'API\User\UserController@updateProfile')->name('update-profile');
         Route::get('update-status/{id}', 'API\User\UserController@updateStatus')->name('update-status');
 
@@ -61,8 +68,10 @@ Route::group(['prefix' => 'v1'], function() {
         Route::get('get-contributor/{id}', 'API\User\ContributorController@getContributor')->name('get-contributor');
 
         Route::resource('students','API\User\StudentController');
+        Route::get('get-student-uid/{uid}', 'API\User\StudentController@studentByUid');
         Route::get('get-student/{id}', 'API\User\StudentController@getStudent')->name('get-student');
         Route::get('get-student-all-assessment/{id}', 'API\User\StudentController@getAllAssessment')->name('get-student-all-assessment');
+        Route::get('get-student-all-assessment-uid/{id}', 'API\User\StudentController@getAllAssessmentByUid')->name('get-student-all-assessment-uid');
         Route::get('get-assessment-all-student/{id}', 'API\Question\QuestionSetAnswerController@getAllStudent')->name('get-assessment-all-student');
 
         Route::resource('question-categories','API\Question\QuestionCategoryController');

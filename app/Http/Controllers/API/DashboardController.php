@@ -59,7 +59,6 @@ class DashboardController extends Controller
             for($i=0;$i<sizeof($students);$i++){
 //                $this->out->writeln('Student: '.$students[$i]);
                 if($students[$i]->user_profile->institute_id==$userProfile->institute_id){
-                    $this->out->writeln('total student: '.$total_student);
                     $total_student++;
                     continue;
                 }

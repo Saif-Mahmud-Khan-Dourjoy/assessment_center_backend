@@ -23,7 +23,7 @@ class CreateUserAcademicHistoriesTable extends Migration
             $table->float('result')->nullable();
             $table->string('start_year', 50)->default(date('Y-m-d'));
             $table->string('end_year', 50)->nullable();
-            $table->enum('currently_study',['0', '1'])->default('1')->comment('0 for No, 1 for yes');
+            $table->enum('currently_study',['0', '1'])->default('0')->comment('0 for No, 1 for yes');
             $table->string('duration', 200)->nullable();
             $table->text('description')->nullable();
             $table->string('check_status', 100)->nullable();

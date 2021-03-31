@@ -16,7 +16,7 @@ class CreateQuestionSetDetailsTable extends Migration
         Schema::create('question_set_details', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('question_set_id')->unsigned();
-            $table->foreign('question_set_id')->references('id')->on('question_sets');
+            $table->foreign('question_set_id')->references('id')->on('question_sets')->onDelete('cascade');
             $table->unsignedBigInteger('question_id')->unsigned();
             $table->foreign('question_id')->references('id')->on('questions');
             $table->float('mark');

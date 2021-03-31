@@ -99,6 +99,16 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+        'ac_info' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/ac-info-logs/ac_info.log'),
+            'level' => 'info',
+        ],
+        'ac_error' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/ac-error-logs/ac_error.log'),
+            'level' => 'info',
+        ],
     ],
 
 ];

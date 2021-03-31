@@ -16,7 +16,7 @@ class CreateQuestionDetailsTable extends Migration
         Schema::create('question_details', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('question_id')->unsigned();
-            $table->foreign('question_id')->references('id')->on('questions');
+            $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
             $table->integer('serial_no');
             $table->text('option');
             $table->text('description')->nullable()->default(null);
