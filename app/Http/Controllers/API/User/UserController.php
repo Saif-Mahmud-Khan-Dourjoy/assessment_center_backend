@@ -158,15 +158,15 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        Log::channel("ac_info")->info(__CLASS__."# Creating user: ".$request['username']);
+        request()->validate([
+            'username'=>'required|unique:users',
+            'email' => 'required|email',
+            'birth_date'=>'required',
+            'phone'=>'required',
+            'institute_id'=>'required'
+        ]);
         try{
-            Log::channel("ac_info")->info(__CLASS__."# Creating user: ".$request['username']);
-            request()->validate([
-                'username'=>'required|unique:users',
-                'email' => 'required|email',
-                'birth_date'=>'required',
-                'phone'=>'required',
-                'institute_id'=>'required'
-            ]);
             $input = $request->all();
             $rand_pass = Str::random(8);
             $hashed_random_password = Hash::make($rand_pass);
@@ -225,6 +225,7 @@ class UserController extends Controller
             return response()->json(['success' => true, 'student' =>$user], $this->successStatus);
         }catch (\Exception $e){
             Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to create user! error: ".$e->getMessage());
+            $this->out->writeln("Unable to create new-user! error: ".$e->getMessage());
             return response()->json(["success"=>false, "message"=>"User-Creation unsuccessful!", 'error'=>$e->getMessage()], $this->failedStatus);
         }
     }
