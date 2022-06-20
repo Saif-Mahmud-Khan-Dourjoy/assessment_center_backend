@@ -18,6 +18,7 @@ use App\Http\Controllers\Controller;
 use App\TestModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Image;
 
 class QuestionController extends Controller
 {
@@ -172,9 +173,10 @@ class QuestionController extends Controller
         // for ($i = 0; $i < $no_of_ans; $i++) {
             $questionAnswerData = [
                 'question_id' => $question->id,
-                'answer' => $input['answer'][$i],
+                'answer' => $input['answer'],
                 'reference' => $input['reference'],
             ];
+            // $this->writeln(questionAnswerData);
             QuestionAnswer::create($questionAnswerData);
         // }
 
@@ -277,10 +279,21 @@ class QuestionController extends Controller
         }
     }
 
+    // public resize_img($file){
+    //     $max_width = 852;
+    //     $max_height = 480;
+
+    //     if($file->extension()=="jpg"){
+    //         dd($file);
+    //     }
+
+    //     return 0;
+    // }
+
     public function imageUploadPost(Request $request)
     {
-
-
+        $this->out->writeln("Uplaoding image.....");
+        // return response()->json(['success' => 'You have successfully upload image']);
         // header('Access-Control-Allow-Origin', '*');
         // header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
         // header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
@@ -289,13 +302,20 @@ class QuestionController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $api_url = env('APP_URL');
+
+        // image conversion
+        $max_height = 852;
+        $max_width = 480;
 
         $imageName = time() . '.' . $request->image->extension();
+        $image = $request->file('image');
+        $destinationPath = public_path('images');
+        $img = Image::make($image->path());
+        $img->resize($max_width, $max_height, function($constraint){
+            $constraint->aspectRatio();
+        })->save($destinationPath.'/'.$imageName);
 
-        $request->image->move(public_path('images'), $imageName);
-
-        /* Store $imageName name in DATABASE from HERE */
+        $api_url = env('APP_URL');
 
         return response()->json(['success' => 'You have successfully upload image', 'img_url' => 'images/' . $imageName, 'base_url' => $api_url]);
     }
