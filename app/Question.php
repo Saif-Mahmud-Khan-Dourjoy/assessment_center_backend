@@ -21,21 +21,24 @@ class Question extends Model
     /**
      * @return HasMany
      */
-    public function question_details(){
+    public function question_details()
+    {
         return $this->hasMany('App\QuestionDetail', 'question_id');
     }
 
     /**
      * @return HasOne
      */
-    public function question_answer(){
+    public function question_answer()
+    {
         return $this->hasOne('App\QuestionAnswer', 'question_id');
     }
 
     /**
      * @return HasMany
      */
-    public function question_tag(){
+    public function question_tag()
+    {
         return $this->hasMany('App\QuestionCategoryTag', 'question_id');
     }
 }
