@@ -120,7 +120,7 @@ class QuestionSetAnswerController extends Controller
             return response()->json(['success' => false, 'message' => 'Question set answer added fail'], $this->failedStatus);
     }
 
-    /***
+     /***
      * Store the question set answer
      * @param Request $request
      * @return JsonResponse
@@ -153,24 +153,31 @@ class QuestionSetAnswerController extends Controller
             for($i = 0; $i < count($question_id); $i++){
                 $get_answer = QuestionAnswer::where('question_id', $question_id[$i])->first();
                 $get_mark = QuestionSetDetail::where(['question_id' => $question_id[$i], 'question_set_id' => $input['question_set_id']])->first();
-                $answer_data = explode(',', $get_answer->answer);
-                $given_answer = explode(',', $answer[$i]);
-                if( sizeof(array_diff($answer_data, $given_answer)) == 0 )
-                    $mark = $get_mark->mark;
-                else
-                    $mark = 0;
+//                $answer_data = explode(',', $get_answer->answer);
+                $this->out->writeln("Answer data: ".$get_answer->answer);
+                $this->out->writeln("Given Answer data: ".$answer[$i]);
+//                $given_answer = explode(',', $answer[$i]);
+//                if( sizeof(array_diff($answer_data, $given_answer)) == 0 )
+//                    $mark = $get_mark->mark;
+//                else
+//                    $mark = 0;
+                $mark  = $this->haveMark($get_answer->answer, $answer[$i], $get_mark->mark);
                 $questionAnswerDetailsData = [
                     'question_id'=>$question_id[$i],
                     'question_set_answer_id'=>$question_set_answer->id,
                     'answer' => $answer[$i],
                     'mark' => $mark,
                 ];
+                // $this->out->writeln("***************************************");
                 QuestionSetAnswerDetail::create($questionAnswerDetailsData);
                 $total_mark = $total_mark+$mark;
+                // $this->out->writeln("***************************************");
             }
+            // $this->out->writeln("***************************************");
             $questionAnswerData=[
                 'total_mark'=>$total_mark,
             ];
+            $this->out->writeln("***************************************");
             $question_set_answer->update($questionAnswerData);
             $question_set_answer_detail = QuestionSetAnswerDetail::where('question_set_answer_id',$question_set_answer->id)->get();
             $question_set_answer['question_set_answer_details']=$question_set_answer_detail;
@@ -182,6 +189,24 @@ class QuestionSetAnswerController extends Controller
             $this->out->writeln("Storing Question set answer is unsuccessful! error: ".$e->getMessage());
             Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Storing question-set (assessment-submission) unsuccessful! error: ".$e->getMessage());
             return response()->json(['success'=>false, "message"=>"Submitting Assessment Answer is unsuccessful!", "error"=>$e->getMessage()], $this->failedStatus);
+        }
+    }
+
+    public function haveMark($actual_answer, $given_answer, $mark){
+        try {
+            $actual_answers = explode(',',$actual_answer);
+            $given_answers = explode(',', $given_answer);
+            if(sizeof($actual_answers)!=sizeof($given_answers))
+                return 0;
+            sort($given_answers);
+            for($i=0;$i<sizeof($actual_answers);$i++){
+                if($actual_answers[$i]!=$given_answers[$i])
+                    return 0;
+            }
+            return $mark;
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# There is a problem calculating Mark! error: ".$e->getMessage());
+            return 0;
         }
     }
 
