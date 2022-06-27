@@ -145,30 +145,28 @@ class QuestionSetController extends Controller
         return response()->json(['success' => true, 'question_set' => $question_sets], $this->successStatus);
     }
 
-
-    /**
+/**
      * Assessment Time validator
      * @param $start_time
      * @param $end_time
      * @param $duration
      * @return bool
      */
-    public function assessmentTimeValidator($start_time, $end_time, $duration)
-    {
-        try {
-            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Validating assessment time.");
+    public function assessmentTimeValidator($start_time, $end_time, $duration){
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Validating assessment time.");
             $startTime = Carbon::parse($start_time);
             $endTime = Carbon::parse($end_time);
-            $this->out->writeln('Start time: ' . $startTime . " ****** End time: " . $endTime);
-            if ($startTime->addMinutes($duration) > $endTime) {
-                Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Invalid assessment time.");
+            $this->out->writeln('Start time: '.$startTime." ****** End time: ".$endTime);
+            if ($startTime->addMinutes($duration)>$endTime){
+                Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Invalid assessment time.");
                 return false;
             }
-            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Assessment time is valid.");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Assessment time is valid.");
             return true;
-        } catch (\Exception $e) {
-            Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Unable to validate assessment time! error: " . $e->getMessage());
-            $this->out->writeln("Unable to validate Assessment Time! error: " . $e->getMessage());
+        }catch(\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to validate assessment time! error: ".$e->getMessage());
+            $this->out->writeln("Unable to validate Assessment Time! error: ".$e->getMessage());
             return null;
         }
     }
@@ -180,8 +178,8 @@ class QuestionSetController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Storing Assessment.");
+        try{
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Storing Assessment.");
             $user = Auth::user();
             $userProfile = UserProfile::where('user_id', $user->id)->first();
             request()->validate([
@@ -190,53 +188,53 @@ class QuestionSetController extends Controller
             $input = $request->all();
             $institute_id = NULL;
             $privacy = (!empty($_POST["privacy"])) ? $input['privacy'] : 0;
-            if ($privacy == 1 && $userProfile->institute_id) {
+            if($privacy == 1 && $userProfile->institute_id){
                 $institute_id = $userProfile->institute_id;
             }
             // Time calculations
             $assessment_time = $input['assessment_time'];
-            $start_time = (!empty($input['start_time']) || !is_null($input['start_time']) ? $input['start_time'] : '');
-            $end_time = (!empty('end_time') || !is_null($input['end_time']) ? $input['end_time'] : '');
-            $this->out->writeln('Start time: ' . $start_time . " End time: " . $end_time . " lLaravel timestamp: " . now());
-            if (!($this->assessmentTimeValidator($start_time, $end_time, $input['assessment_time']))) {
-                return response()->json(['success' => false, 'message' => 'Invalid Exam time and duration!'], $this->invalidStatus);
+            $start_time = (!empty($input['start_time']) || !is_null($input['start_time'])? $input['start_time'] : '');
+            $end_time = (!empty('end_time') || !is_null($input['end_time'])? $input['end_time']: '');
+            $this->out->writeln('Start time: '.$start_time." End time: ". $end_time." lLaravel timestamp: ".now());
+            if(!($this->assessmentTimeValidator($start_time, $end_time, $input['assessment_time']))){
+                return response()->json(['success'=>false, 'message'=>'Invalid Exam time and duration!'], $this->invalidStatus);
             }
             // Add question set
             $questionData = [
                 'title' => $input['title'],
                 'type' => $input['type'],
                 'institute' => (!empty($_POST["institute"])) ? $input['institute'] : '',
-                'institute_id' => (!(empty($input['institute_id'] or is_null($input['institute_id']))) ? $input['institute_id'] : null),
+                'institute_id' => (!(empty($input['institute_id'] or is_null($input['institute_id'])))? $input['institute_id']:null),
                 'assessment_time' => $input['assessment_time'],
                 'start_time' => $start_time,
-                'end_time' => $end_time,
-                'each_question_time' => (!empty('each_question_time') || !is_null($input['each_question_time']) ? $input['each_question_time'] : 0),
+                'end_time'=>$end_time,
+                'each_question_time' => (!empty('each_question_time') || !is_null($input['each_question_time'])? $input['each_question_time']: 0),
                 'total_question' => $input['total_question'],
                 'total_mark' => $input['total_mark'],
                 'status' => $input['status'],
                 'privacy' => $privacy,
-                'approved_by' => $userProfile->id, //Profile ID
-                'round_id' => $input['round_id'],
-                'created_by' => $user->id, //User ID
+                'approved_by' => $userProfile->id,//Profile ID
+                'round_id'=>$input['round_id'],
+                'created_by' => $user->id,//User ID
                 'updated_by' => $user->id,
             ];
             $question = QuestionSet::create($questionData);
-            if (!$question)
+            if(!$question)
                 throw new \Exception("Question-set Creation unsuccessful!");
             // Add question detail
             $questionOptionData = [];
-            $question_id = explode(',', $input['question_id']);
-            $mark = explode(',', $input['mark']);
-            $partial_marking_status = explode(',', $input['partial_marking_status']);
-            if (!(is_null($input['question_time']) && $questionData['each_question_time'] == 0)) {
-                $question_time = explode(',', $input['question_time']);
+            $question_id = explode( ',', $input['question_id']);
+            $mark = explode( ',', $input['mark']);
+            $partial_marking_status = explode( ',', $input['partial_marking_status']);
+            if(!(is_null($input['question_time']) && $questionData['each_question_time']==0)){
+                $question_time = explode(',',$input['question_time']);
             }
-            for ($i = 0; $i < count($question_id); $i++) {
+            for($i = 0; $i < count($question_id); $i++){
                 $questionOptionData = [
                     'question_set_id' => $question->id,
                     'question_id' => $question_id[$i],
                     'mark' => $mark[$i],
-                    'question_time' => ($questionData['each_question_time'] == 0 ? 0 : $question_time[$i]),
+                    'question_time'=>($questionData['each_question_time']==0?0:$question_time[$i]),
                     'partial_marking_status' => $partial_marking_status[$i],
                 ];
                 QuestionSetDetail::create($questionOptionData);
@@ -244,15 +242,17 @@ class QuestionSetController extends Controller
                 Question::find($question_id[$i])->increment('no_of_used');
             }
             $question_sets = QuestionSet::with(['question_set_details'])->where('id', $question->id)->get();
-            if (!$question_sets)
+            if(!$question_sets)
                 throw new \Exception("Question-set not found!");
-            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Storing Assessment successful.");
+            Log::channel("ac_info")->info(__CLASS__."@".__FUNCTION__."# Storing Assessment successful.");
             return response()->json(['success' => true, 'question_set' => $question_sets], $this->successStatus);
-        } catch (\Exception $e) {
-            Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Unable to store Assessment! error: " . $e->getMessage());
-            return response()->json(['success' => false, "message" => "Unable create Assessment!", "error" => $e->getMessage()], $this->failedStatus);
+        }catch (\Exception $e){
+            Log::channel("ac_error")->info(__CLASS__."@".__FUNCTION__."# Unable to store Assessment! error: ".$e->getMessage());
+            return response()->json(['success'=>false, "message"=>"Unable create Assessment!", "error"=>$e->getMessage()], $this->failedStatus);
         }
     }
+
+
 
 
     /**
