@@ -15,10 +15,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::group(['prefix' => 'v1'], function () {
-
-
 
     Route::post('register', 'API\Auth\RegisterController@register')->name('register');
     Route::post('login', 'API\Auth\LoginController@login');
@@ -37,7 +34,6 @@ Route::group(['prefix' => 'v1'], function () {
     });
 
     Route::middleware(['auth:api', 'api_email_verified'])->group(function () {
-
 
         Route::get('dashboard/{id}', 'API\DashboardController@index')->name('dashboard');
 
@@ -87,13 +83,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('attend-question-set/{id}', 'API\Question\QuestionSetController@attendQuestionSet')->name('attend-question-set');
         Route::get('question-set-status/{id}', 'API\Question\QuestionSetController@status');
         Route::resource('question-set-answer', 'API\Question\QuestionSetAnswerController');
-
-        //test
-
-        Route::post('test', 'API\Question\QuestionController@test');
-
-        //
-
         Route::post('student-assessment', 'API\Question\QuestionSetAnswerController@eachStudentAssessment')->name('student-assessment');
         Route::post('student-have-assessments', 'API\Question\QuestionSetController@studentHaveAssessments')->name('student-have-assessments');
 
@@ -115,6 +104,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('broadcast-certificate', 'API\Broadcast\BroadcastController@broadcastCertificate');
 
         Route::post('bulk-entry-students', 'API\User\StudentController@bulkEntry')->name('bulk-entry-students');
+        Route::get('get-questions', 'API\Question\QuestionController@get_question')->name('get_question');
     });
     Route::fallback(function () {
         return response()->json(['message' => 'Not Found.'], 404);
