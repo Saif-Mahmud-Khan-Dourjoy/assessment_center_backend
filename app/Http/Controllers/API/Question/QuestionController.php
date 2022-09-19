@@ -88,7 +88,7 @@ class QuestionController extends Controller
     public function store(Request $request)
     {
 
-        Log::info(explode(',',  $request['tags']));
+        // Log::info($request);
 
         // exit();
 
@@ -119,12 +119,14 @@ class QuestionController extends Controller
 
         $user = Auth::user();
         $userProfile = UserProfile::where('user_id', $user->id)->first();
-
+        // Log::info($userProfile);
+        // exit();
         $institute_id = NULL;
         if ($userProfile->institute_id) {
             $institute_id = $userProfile->institute_id;
         }
-
+        // Log::info($institute_id);
+        // exit();
         // Add question
         $questionData = [
             'institute_id' => $institute_id,
@@ -150,6 +152,8 @@ class QuestionController extends Controller
 
         // $this->out->writeln($questionData);
         // dd($questionData);
+        // Log::info($questionData);
+        // exit();
         $question = Question::create($questionData);
 
         // Add question options
@@ -420,43 +424,60 @@ class QuestionController extends Controller
     //     return 0;
     // }
 
+    // public function imageUploadPost(Request $request)
+    // {
+    //     $this->out->writeln("Uplaoding image.....");
+    //     // return response()->json(['success' => 'You have successfully upload image']);
+    //     // header('Access-Control-Allow-Origin', '*');
+    //     // header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    //     // header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    //     Log::info($request);
+    //     $request->validate([
+    //         'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    //     ]);
+
+
+    //     // image conversion
+    //     $max_height = 480;
+    //     $max_width = 852;
+    //     list($width, $height) = getimagesize($request->image);
+    //     $imageName = time() . '.' . $request->image->extension();
+    //     $image = $request->file('image');
+
+    //     if ($width > $max_width || $height > $max_height) {
+    //         $destinationPath = public_path('images');
+    //         $img = Image::make($image->path());
+    //         $img->resize($max_width, $max_height, function ($constraint) {
+    //             $constraint->aspectRatio();
+    //         })->save($destinationPath . '/' . $imageName);
+    //     } else {
+
+    //         $request->image->move(public_path('images'), $imageName);
+    //     }
+
+
+    //     $app_url = env('APP_URL');
+
+    //     return response()->json(['success' => 'You have successfully upload image', 'img_url' => 'images/' . $imageName, 'base_url' => $app_url]);
+    // }
+
     public function imageUploadPost(Request $request)
     {
-        $this->out->writeln("Uplaoding image.....");
-        // return response()->json(['success' => 'You have successfully upload image']);
-        // header('Access-Control-Allow-Origin', '*');
-        // header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-        // header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-        Log::info($request);
+
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-
-        // image conversion
-        $max_height = 480;
-        $max_width = 852;
-        list($width, $height) = getimagesize($request->image);
         $imageName = time() . '.' . $request->image->extension();
-        $image = $request->file('image');
 
-        if ($width > $max_width || $height > $max_height) {
-            $destinationPath = public_path('images');
-            $img = Image::make($image->path());
-            $img->resize($max_width, $max_height, function ($constraint) {
-                $constraint->aspectRatio();
-            })->save($destinationPath . '/' . $imageName);
-        } else {
-
-            $request->image->move(public_path('images'), $imageName);
-        }
-
+        $request->image->move(public_path('images'), $imageName);
 
         $app_url = env('APP_URL');
 
         return response()->json(['success' => 'You have successfully upload image', 'img_url' => 'images/' . $imageName, 'base_url' => $app_url]);
     }
-    
+
+
     public function get_question()
     {
         $user = Auth::user();

@@ -25,12 +25,19 @@ Route::group(['prefix' => 'v1'], function () {
         return response()->json(['success' => true, 'message' => 'Token is valid'], 200);
     })->middleware('auth:api');
 
+
     Route::post('check-email', 'API\Auth\RegisterController@checkEmail')->name('check-email');
     Route::post('check-username', 'API\Auth\RegisterController@checkUsername')->name('check-username');
 
     Route::middleware(['auth:api'])->group(function () {
         Route::get('email/verify/{id}/{hash}', 'API\Auth\VerificationApiController@verify')->name('verification.verify');
         Route::get('email/resend', 'API\Auth\VerificationApiController@resend')->name('verification.resend');
+        Route::post('question-catalogs-store', 'API\Question\QuestionCatalogController@store');
+        Route::get('question-catalogs', 'API\Question\QuestionCatalogController@index');
+        Route::delete('delete-catalog/{id}', 'API\Question\QuestionCatalogController@destroy');
+        Route::get('single-catalog/{id}', 'API\Question\QuestionCatalogController@show');
+        Route::put('update-question-catalog/{id}', 'API\Question\QuestionCatalogController@update');
+        Route::post('question-filter', 'API\Filter\QuestionFilterController@filterUsingTag');
     });
 
     Route::middleware(['auth:api', 'api_email_verified'])->group(function () {
@@ -80,6 +87,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::resource('question-categories', 'API\Question\QuestionCategoryController');
         Route::resource('questions', 'API\Question\QuestionController');
         Route::resource('question-sets', 'API\Question\QuestionSetController');
+
         Route::get('attend-question-set/{id}', 'API\Question\QuestionSetController@attendQuestionSet')->name('attend-question-set');
         Route::get('question-set-status/{id}', 'API\Question\QuestionSetController@status');
         Route::resource('question-set-answer', 'API\Question\QuestionSetAnswerController');
