@@ -153,7 +153,7 @@ class StudentController extends Controller
                 'first_name' => 'required',
                 'last_name' => 'required',
                 'email' => 'required|email',
-                'birth_date' => 'required',
+                // 'birth_date' => 'required',
                 'phone' => 'required',
             ]);
             $input = $request->all();
@@ -180,7 +180,7 @@ class StudentController extends Controller
                 'status' => 1,
                 'password' => $hashed_random_password,
                 'phone' => $input['phone'],
-                'birth_date' => $input['birth_date'],
+                // 'birth_date' => $input['birth_date'],
                 'skype' => (!empty($input["skype"])) ? $input['skype'] : 0,
                 'profession' => (!empty($input["profession"])) ? $input['profession'] : 'n/a',
                 'skill' => (!empty($input["skill"])) ? $input['skill'] : 'n/a',
@@ -188,8 +188,10 @@ class StudentController extends Controller
                 'img' => (!empty($input["img"])) ? $input['img'] : '',
                 'address' => (!empty($input["address"])) ? $input['address'] : 'n/a',
                 'institute_id' => (!(empty($input['institute_id'] or is_null($input['institute_id']))) ? $input['institute_id'] : null),
-                'zipcode' => $input['zipcode'],
-                'country' => $input['country'],
+                // 'zipcode' => $input['zipcode'],
+                'zipcode' => (!empty($input["zipcode"])) ? $input['zipcode'] : null,
+                'country' => (!empty($input["country"])) ? $input['country'] : null,
+                // 'country' => $input['country'],
                 'completing_percentage' => 100,
                 'total_complete_assessment' => 0,
                 'approve_status' => 0,
@@ -208,8 +210,8 @@ class StudentController extends Controller
                 $student = Student::create($user_data);
                 $contributor = Contributor::create($user_data);
                 $delay = 2; //seconds delay for email sending
-                if (!($this->singleUserCredential($user_data['email'], $user_data['first_name'], $user_data['last_name'], $user_data['username'], $rand_pass, $delay)))
-                    throw new \Exception('Email-Server may be down!');
+                // if (!($this->singleUserCredential($user_data['email'], $user_data['first_name'], $user_data['last_name'], $user_data['username'], $rand_pass, $delay)))
+                //     throw new \Exception('Email-Server may be down!');
             } catch (\Exception $e) {
                 DB::rollback();
                 Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Creating unique use is Unsuccessful, rolling back db-operation! error: " . $e->getMessage());

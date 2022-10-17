@@ -38,6 +38,8 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('single-catalog/{id}', 'API\Question\QuestionCatalogController@show');
         Route::put('update-question-catalog/{id}', 'API\Question\QuestionCatalogController@update');
         Route::post('question-filter', 'API\Filter\QuestionFilterController@filterUsingTag');
+        Route::post('question-catalog-filter', 'API\Filter\QuestionCatalogFilterController@filterUsingTag');
+        Route::post('question-by-catalog', 'API\Filter\QuestionGetByCatalog@QuestionByCatalog');
     });
 
     Route::middleware(['auth:api', 'api_email_verified'])->group(function () {

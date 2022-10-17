@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Question;
 // use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class QuestionCatalogController extends Controller
 {
@@ -31,52 +32,31 @@ class QuestionCatalogController extends Controller
 
     public function index()
     {
+       
+        $question_catalogs = get_catalog();
 
-        $user = Auth::user();
-        $userProfile = UserProfile::where('user_id', $user->id)->first();
+        if ($question_catalogs) {
 
-
-
-        if ($userProfile->institute_id) {
-            // $question_catalogs = QuestionCatalog::with(['question_catalog_details' => function ($question_catalog_details) {
-            //     $question_catalog_details->with(['question'])->get();
-            // }])
-            //     ->where('institute_id', '=', $userProfile->institute_id)
-            //     ->get();
-
-            $question_catalogs = QuestionCatalog::with(['question_catalog_details'])
-                ->where('institute_id', '=', $userProfile->institute_id)
-                ->get();
-
-            // return $question_catalogs;
-
-            for ($i = 0; $i < count($question_catalogs); $i++) {
-                $question_catalog_details = $question_catalogs[$i]->question_catalog_details;
-
-                for ($j = 0; $j < count($question_catalog_details); $j++) {
-                    $question_id = $question_catalogs[$i]->question_catalog_details[$j]->question_id;
-                    $question = Question::with(['question_details', 'question_answer', 'question_tag'])
-
-                        ->where('id', $question_id)
-                        ->get();
-                    $question_catalogs[$i]->question_catalog_details[$j]['question'] = $question;
-                }
-            }
-
-            // $question_catalogs = DB::table('question_catalogs')
-            //     ->leftjoin('question_catalog_details', 'question_catalogs.id', '=', 'question_catalog_details.question_catalog_id')
-            //     ->leftjoin('questions', 'question_catalog_details.question_id', '=', 'questions.id')
-            //     ->where('question_catalogs.institute_id', '=', $userProfile->institute_id)
-            //     ->get();
-
-            // $question_catalogs = QuestionCatalogDetail::with('question')->get();
-
-
-            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Returning all the catalog for inst-id: " . $user->institute_id);
             return response()->json(['success' => true, 'question_catalog' => $question_catalogs], $this->successStatus);
+        } else {
+            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# No catalog Found!");
+            return response()->json(['success' => true, 'question_catalog' => []], $this->successStatus);
         }
-        Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# No catalog Found!");
-        return response()->json(['success' => true, 'question_catalog' => []], $this->successStatus);
+
+        // $question_catalogs = QuestionCatalog::with(['question_catalog_details' => function ($question_catalog_details) {
+        //     $question_catalog_details->with(['question'])->get();
+        // }])
+        //     ->where('institute_id', '=', $userProfile->institute_id)
+        //     ->get();
+
+        // $question_catalogs = DB::table('question_catalogs')
+        //     ->leftjoin('question_catalog_details', 'question_catalogs.id', '=', 'question_catalog_details.question_catalog_id')
+        //     ->leftjoin('questions', 'question_catalog_details.question_id', '=', 'questions.id')
+        //     ->where('question_catalogs.institute_id', '=', $userProfile->institute_id)
+        //     ->get();
+
+        // $question_catalogs = QuestionCatalogDetail::with('question')->get();
+
     }
 
 
