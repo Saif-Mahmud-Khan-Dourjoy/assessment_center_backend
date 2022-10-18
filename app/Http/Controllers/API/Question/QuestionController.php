@@ -47,11 +47,11 @@ class QuestionController extends Controller
         $user = auth()->user();
         $permissions = $user->getAllPermissions();
         if ($user->can('super-admin')) {
-            $questions = Question::with(['question_details', 'question_answer', 'question_tag'])->get();
+            $questions = Question::with(['question_details', 'question_answer','question_tag', 'question_tag.category'])->get();
             return response()->json(['success' => true, 'questions' => $questions], $this->successStatus);
         }
         if ($userProfile->institute_id) {
-            $questions = Question::with(['question_details', 'question_answer', 'question_tag'])
+            $questions = Question::with(['question_details', 'question_answer','question_tag', 'question_tag.category'])
                 ->where('institute_id', '=', $userProfile->institute_id)
                 ->get();
             return response()->json(['success' => true, 'questions' => $questions], $this->successStatus);

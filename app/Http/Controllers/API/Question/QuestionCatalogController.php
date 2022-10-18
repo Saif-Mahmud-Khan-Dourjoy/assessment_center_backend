@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Question;
 // use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+
 
 class QuestionCatalogController extends Controller
 {
@@ -32,7 +32,7 @@ class QuestionCatalogController extends Controller
 
     public function index()
     {
-       
+
         $question_catalogs = get_catalog();
 
         if ($question_catalogs) {
