@@ -18,7 +18,7 @@ use App\Http\Controllers\Controller;
 use App\TestModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Image;
+use Intervention\Image\Facades\Image;
 
 class QuestionController extends Controller
 {
@@ -47,11 +47,11 @@ class QuestionController extends Controller
         $user = auth()->user();
         $permissions = $user->getAllPermissions();
         if ($user->can('super-admin')) {
-            $questions = Question::with(['question_details', 'question_answer','question_tag', 'question_tag.category'])->get();
+            $questions = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])->get();
             return response()->json(['success' => true, 'questions' => $questions], $this->successStatus);
         }
         if ($userProfile->institute_id) {
-            $questions = Question::with(['question_details', 'question_answer','question_tag', 'question_tag.category'])
+            $questions = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])
                 ->where('institute_id', '=', $userProfile->institute_id)
                 ->get();
             return response()->json(['success' => true, 'questions' => $questions], $this->successStatus);
@@ -368,16 +368,88 @@ class QuestionController extends Controller
     public function update(Request $request, $id)
     {
         $question = Question::find($id);
-        request()->validate([
-            'name' => 'required|unique:questions,name,' . $id,
-        ]);
+
+
+
         $input = $request->all();
         $input['updated_by'] = Auth::id();
         $question = $question->update($input);
+
+
+        // $contributor = Contributor::where('profile_id', $input['profile_id'])->first();
+
+        // // Check contributor
+        // if (!$contributor)
+        //     return response()->json(['success' => false, 'message' => 'Contributor not found'], $this->invalidStatus);
+
+        $questionDetails = QuestionDetail::where('question_id', '=', $id)->delete();
+
+
+
+        $questionOptionData = [];
+        $serial_no_data = explode('|', $input['serial_no']);
+        // $option_data = explode('|', $input['option']);
+        $option_data = $input['option'];
+        // $description_data = explode('|', $input['description']);
+        $description_data = $input['description'];
+
+        $image_data = explode('|', $input['img']);
+        for ($i = 0; $i < $input['no_of_option']; $i++) {
+            $questionOptionData = [
+                'question_id' => $id,
+                'serial_no' => $serial_no_data[$i],
+                'option' => $option_data[$i],
+                //'description' => $description_data[$i],
+                //'img' => $image_data[$i],
+            ];
+            QuestionDetail::create($questionOptionData);
+        }
+
+        $questionAns = QuestionAnswer::where('question_id', '=', $id)->delete();
+        // Add question answer
+        $no_of_ans = $request['no_of_answer'];
+        // for ($i = 0; $i < $no_of_ans; $i++) {
+        $questionAnswerData = [
+            'question_id' => $id,
+            'answer' => $input['answer'],
+            'reference' => $input['reference'],
+        ];
+        // $this->writeln(questionAnswerData);
+        QuestionAnswer::create($questionAnswerData);
+        // }
+
+        $questionAns = QuestionCategoryTag::where('question_id', '=', $id)->delete();
+        // Add question tags
+        $tag_data = explode(',',  $input['tags']);
+        if ($tag_data) {
+            for ($i = 0; $i < count($tag_data); $i++) {
+                $questionTagData = [
+                    'question_id' => $id,
+                    'category_id' => $tag_data[$i],
+                ];
+                QuestionCategoryTag::create($questionTagData);
+            }
+
+            Log::info($questionTagData);
+        }
+
+        // Increment contributor total no of question
+        // Contributor::find($contributor->id)->increment('total_question');
+
         if ($question)
-            return response()->json(['success' => true, 'message' => 'Question update successfully'], $this->successStatus);
+            return response()->json(['success' => true, 'question' => $question], $this->successStatus);
         else
-            return response()->json(['success' => false, 'message' => 'Question update failed'], $this->failedStatus);
+            return response()->json(['success' => false, 'message' => 'Question update fail'], $this->failedStatus);
+
+
+
+
+
+
+        // if ($question)
+        //     return response()->json(['success' => true, 'message' => 'Question update successfully'], $this->successStatus);
+        // else
+        //     return response()->json(['success' => false, 'message' => 'Question update failed'], $this->failedStatus);
     }
 
 
@@ -424,58 +496,58 @@ class QuestionController extends Controller
     //     return 0;
     // }
 
-    // public function imageUploadPost(Request $request)
-    // {
-    //     $this->out->writeln("Uplaoding image.....");
-    //     // return response()->json(['success' => 'You have successfully upload image']);
-    //     // header('Access-Control-Allow-Origin', '*');
-    //     // header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-    //     // header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-    //     Log::info($request);
-    //     $request->validate([
-    //         'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-    //     ]);
-
-
-    //     // image conversion
-    //     $max_height = 480;
-    //     $max_width = 852;
-    //     list($width, $height) = getimagesize($request->image);
-    //     $imageName = time() . '.' . $request->image->extension();
-    //     $image = $request->file('image');
-
-    //     if ($width > $max_width || $height > $max_height) {
-    //         $destinationPath = public_path('images');
-    //         $img = Image::make($image->path());
-    //         $img->resize($max_width, $max_height, function ($constraint) {
-    //             $constraint->aspectRatio();
-    //         })->save($destinationPath . '/' . $imageName);
-    //     } else {
-
-    //         $request->image->move(public_path('images'), $imageName);
-    //     }
-
-
-    //     $app_url = env('APP_URL');
-
-    //     return response()->json(['success' => 'You have successfully upload image', 'img_url' => 'images/' . $imageName, 'base_url' => $app_url]);
-    // }
-
     public function imageUploadPost(Request $request)
     {
-
+        $this->out->writeln("Uplaoding image.....");
+        // return response()->json(['success' => 'You have successfully upload image']);
+        // header('Access-Control-Allow-Origin', '*');
+        // header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+        // header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+        Log::info($request);
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $imageName = time() . '.' . $request->image->extension();
 
-        $request->image->move(public_path('images'), $imageName);
+        // image conversion
+        $max_height = 480;
+        $max_width = 852;
+        list($width, $height) = getimagesize($request->image);
+        $imageName = time() . '.' . $request->image->extension();
+        $image = $request->file('image');
+
+        if ($width > $max_width || $height > $max_height) {
+            $destinationPath = public_path('images');
+            $img = Image::make($image->path());
+            $img->resize($max_width, $max_height, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($destinationPath . '/' . $imageName);
+        } else {
+
+            $request->image->move(public_path('images'), $imageName);
+        }
+
 
         $app_url = env('APP_URL');
 
         return response()->json(['success' => 'You have successfully upload image', 'img_url' => 'images/' . $imageName, 'base_url' => $app_url]);
     }
+
+    // public function imageUploadPost(Request $request)
+    // {
+
+    //     $request->validate([
+    //         'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    //     ]);
+
+    //     $imageName = time() . '.' . $request->image->extension();
+
+    //     $request->image->move(public_path('images'), $imageName);
+
+    //     $app_url = env('APP_URL');
+
+    //     return response()->json(['success' => 'You have successfully upload image', 'img_url' => 'images/' . $imageName, 'base_url' => $app_url]);
+    // }
 
 
     public function get_question()
