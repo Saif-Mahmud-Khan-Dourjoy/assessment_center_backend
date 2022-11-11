@@ -1,4 +1,5 @@
 <?php
+
 use \App\Institute;
 use App\Contributor;
 use App\Student;
@@ -20,29 +21,29 @@ class CreateAdminUserSeeder extends Seeder
     {
         //Institution addition
         Institute::create([
-            'name'=>'Neural Semiconductor',
-            'email'=>'nsl@nsl.com',
-            'contact_no'=>'01233276827',
+            'name' => 'Neural Semiconductor',
+            'email' => 'nsl@nsl.com',
+            'contact_no' => '01233276827',
         ]);
         // Add user credential
         $user = User::create([
             'name' => 'Admin',
-            'username'=>'Admin',
+            'username' => 'Admin',
             'email' => 'admin@nsl.com',
             'password' => bcrypt('123456789'),
             'status' => '1',
-            'institute_id'=>1,
+            'institute_id' => 1,
 
         ]);
 
         // Add User Profile
         $user_profile = UserProfile::create([
             'user_id' => $user['id'],
-            'institute_id'=>'1',
+            'institute_id' => '1',
             'first_name' => 'Admin',
             'last_name' => 'Admin',
             'email' => 'admin@nsl.com',
-            'birth_date'=>'1990-01-10'
+            'birth_date' => '1990-01-10'
         ]);
 
         // Add Contributor Info
@@ -55,7 +56,7 @@ class CreateAdminUserSeeder extends Seeder
             'active_status' => 0,
             'guard_name' => 'web',
         ];
-        $contributor = Contributor::create( $contributor_data );
+        $contributor = Contributor::create($contributor_data);
 
         // Add Student Info
         $student_data = [
@@ -66,26 +67,37 @@ class CreateAdminUserSeeder extends Seeder
             'active_status' => 0,
             'guard_name' => 'web',
         ];
-        $student = Student::create( $student_data );
+        $student = Student::create($student_data);
 
         $role = Role::create(['name' => 'Admin']);
 
-        $permissions = Permission::pluck('id','id')->all();
+        $permissions = Permission::pluck('id', 'id')->all();
 
         $role->syncPermissions($permissions);
 
         $user->assignRole([$role->id]);
 
-        $student_role = Role::create(['name'=>'Student', 'guard_name'=>'web']);
-        $student_permissions= ['student-only', 'institute-list','round-list','question-category-list','user-list','user-edit','question-list','question-set-list','question-set-answer-create','question-set-answer-list'];
-        $student_permissions= Permission::whereIn('name',$student_permissions)->get();
+        $student_role = Role::create(['name' => 'Student', 'guard_name' => 'web']);
+        $student_permissions = ['student-only', 'institute-list', 'round-list', 'question-category-list', 'user-list', 'user-edit', 'question-list', 'question-set-list', 'question-set-answer-create', 'question-set-answer-list'];
+        $student_permissions = Permission::whereIn('name', $student_permissions)->get();
         $student_role->syncPermissions($student_permissions);
+
+
+
+
+        $recruiter_role = Role::create(['name' => 'Recruiter', 'guard_name' => 'web']);
+        $recruiter_permissions = ['question-create', 'question-edit', 'question-list', 'question-set-delete', 'question-set-create', 'question-set-edit', 'question-set-list', 'question-set-answer-create', 'question-set-answer-list'];
+        $recruiter_permissions = Permission::whereIn('name', $recruiter_permissions)->get();
+        $recruiter_role->syncPermissions($recruiter_permissions);
+
+
 
         RoleSetup::create([
             'contributor_role_id' => 1,
             'student_role_id' => $student_role->id,
             'new_register_user_role_id' => 1,
-            'default_institute_id'=>1,
+            'recruiter_role_id' => $recruiter_role->id,
+            'default_institute_id' => 1,
         ]);
     }
 }
