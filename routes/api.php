@@ -21,6 +21,9 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('login', 'API\Auth\LoginController@login');
     Route::post('password/forgot-password', 'API\Auth\ForgotPasswordController@forgotPassword');
     Route::post('password/reset', 'API\Auth\ForgotPasswordController@passwordReset');
+    Route::post('valid-assessment', 'API\Question\AssessmentController@checkValidAssessment');
+    Route::get('decrypt-token/{token}', 'API\User\StudentController@decryptToken');
+    Route::get('attend-question-set/{id}', 'API\Question\QuestionSetController@attendQuestionSet')->name('attend-question-set');
     Route::get('validate-token', function () {
         return response()->json(['success' => true, 'message' => 'Token is valid'], 200);
     })->middleware('auth:api');
@@ -40,6 +43,8 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('question-filter', 'API\Filter\QuestionFilterController@filterUsingTag');
         Route::post('question-catalog-filter', 'API\Filter\QuestionCatalogFilterController@filterUsingTag');
         Route::post('question-by-catalog', 'API\Filter\QuestionGetByCatalog@QuestionByCatalog');
+        Route::get('recruiters', 'API\User\UserController@getRecruiter');
+        // Route::get('valid-assessment', 'API\Question\AssessmentController@checkValidAssessment');
     });
 
     Route::middleware(['auth:api', 'api_email_verified'])->group(function () {
@@ -90,7 +95,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::resource('questions', 'API\Question\QuestionController');
         Route::resource('question-sets', 'API\Question\QuestionSetController');
 
-        Route::get('attend-question-set/{id}', 'API\Question\QuestionSetController@attendQuestionSet')->name('attend-question-set');
+        // Route::get('attend-question-set/{id}', 'API\Question\QuestionSetController@attendQuestionSet')->name('attend-question-set');
         Route::get('question-set-status/{id}', 'API\Question\QuestionSetController@status');
         Route::resource('question-set-answer', 'API\Question\QuestionSetAnswerController');
         Route::post('student-assessment', 'API\Question\QuestionSetAnswerController@eachStudentAssessment')->name('student-assessment');
