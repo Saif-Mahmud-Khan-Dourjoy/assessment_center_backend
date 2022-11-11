@@ -9,6 +9,9 @@ use App\QuestionSetAnswer;
 use App\RoundCandidates;
 use App\Student;
 use App\Http\Controllers\Controller;
+use App\Jobs\ExamInfoSend;
+use App\Mail\ExamInfo;
+use App\QuestionSetCandidate;
 use App\RoleSetup;
 use App\User;
 use App\UserAcademicHistory;
@@ -24,9 +27,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use \GuzzleHttp\Client;
+use Illuminate\Support\Facades\URL;
 use Lcobucci\JWT\Signer\Key\LocalFileReference;
 use mysql_xdevapi\Exception;
 use Symfony\Contracts\Service;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class StudentController extends Controller
 {
@@ -90,6 +95,29 @@ class StudentController extends Controller
         }
     }
 
+
+    public function ExamInfoEmail($candidate_email_data, $delay)
+    {
+        try {
+            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Emailing exam info.");
+            $url = env("EMAIL_SERVER_URL") . 'exam-info';
+            $client = new Client();
+            $body = [
+                "candidate_email_data" => $candidate_email_data,
+                "delay" => $delay
+            ];
+            $response = $client->post($url, ["form_params" => $body, 'http_errors' => false]);
+            if ($response->getStatusCode() != 200)
+                throw new \Exception("Unable to send exam-info for user! Check your email.");
+            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Successfully emailed exam Info.");
+            return true;
+        } catch (\Exception $e) {
+            Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Emailing exam Info Unsuccessful! error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+
     public function singleUserCredential($email, $first_name, $last_name, $username, $password, $delay)
     {
         try {
@@ -138,6 +166,40 @@ class StudentController extends Controller
         }
     }
 
+    public function decryptToken($token)
+    {
+        $dtoken = decrypt($token);
+        if ($dtoken) {
+            return response()->json(["success" => true, "token" => $dtoken]);
+        } else {
+            return response()->json(["success" => false, "token" => []]);
+        }
+    }
+
+
+    public function getToken($assessment_id, $institute_id, $profile_id, $email, $username, $rand_pass)
+    {
+        // $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        // $randomString = '';
+
+        // for ($i = 0; $i < 20; $i++) {
+        //     $index = rand(0, strlen($characters) - 1);
+        //     $randomString .= $characters[$index];
+        // }
+
+        // return $randomString;
+        $token = array(
+            "assessment_id" => $assessment_id,
+            "institute_id" => $institute_id,
+            "profile_id" => $profile_id,
+            "email" => $email,
+            "username" => $username,
+            "rand_pass" => $rand_pass,
+        );
+        // $token = $assessment_id . $institute_id . $profile_id . $email . $username . $rand_pass;
+        $generated_token = encrypt($token);
+        return $generated_token;
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -157,7 +219,9 @@ class StudentController extends Controller
                 'phone' => 'required',
             ]);
             $input = $request->all();
-            $roleID = (!empty($_POST["role_id"])) ? $input['role_id'] : 0;
+
+
+            $roleID = (!empty($input["role_id"])) ? $input['role_id'] : 0;
             if ($roleID) {
                 $student_role_id = $input['role_id'];
             } else {
@@ -170,6 +234,55 @@ class StudentController extends Controller
             }
             $rand_pass = Str::random(8);
             $hashed_random_password = Hash::make($rand_pass);
+
+            $previous_user = UserProfile::where('email', '=', $input['email'])->get();
+            $previous_student = User::where("id", $previous_user[0]->user_id)->first();
+            // return response()->json($previous_user);
+            if (count($previous_user) > 0) {
+
+                $previous_student->password = $hashed_random_password;
+                $previous_student->update();
+
+                // $token = $previous_user->createToken('Exam Instruction')->accessToken;
+                $token = $this->getToken($input['assessment_id'], $input['institute_id'], $previous_user[0]->id, $input['email'], $previous_student->username, $rand_pass);
+                $newCandidate = [
+                    'question_set_id' => $input['assessment_id'],
+                    'profile_id' => $previous_user[0]->id,
+                    'attended' => 0,
+                    'token' => $token
+                ];
+                QuestionSetCandidate::create($newCandidate);
+
+
+
+                $url = env('FRONT_END_BASE') . '/exam-instruction/' . $input['assessment_id'] . '/' . $input['institute_id'] . '/' . $previous_user[0]->id . '/' . $token;
+
+                $candidate_email_data = [
+                    'url' => $url,
+                    'assessment_start_time' => $input['assessment_start_time'],
+                    'candidate_name' => $input['first_name'] . ' ' . $input['last_name'],
+                    'email' => $input['email'],
+
+                ];
+
+
+
+
+                // Email Server Related Code
+                $delay = 2; //seconds delay for email sending
+
+                if (!($this->ExamInfoEmail(
+                    $candidate_email_data,
+                    $delay
+                ))) {
+                    throw new \Exception('Email-Server may be down!');
+                }
+
+
+                return response()->json(['success' => false, "message" => "Candidate Already Exist and Email Sent"], $this->failedStatus);
+            }
+
+
             $username = $this->uniqueUser($input['first_name'], $input['last_name']);
             $user_data = [
                 'first_name' => $input['first_name'],
@@ -209,7 +322,48 @@ class StudentController extends Controller
                 $user_data['profile_id'] = $user_profile->id;
                 $student = Student::create($user_data);
                 $contributor = Contributor::create($user_data);
+                $token = $this->getToken($input['assessment_id'], $input['institute_id'], $user_profile->id, $input['email'], $username, $rand_pass);
+                $candidate_data = [
+                    'question_set_id' => $input['assessment_id'],
+                    'profile_id' => $user_profile->id,
+                    'attended' => 0,
+                    'token' => $token
+                ];
+
+
+                $candidate = QuestionSetCandidate::create($candidate_data);
+
+                // Email Sending Functionality
+
+                // $token = $user_profile->createToken('Exam Instruction')->accessToken;
+
+                $url = env('FRONT_END_BASE') . '/exam-instruction/' . $input['assessment_id'] . '/' . $input['institute_id'] . '/' . $user_profile->id . '/' . $token;
+
+                $candidate_email_data = [
+                    'url' => $url,
+                    'assessment_start_time' => $input['assessment_start_time'],
+                    'candidate_name' => $input['first_name'] . ' ' . $input['last_name'],
+                    'email' => $input['email'],
+
+                ];
+
+
+                // return response()->json($candidate_email_data);
+
+                // Mail::to('saifmahmudkhandourjoy@gmail.com')->send(new ExamInfo());
+                // dispatch(new ExamInfoSend());
+
+                // Email Server Related Code
                 $delay = 2; //seconds delay for email sending
+
+                if (!($this->ExamInfoEmail(
+                    $candidate_email_data,
+                    $delay
+                ))) {
+                    throw new \Exception('Email-Server may be down!');
+                }
+
+
                 // if (!($this->singleUserCredential($user_data['email'], $user_data['first_name'], $user_data['last_name'], $user_data['username'], $rand_pass, $delay)))
                 //     throw new \Exception('Email-Server may be down!');
             } catch (\Exception $e) {
