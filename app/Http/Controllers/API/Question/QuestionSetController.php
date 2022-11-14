@@ -273,9 +273,12 @@ class QuestionSetController extends Controller
             $input = $request->all();
             $institute_id = NULL;
             $privacy = (!empty($_POST["privacy"])) ? $input['privacy'] : 0;
-            if ($privacy == 1 && $userProfile->institute_id) {
+            // if ($privacy == 1 && $userProfile->institute_id) {
+            //     $institute_id = $userProfile->institute_id;
+            // }
+            if ($userProfile->institute_id) {
                 $institute_id = $userProfile->institute_id;
-            } 
+            }
             // else {
             //     $institute_id = $userProfile->institute_id;
             // }
@@ -299,7 +302,8 @@ class QuestionSetController extends Controller
                 'title' => $input['title'],
                 'type' => $input['type'],
                 'institute' => (!empty($request["institute"])) ? $request['institute'] : NULL,
-                'institute_id' => (!empty('institute_id') || !is_null($request['institute_id']) ? $request['institute_id'] : NULL),
+                // 'institute_id' => (!empty('institute_id') || !is_null($request['institute_id']) ? $request['institute_id'] : NULL),
+                'institute_id' => $institute_id,
                 'assessment_time' => $assessment_time,
                 'start_time' => $start_time,
                 'end_time' => $end_time,

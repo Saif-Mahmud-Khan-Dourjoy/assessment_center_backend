@@ -28,6 +28,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Str;
 use App\Mail\UserCredentials;
 use \Symfony\Component\Console\Output\ConsoleOutput;
+// use Illuminate\Support\Carbon;
 
 
 class UserController extends Controller
@@ -178,6 +179,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+
         Log::channel("ac_info")->info(__CLASS__ . "# Creating user: " . $request['username']);
         request()->validate([
             'username' => 'required|unique:users',
@@ -230,6 +232,7 @@ class UserController extends Controller
                 'total_question' => 0,
                 'average_rating' => 0,
                 'guard_name' => 'web',
+                'email_verified_at' => date("Y-m-d H:i:s", strtotime('now'))
             ];
             DB::beginTransaction();
             try {

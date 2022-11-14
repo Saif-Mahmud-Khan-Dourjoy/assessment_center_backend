@@ -18,10 +18,10 @@ class InstituteController extends Controller
     public $out;
     function __construct()
     {
-//        $this->middleware('api_permission:institute-list|institute-create|institute-edit|institute-delete', ['only' => ['index','show']]);
-//        $this->middleware('api_permission:institute-create', ['only' => ['store']]);
-//        $this->middleware('api_permission:institute-edit', ['only' => ['update']]);
-//        $this->middleware('api_permission:institute-delete', ['only' => ['destroy']]);
+        //        $this->middleware('api_permission:institute-list|institute-create|institute-edit|institute-delete', ['only' => ['index','show']]);
+        //        $this->middleware('api_permission:institute-create', ['only' => ['store']]);
+        //        $this->middleware('api_permission:institute-edit', ['only' => ['update']]);
+        //        $this->middleware('api_permission:institute-delete', ['only' => ['destroy']]);
         $this->out = new \Symfony\Component\Console\Output\ConsoleOutput();
     }
     /**
@@ -33,16 +33,16 @@ class InstituteController extends Controller
     {
         $this->out->writeln('Fetching all the Institutes');
         $user = Auth::user();
-        $user_profile = UserProfile::where('user_id','=',$user->id)->first();
-        if($user->can('super-admin')){
+        $user_profile = UserProfile::where('user_id', '=', $user->id)->first();
+        if ($user->can('super-admin')) {
             $institutes = Institute::all();
-            return response()->json(['success'=>true,'institutes'=>$institutes],$this->successStatus);
+            return response()->json(['success' => true, 'institutes' => $institutes], $this->successStatus);
         }
-        if($user_profile->institute_id){
-            $institutes = Institute::where('id','=',$user_profile->institute_id)->get();
-            return response()->json(['success'=>true,'institutes'=>$institutes],$this->successStatus);
+        if ($user_profile->institute_id) {
+            $institutes = Institute::where('id', '=', $user_profile->institute_id)->get();
+            return response()->json(['success' => true, 'institutes' => $institutes], $this->successStatus);
         }
-        return response()->json(['success'=>true,'institutes'=>[]],$this->successStatus);
+        return response()->json(['success' => true, 'institutes' => []], $this->successStatus);
     }
 
 
@@ -60,16 +60,16 @@ class InstituteController extends Controller
         $input = $request->all();
         $data = [
             'name' => $input['name'],
-            'contact_no' => (!empty($_POST["contact_no"])) ? $input['contact_no'] : '',
-            'email' => (!empty($_POST["email"])) ? $input['email'] : '',
-            'website' => (!empty($_POST["website"])) ? $input['website'] : '',
-            'address' => (!empty($_POST["address"])) ? $input['address'] : '',
-            'logo' => (!empty($_POST["logo"]))? $input['logo']:'',
-            'icon' => (!empty($_POST["icon"]))? $input["icon"]:'',
+            'contact_no' => (!empty($input['contact_no'])) ? $input['contact_no'] : '',
+            'email' => (!empty($input['email'])) ? $input['email'] : '',
+            'website' => (!empty($input['website'])) ? $input['website'] : '',
+            'address' => (!empty($input['address'])) ? $input['address'] : '',
+            'logo' => (!empty($input['logo'])) ? $input['logo'] : '',
+            'icon' => (!empty($input['icon'])) ? $input["icon"] : '',
         ];
-        $this->out->writeln('Length of the string: '.strlen($data['website']));
+        $this->out->writeln('Length of the string: ' . strlen($data['website']));
         $institute = Institute::create($data);
-        if( $institute )
+        if ($institute)
             return response()->json(['success' => true, 'institute' => $institute], $this->successStatus);
         else
             return response()->json(['success' => false, 'message' => 'Institute added fail'], $this->failedStatus);
@@ -85,7 +85,7 @@ class InstituteController extends Controller
     public function show($id)
     {
         $institute = Institute::find($id);
-        if ( !$institute )
+        if (!$institute)
             return response()->json(['success' => false, 'message' => 'Institute not found'], $this->invalidStatus);
         else
             return response()->json(['success' => true, 'institute' => $institute], $this->successStatus);
@@ -101,15 +101,15 @@ class InstituteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try{
+        try {
             $institute = Institute::find($id);
-            if(!$institute)
+            if (!$institute)
                 throw new \Exception("Institution not found!");
             $input = $request->all();
             $institute = $institute->update($input);
             return response()->json(['success' => true, 'message' => 'Institute updated successfully!'], $this->successStatus);
-        }catch(\Exception $e){
-            return response()->json(['success' => false, 'message' => 'Institute update failed!', 'error'=>$e->getMessage()], $this->failedStatus);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Institute update failed!', 'error' => $e->getMessage()], $this->failedStatus);
         }
     }
 
@@ -124,13 +124,12 @@ class InstituteController extends Controller
     public function destroy($id)
     {
         $institute = Institute::find($id);
-        if ( !$institute )
+        if (!$institute)
             return response()->json(['success' => false, 'message' => 'Institute not found'], $this->invalidStatus);
 
-        if ( $institute->delete() )
+        if ($institute->delete())
             return response()->json(['success' => true, 'message' => 'Institute deleted'], $this->successStatus);
         else
             return response()->json(['success' => false, 'message' => 'Institute can not be deleted'], $this->failedStatus);
-
     }
 }
