@@ -220,6 +220,8 @@ class StudentController extends Controller
             ]);
             $input = $request->all();
 
+            // Log::info($input);
+            // exit();
 
             $roleID = (!empty($input["role_id"])) ? $input['role_id'] : 0;
             if ($roleID) {
@@ -232,13 +234,17 @@ class StudentController extends Controller
                 }
                 $student_role_id = $role->student_role_id;
             }
+
+
+
             $rand_pass = Str::random(8);
             $hashed_random_password = Hash::make($rand_pass);
 
-            $previous_user = UserProfile::where('email', '=', $input['email'])->get();
-            $previous_student = User::where("id", $previous_user[0]->user_id)->first();
-            // return response()->json($previous_user);
-            if (count($previous_user) > 0) {
+            $isAvailable = UserProfile::where('email', '=', $input['email'])->exists();
+
+            if ($isAvailable) {
+                $previous_user = UserProfile::where('email', '=', $input['email'])->get();
+                $previous_student = User::where("id", $previous_user[0]->user_id)->first();
 
                 $previous_student->password = $hashed_random_password;
                 $previous_student->update();
@@ -279,11 +285,12 @@ class StudentController extends Controller
                 }
 
 
-                return response()->json(['success' => false, "message" => "Candidate Already Exist and Email Sent"], $this->failedStatus);
+                return response()->json(['success' => true, "message" => "Candidate Already Exist and Email Sent"], $this->successStatus);
             }
 
 
             $username = $this->uniqueUser($input['first_name'], $input['last_name']);
+
             $user_data = [
                 'first_name' => $input['first_name'],
                 'last_name' => $input['last_name'],
@@ -313,6 +320,7 @@ class StudentController extends Controller
                 'average_rating' => 0,
                 'guard_name' => 'web',
             ];
+
             DB::beginTransaction();
             try {
                 $user = User::create($user_data);

@@ -252,7 +252,7 @@ class QuestionSetAnswerController extends Controller
                 ->get();
             if (!$question_answer)
                 throw new \Exception("No Student Attended for this Assessment!");
-            $round = Round::find($questionSet->round_id);
+            // $round = Round::find($questionSet->round_id);
             $i = 0;
             $total_mark = $questionSet->total_mark;
             if (sizeof($question_answer) == 0) {
@@ -262,16 +262,17 @@ class QuestionSetAnswerController extends Controller
                 $mark_achieved = $question_answer[0]->total_mark;
                 $total_mark = $questionSet->total_mark;
                 $mark_percentage = ($mark_achieved / $total_mark) * 100;
-                if ($round->passing_criteria == 'pass' && $mark_percentage >= $round->number) {
-                    $this->out->writeln('Total Mark: ' . $mark_achieved);
-                    $question_answer[$i]['promoted'] = 1;
-                } else if ($round->passing_criteria == 'sort' && 0 < $round->number) {
-                    $this->out->writeln('Total Mark: ' . $mark_achieved);
-                    $question_answer[$i]['promoted'] = 1;
-                } else {
-                    $this->out->writeln('Total Mark: ' . $mark_achieved);
-                    $question_answer[$i]['promoted'] = 0;
-                }
+                // if ($round->passing_criteria == 'pass' && $mark_percentage >= $round->number) {
+                //     $this->out->writeln('Total Mark: ' . $mark_achieved);
+                //     $question_answer[$i]['promoted'] = 1;
+                // } else if ($round->passing_criteria == 'sort' && 0 < $round->number) {
+                //     $this->out->writeln('Total Mark: ' . $mark_achieved);
+                //     $question_answer[$i]['promoted'] = 1;
+                // } else {
+                //     $this->out->writeln('Total Mark: ' . $mark_achieved);
+                //     $question_answer[$i]['promoted'] = 0;
+                // }
+                $question_answer[$i]['promoted'] = 0;
                 $question_answer[0]['rank'] = 1;
                 $question_answer[0]['position'] = 1;
                 $question_answer[0]['percentage'] = $mark_percentage;
@@ -287,13 +288,14 @@ class QuestionSetAnswerController extends Controller
                 $student = $question_answer[$rank]['user_profile']['id'];
                 $mark_percentage = ($mark_achieved / $total_mark) * 100;
                 $question_answer[$rank]['percentage'] = $mark_percentage;
-                if ($round->passing_criteria == 'pass' && $mark_percentage >= $round->number) {
-                    $question_answer[$rank]['promoted'] = 1;
-                } else if ($round->passing_criteria == 'sort' && $rank < $round->number) {
-                    $question_answer[$rank]['promoted'] = 1;
-                } else {
-                    $question_answer[$rank]['promoted'] = 0;
-                }
+                // if ($round->passing_criteria == 'pass' && $mark_percentage >= $round->number) {
+                //     $question_answer[$rank]['promoted'] = 1;
+                // } else if ($round->passing_criteria == 'sort' && $rank < $round->number) {
+                //     $question_answer[$rank]['promoted'] = 1;
+                // } else {
+                //     $question_answer[$rank]['promoted'] = 0;
+                // }
+                $question_answer[$rank]['promoted'] = 0;
                 $question_answer[$rank]['rank'] = $rank + 1;
                 $question_answer[$rank]['position'] = $position + 1;
                 if ($rank + 1 < $total_student && $question_answer[$rank]['total_mark'] == $question_answer[$rank + 1]['total_mark'] && $question_answer[$rank]['time_taken'] == $question_answer[$rank + 1]['time_taken'])

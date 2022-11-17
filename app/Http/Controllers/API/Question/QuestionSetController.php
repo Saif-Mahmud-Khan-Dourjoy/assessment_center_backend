@@ -488,15 +488,66 @@ class QuestionSetController extends Controller
         }
     }
 
-    public function attendQuestionSet($id)
+    // public function attendQuestionSet($id)
+    // {
+
+    //     $st_time = microtime(true);
+    //     try {
+    //         $userProfile = UserProfile::where('user_id', '=', Auth::id())->first();
+    //         Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Attending Question-set: $id, Profile-id: " . $userProfile->id);
+    //         // if (QuestionSetCandidate::where('question_set_id', $id)->where('profile_id', $userProfile->id)->exists())
+    //         //     return response()->json(['success' => false, "message" => "You have already attended!"], $this->failedStatus);
+    //         Student::where('profile_id', '=', $userProfile->id)->increment('total_complete_assessment');
+    //         //            if (Cache::has($this->roundCachekey.)) {
+    //         //                return CacheCandidates::get($this->cacheKey.$round->id);
+    //         //            }
+    //         /*** Remove Comment if time-validation seems necessary ***
+    //         $now = now();
+    //         if(Carbon::parse($question_set[0]->start_time)>$now || Carbon::parse($question_set[0]->end_time)<$now)
+    //             return response()->json(['success' => false, 'message' => 'Invalid entering time, Assessment time may over or its too early to participate on this Assessment!'], $this->invalidStatus);
+    //          *****/
+    //         $this->out->writeln("Attending Student for the assessment-id: " . $id);
+    //         $question_set = Cache::remember($this->cacheKey . $id, 60 * 60 * 24, function () use ($id) {
+    //             $this->out->writeln("Question-set Not found in cache!");
+    //             $question_set = QuestionSet::with(['question_set_details'])
+    //                 ->where('id', $id)
+    //                 ->get();
+    //             if (sizeof($question_set) < 1)
+    //                 return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
+    //             $i = 0;
+    //             foreach ($question_set[0]->question_set_details as $question_detail) {
+    //                 $question = Question::with(['question_details', 'question_tag'])
+    //                     ->where('id', $question_detail->question_id)
+    //                     ->get();
+    //                 $question_set[0]->question_set_details[$i++]['question'] = $question;
+    //             }
+    //             return $question_set;
+    //         });
+    //         $time_taken = microtime(true) - $st_time;
+    //         $this->out->writeln("Total time taken: " . $time_taken);
+    //         $question_set_candidates = QuestionSetCandidate::create(['question_set_id' => $question_set[0]->id, 'profile_id' => $userProfile->id, 'attended' => 1]);
+    //         Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Successfully attended on Question-set: $id, Profile-id: " . $userProfile->id);
+    //         return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
+    //     } catch (\Exception $e) {
+    //         Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Successfully attended on Question-set: $id, Profile-id: " . $userProfile->id . ", error: " . $e->getMessage());
+    //         return response()->json(['success' => false, "message" => "Unable to fetch Question-set for attend!", "error" => $e->getMessage()], $this->failedStatus);
+    //     }
+    // }
+
+    public function attendQuestionSet(Request $request)
     {
+        $assessment_id = $request->assessment_id;
+        $profile_id = $request->profile_id;
+        // return $assessment_id . $profile_id;
         $st_time = microtime(true);
         try {
+
             $userProfile = UserProfile::where('user_id', '=', Auth::id())->first();
-            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Attending Question-set: $id, Profile-id: " . $userProfile->id);
-            // if (QuestionSetCandidate::where('question_set_id', $id)->where('profile_id', $userProfile->id)->exists())
-            //     return response()->json(['success' => false, "message" => "You have already attended!"], $this->failedStatus);
-            Student::where('profile_id', '=', $userProfile->id)->increment('total_complete_assessment');
+            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Attending Question-set: $assessment_id, Profile-id: " . $profile_id);
+
+            if (QuestionSetCandidate::where('question_set_id', $assessment_id)->where('profile_id', $profile_id)->where('attended', 1)->exists())
+                return response()->json(['success' => false, "message" => "You have already attended!"], $this->failedStatus);
+            Student::where('profile_id', '=', $profile_id)->increment('total_complete_assessment');
             //            if (Cache::has($this->roundCachekey.)) {
             //                return CacheCandidates::get($this->cacheKey.$round->id);
             //            }
@@ -505,13 +556,15 @@ class QuestionSetController extends Controller
             if(Carbon::parse($question_set[0]->start_time)>$now || Carbon::parse($question_set[0]->end_time)<$now)
                 return response()->json(['success' => false, 'message' => 'Invalid entering time, Assessment time may over or its too early to participate on this Assessment!'], $this->invalidStatus);
              *****/
-            $this->out->writeln("Attending Student for the assessment-id: " . $id);
-            $question_set = Cache::remember($this->cacheKey . $id, 60 * 60 * 24, function () use ($id) {
+            $this->out->writeln("Attending Student for the assessment-id: " . $assessment_id);
+            $question_set = Cache::remember($this->cacheKey . $assessment_id, 60 * 60 * 24, function () use ($assessment_id) {
                 $this->out->writeln("Question-set Not found in cache!");
                 $question_set = QuestionSet::with(['question_set_details'])
-                    ->where('id', $id)
+                    ->where('id', $assessment_id)
                     ->get();
-                if (sizeof($question_set) < 1)
+                if (
+                    sizeof($question_set) < 1
+                )
                     return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
                 $i = 0;
                 foreach ($question_set[0]->question_set_details as $question_detail) {
@@ -524,11 +577,14 @@ class QuestionSetController extends Controller
             });
             $time_taken = microtime(true) - $st_time;
             $this->out->writeln("Total time taken: " . $time_taken);
-            $question_set_candidates = QuestionSetCandidate::create(['question_set_id' => $question_set[0]->id, 'profile_id' => $userProfile->id, 'attended' => 1]);
-            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Successfully attended on Question-set: $id, Profile-id: " . $userProfile->id);
+            // $question_set_candidates = QuestionSetCandidate::create(['question_set_id' => $question_set[0]->id, 'profile_id' => $profile_id, 'attended' => 1]);
+            $attended = QuestionSetCandidate::where('question_set_id', $assessment_id)->where('profile_id', $profile_id)->first();
+            $attended->attended = 1;
+            $attended->update();
+            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Successfully attended on Question-set: $assessment_id, Profile-id: " . $profile_id);
             return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
         } catch (\Exception $e) {
-            Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Successfully attended on Question-set: $id, Profile-id: " . $userProfile->id . ", error: " . $e->getMessage());
+            Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Successfully attended on Question-set: $assessment_id, Profile-id: " . $profile_id . ", error: " . $e->getMessage());
             return response()->json(['success' => false, "message" => "Unable to fetch Question-set for attend!", "error" => $e->getMessage()], $this->failedStatus);
         }
     }

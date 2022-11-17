@@ -16,13 +16,18 @@ class AssessmentController extends Controller
         $profile_id = $request['profile_id'];
         // $current_time = date('Y-m-d H:i:s');
         $current_time = Carbon::now()->toDateTimeString();
+        $isValid = QuestionSetCandidate::where('question_set_id', $assessment_id)->where('profile_id', $profile_id)->exists();
+        if ($isValid) {
+            $assessment = QuestionSet::where('id', $assessment_id)->first();
+            $assessment_candidate = QuestionSetCandidate::where('question_set_id', $assessment_id)->where('profile_id', $profile_id)->first();
 
-        $assessment = QuestionSet::where('id', $assessment_id)->first();
-        $assessment_candidate = QuestionSetCandidate::where('question_set_id', $assessment_id)->where('profile_id', $profile_id)->first();
-        if ($assessment_candidate->attended == 1) {
-            return response()->json(["success" => false, "message" => "You Have Already Attended in This Assessment"]);
+            if ($assessment_candidate->attended == 1) {
+                return response()->json(["success" => false, "message" => "You Have Already Attended in This Assessment"]);
+            }
+
+            return response()->json(["success" => true, "current_time" => $current_time, "start_time" => $assessment->start_time, "end_time" => $assessment->end_time]);
+        } else {
+            return response()->json(["success" => false, "message" => "Not Valid Assessment"]);
         }
-
-        return response()->json(["success" => true, "current_time" => $current_time, "start_time" => $assessment->start_time, "end_time" => $assessment->end_time]);
     }
 }

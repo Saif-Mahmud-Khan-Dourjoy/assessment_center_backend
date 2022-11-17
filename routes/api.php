@@ -23,7 +23,9 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('password/reset', 'API\Auth\ForgotPasswordController@passwordReset');
     Route::post('valid-assessment', 'API\Question\AssessmentController@checkValidAssessment');
     Route::get('decrypt-token/{token}', 'API\User\StudentController@decryptToken');
-    Route::get('attend-question-set/{id}', 'API\Question\QuestionSetController@attendQuestionSet')->name('attend-question-set');
+    // Route::get('attend-question-set/{id}', 'API\Question\QuestionSetController@attendQuestionSet')->name('attend-question-set');
+    Route::get('attend-question-set', 'API\Question\QuestionSetController@attendQuestionSet')->name('attend-question-set');
+    Route::resource('question-set-answer', 'API\Question\QuestionSetAnswerController');
     Route::get('validate-token', function () {
         return response()->json(['success' => true, 'message' => 'Token is valid'], 200);
     })->middleware('auth:api');
@@ -97,7 +99,7 @@ Route::group(['prefix' => 'v1'], function () {
 
         // Route::get('attend-question-set/{id}', 'API\Question\QuestionSetController@attendQuestionSet')->name('attend-question-set');
         Route::get('question-set-status/{id}', 'API\Question\QuestionSetController@status');
-        Route::resource('question-set-answer', 'API\Question\QuestionSetAnswerController');
+        // Route::resource('question-set-answer', 'API\Question\QuestionSetAnswerController');
         Route::post('student-assessment', 'API\Question\QuestionSetAnswerController@eachStudentAssessment')->name('student-assessment');
         Route::post('student-have-assessments', 'API\Question\QuestionSetController@studentHaveAssessments')->name('student-have-assessments');
 
