@@ -101,8 +101,11 @@ class QuestionController extends Controller
 
         // $this->out->writeln('data: ' . $input);
 
+        $user = Auth::user();
+        $userProfile = UserProfile::where('user_id', $user->id)->first();
 
-        $contributor = Contributor::where('profile_id', $input['profile_id'])->first();
+
+        $contributor = Contributor::where('profile_id', $userProfile->id)->first();
 
         // Check contributor
         if (!$contributor)
@@ -117,8 +120,8 @@ class QuestionController extends Controller
         if (!$input['answer'])
             return response()->json(['success' => false, 'message' => 'No answer selected'], $this->invalidStatus);
 
-        $user = Auth::user();
-        $userProfile = UserProfile::where('user_id', $user->id)->first();
+        // $user = Auth::user();
+        // $userProfile = UserProfile::where('user_id', $user->id)->first();
         // Log::info($userProfile);
         // exit();
         $institute_id = NULL;
