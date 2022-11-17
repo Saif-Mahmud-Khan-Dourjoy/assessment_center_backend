@@ -350,7 +350,7 @@ class QuestionController extends Controller
     {
         $user = Auth::user();
         $userProfile = UserProfile::where('user_id', $user->id)->first();
-        $question = Question::with(['question_details', 'question_answer', 'question_tag'])
+        $question = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])
             ->where('id', $id)
             ->get();
 
