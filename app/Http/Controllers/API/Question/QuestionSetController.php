@@ -272,7 +272,7 @@ class QuestionSetController extends Controller
             ]);
             $input = $request->all();
             $institute_id = NULL;
-            $privacy = (!empty($_POST["privacy"])) ? $input['privacy'] : 0;
+            $privacy = (!empty($input['privacy'])) ? $input['privacy'] : 0;
             // if ($privacy == 1 && $userProfile->institute_id) {
             //     $institute_id = $userProfile->institute_id;
             // }

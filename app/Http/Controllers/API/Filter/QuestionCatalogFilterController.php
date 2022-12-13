@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class QuestionCatalogFilterController extends Controller
 {
@@ -21,7 +22,7 @@ class QuestionCatalogFilterController extends Controller
     public function filterUsingTag(Request $request)
     {
 
-
+        // return $request;
 
         if ($request->tag_id) {
             $question_id = QuestionCategoryTag::select('question_id')->distinct()->whereIn('category_id', $request->tag_id)->get();
@@ -33,31 +34,36 @@ class QuestionCatalogFilterController extends Controller
 
                 $user = Auth::user();
                 $userProfile = UserProfile::where('user_id', $user->id)->first();
+                $question_catalogs = QuestionCatalog::with(['question_catalog_details'])->whereIn('id', $catalog_id);
+                if ($request->searchValue != NULL && Str::length($request->searchValue) > 2 ) {
+                    $question_catalogs = $question_catalogs->where('title', 'like', '%' . $request->searchValue . '%');
+                }
+
                 if ($request->institute_id == 1) {
-                    $question_catalogs = QuestionCatalog::with(['question_catalog_details'])
-                        ->whereIn('id', $catalog_id)
-                        ->where(function ($query) use ($userProfile) {
+
+
+                $question_catalogs = $question_catalogs->where(function ($query) use ($userProfile) {
                             $query->where('institute_id', $userProfile->institute_id)
                                 ->orWhere('privacy', 0);
                         })
                         ->get();
                 } elseif ($request->institute_id == 2) {
-                    $question_catalogs = QuestionCatalog::with(['question_catalog_details'])
-                        ->where('institute_id', '=', $userProfile->institute_id)
 
-                        ->whereIn('id', $catalog_id)
+                    $question_catalogs = $question_catalogs->where('institute_id', '=', $userProfile->institute_id)
                         ->get();
                 } elseif ($request->institute_id == 3) {
-                    $question_catalogs = QuestionCatalog::with(['question_catalog_details'])
-                        ->where('institute_id', '=', $userProfile->institute_id)
+
+                    $question_catalogs = $question_catalogs->where('institute_id', '=', $userProfile->institute_id)
                         ->where('created_by', $user->id)
-                        ->whereIn('id', $catalog_id)
                         ->get();
                 }
             } else {
+                $question_catalogs = QuestionCatalog::with(['question_catalog_details']);
+                if ($request->searchValue != NULL && Str::length($request->searchValue) > 2 ) {
+                    $question_catalogs = $question_catalogs->where('title', 'like', '%' . $request->searchValue . '%');
+                }
 
-                $question_catalogs = QuestionCatalog::with(['question_catalog_details'])
-                    ->where('privacy', 0)
+                $question_catalogs = $question_catalogs->where('privacy', 0)
                     ->whereIn('id', $catalog_id)->get();
             }
 
@@ -77,21 +83,19 @@ class QuestionCatalogFilterController extends Controller
 
             $user = Auth::user();
             $userProfile = UserProfile::where('user_id', $user->id)->first();
-
+            $question_catalogs = QuestionCatalog::with(['question_catalog_details']);
+            if ($request->searchValue != NULL && Str::length($request->searchValue) > 2 ) {
+                $question_catalogs = $question_catalogs->where('title', 'like', '%' . $request->searchValue . '%');
+            }
             if ($request->institute_id == 1) {
-                $question_catalogs = QuestionCatalog::with(['question_catalog_details'])
-
-                    ->where('institute_id', '=', $userProfile->institute_id)
-                    ->orWhere('privacy', 0)
-                    ->get();
+                $question_catalogs = $question_catalogs->where(function ($query) use ($userProfile) {
+                    $query->where('institute_id', $userProfile->institute_id)
+                        ->orWhere('privacy', 0);
+                })->get();
             } elseif ($request->institute_id == 2) {
-                $question_catalogs = QuestionCatalog::with(['question_catalog_details'])
-                    ->where('institute_id', '=', $userProfile->institute_id)
-                    ->get();
+                $question_catalogs = $question_catalogs->where('institute_id', $userProfile->institute_id)->get();
             } elseif ($request->institute_id == 3) {
-                $question_catalogs = QuestionCatalog::with(['question_catalog_details'])
-                    ->where('institute_id', '=', $userProfile->institute_id)
-                    ->where('created_by', $user->id)
+                $question_catalogs = $question_catalogs->where('institute_id', $userProfile->institute_id)->where('created_by', $user->id)
                     ->get();
             }
 
@@ -108,9 +112,11 @@ class QuestionCatalogFilterController extends Controller
                 }
             }
         } else {
-
-            $question_catalogs = QuestionCatalog::with(['question_catalog_details'])
-                ->where('privacy', 0)
+            $question_catalogs = QuestionCatalog::with(['question_catalog_details']);
+            if ($request->searchValue != NULL && Str::length($request->searchValue) > 2 ) {
+                $question_catalogs = $question_catalogs->where('title', 'like', '%' . $request->searchValue . '%');
+            }
+            $question_catalogs = $question_catalogs->where('privacy', 0)
                 ->get();
             for ($i = 0; $i < count($question_catalogs); $i++) {
                 $question_catalog_details = $question_catalogs[$i]->question_catalog_details;

@@ -45,7 +45,9 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('question-filter', 'API\Filter\QuestionFilterController@filterUsingTag');
         Route::post('question-catalog-filter', 'API\Filter\QuestionCatalogFilterController@filterUsingTag');
         Route::post('question-by-catalog', 'API\Filter\QuestionGetByCatalog@QuestionByCatalog');
+        Route::get('question-by-catalog', 'API\Filter\QuestionGetByCatalog@QuestionByCatalog');
         Route::get('recruiters', 'API\User\UserController@getRecruiter');
+        Route::get('assessment-filter', 'API\Filter\AssessmentFilterController@assessmentFilter');
         // Route::get('valid-assessment', 'API\Question\AssessmentController@checkValidAssessment');
     });
 

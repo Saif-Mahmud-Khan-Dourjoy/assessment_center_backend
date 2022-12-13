@@ -9,6 +9,7 @@ use App\QuestionCategoryTag;
 use App\UserProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 
 
@@ -76,26 +77,31 @@ class QuestionFilterController extends Controller
             if (!empty($request->institute_id)) {
                 $user = Auth::user();
                 $userProfile = UserProfile::where('user_id', $user->id)->first();
+                $questionAll = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])->whereIn('id', $questions_id);
+                if ($request->searchValue != NULL && Str::length($request->searchValue) > 2) {
+                    $questionAll = $questionAll->where(function ($query) use ($request) {
+                        $query->where('description', 'like', '%' . $request->searchValue . '%')
+                            ->orWhere('question_type', 'like', '%' . $request->searchValue . '%')
+                            ->orWhere('question_text', 'like', '%' . $request->searchValue . '%');
+                    });
+                }
                 if ($request->institute_id == 1) {
-                    $questionAll = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])
 
-
-                        ->whereIn('id', $questions_id)
-                        ->where(function ($query) use ($userProfile) {
-                            $query->where('institute_id', $userProfile->institute_id)
-                                ->orWhere('privacy', 0);
-                        })
+                    $questionAll = $questionAll->where(function ($query) use ($userProfile) {
+                        $query->where('institute_id', $userProfile->institute_id)
+                            ->orWhere('privacy', 0);
+                    })
                         ->get();
                 } elseif ($request->institute_id == 2) {
-                    $questionAll = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])
-                        ->where('institute_id', '=', $userProfile->institute_id)
-                        ->whereIn('id', $questions_id)
+
+                    $questionAll = $questionAll->where('institute_id', '=', $userProfile->institute_id)
+
                         ->get();
                 } elseif ($request->institute_id == 3) {
-                    $questionAll = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])
-                        ->where('institute_id', '=', $userProfile->institute_id)
+
+                    $questionAll = $questionAll->where('institute_id', '=', $userProfile->institute_id)
                         ->where('profile_id', $userProfile->id)
-                        ->whereIn('id', $questions_id)
+
                         ->get();
                 }
                 // else {
@@ -105,26 +111,44 @@ class QuestionFilterController extends Controller
                 //         ->get();
                 // }
             } else {
-                $questionAll = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])
-                    ->where('privacy', 0)
+                $questionAll = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])->whereIn('id', $questions_id);
+                if ($request->searchValue != NULL && Str::length($request->searchValue) > 2) {
+                    $questionAll = $questionAll->where(function ($query) use ($request) {
+                        $query->where('description', 'like', '%' . $request->searchValue . '%')
+                            ->orWhere('question_type', 'like', '%' . $request->searchValue . '%')
+                            ->orWhere('question_text', 'like', '%' . $request->searchValue . '%');
+                    });
+                }
+                $questionAll = $questionAll->where('privacy', 0)
                     ->whereIn('id', $questions_id)
                     ->get();
             }
         } elseif (!empty($request->institute_id)) {
             $user = Auth::user();
             $userProfile = UserProfile::where('user_id', $user->id)->first();
+
+            $questionAll = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category']);
+            if ($request->searchValue != NULL && Str::length($request->searchValue) > 2) {
+                $questionAll = $questionAll->where(function ($query) use ($request) {
+                    $query->where('description', 'like', '%' . $request->searchValue . '%')
+                        ->orWhere('question_type', 'like', '%' . $request->searchValue . '%')
+                        ->orWhere('question_text', 'like', '%' . $request->searchValue . '%');
+                });
+            }
+
             if ($request->institute_id == 1) {
-                $questionAll = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])
-                    ->where('institute_id', '=', $userProfile->institute_id)
-                    ->orWhere('privacy', 0)
-                    ->get();
+
+                $questionAll = $questionAll->where(function ($query) use ($userProfile) {
+                    $query->where('institute_id', '=', $userProfile->institute_id)
+                        ->orWhere('privacy', 0);
+                })->get();
             } elseif ($request->institute_id == 2) {
-                $questionAll = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])
-                    ->where('institute_id', '=', $userProfile->institute_id)
+
+                $questionAll = $questionAll->where('institute_id', '=', $userProfile->institute_id)
                     ->get();
             } elseif ($request->institute_id == 3) {
-                $questionAll = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])
-                    ->where('institute_id', '=', $userProfile->institute_id)
+
+                $questionAll = $questionAll->where('institute_id', '=', $userProfile->institute_id)
                     ->where('profile_id', $userProfile->id)
                     ->get();
             }
@@ -134,8 +158,16 @@ class QuestionFilterController extends Controller
             //         ->get();
             // }
         } else {
-            $questionAll = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])
-                ->where('privacy', 0)
+            $questionAll = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category']);
+            if ($request->searchValue != NULL && Str::length($request->searchValue) > 2) {
+                $questionAll = $questionAll->where(function ($query) use ($request) {
+                    $query->where('description', 'like', '%' . $request->searchValue . '%')
+                        ->orWhere('question_type', 'like', '%' . $request->searchValue . '%')
+                        ->orWhere('question_text', 'like', '%' . $request->searchValue . '%');
+                });
+            }
+
+            $questionAll = $questionAll->where('privacy', 0)
                 ->get();
         }
 

@@ -264,7 +264,7 @@ class QuestionController extends Controller
             //'profile_id' => $input['profile_id'],
             'profile_id' => $userProfile->id,
             'category_id' => $input['category_id'],
-            'privacy' => (!empty($_POST["privacy"])) ? $input['privacy'] : 0,
+            'privacy' => (!empty($input['privacy'])) ? $input['privacy'] : 0,
             'publish_status' => $input['publish_status'],
             'question_type' => $input['question_type'],
             'question_text' => $input['question_text'],
