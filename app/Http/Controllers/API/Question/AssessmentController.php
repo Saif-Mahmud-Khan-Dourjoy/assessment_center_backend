@@ -30,4 +30,12 @@ class AssessmentController extends Controller
             return response()->json(["success" => false, "message" => "Not Valid Assessment"]);
         }
     }
+    public function assessmentCandidates($id)
+    {
+        $assessment_candidates = QuestionSetCandidate::with('user_profile')->where('question_set_id', $id)->get();
+        if (!$assessment_candidates) {
+            return response()->json(['success' => true, 'assessment_candidates' => []]);
+        }
+        return response()->json(['success' => true, 'assessment_candidates' => $assessment_candidates]);
+    }
 }
