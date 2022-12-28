@@ -383,16 +383,19 @@ class QuestionSetController extends Controller
             ]);
             $input = $request->all();
             $institute_id = NULL;
-            $privacy = (!empty($_POST["privacy"])) ? $input['privacy'] : 0;
-            if ($privacy == 1 && $userProfile->institute_id) {
+            $privacy = (!empty($input["privacy"])) ? $input['privacy'] : 0;
+            // if ($privacy == 1 && $userProfile->institute_id) {
+            //     $institute_id = $userProfile->institute_id;
+            // }
+            if ($userProfile->institute_id) {
                 $institute_id = $userProfile->institute_id;
             }
             // Add question set
             $questionsetData = [
                 'title' => $input['title'],
                 'type' => $input['type'],
-                'institute' => (!empty($_POST["institute"])) ? $input['institute'] : '',
-                'institute_id' => (!(empty($input['institute_id'] or is_null($input['institute_id']))) ? $input['institute_id'] : null),
+                'institute' => (!empty($input["institute"])) ? $input['institute'] : NULL,
+                'institute_id' => $institute_id,
                 'assessment_time' => $input['assessment_time'],
                 'start_time' => (!empty($input['start_time']) || !is_null($input['start_time']) ? $input['start_time'] : ''),
                 'end_time' => (!empty('end_time') || !is_null($input['end_time']) ? $input['end_time'] : ''),
@@ -402,7 +405,7 @@ class QuestionSetController extends Controller
                 'status' => $input['status'],
                 'privacy' => $privacy,
                 'approved_by' => $userProfile->id, //Profile ID
-                'round_id' => $input['round_id'],
+                // 'round_id' => $input['round_id'],
                 'updated_by' => $user->id,
             ];
             // Question-Set Details data
