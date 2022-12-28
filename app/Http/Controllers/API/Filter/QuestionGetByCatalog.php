@@ -23,7 +23,22 @@ class QuestionGetByCatalog extends Controller
             ->whereIn('id', $question_id)
             ->get();
 
-        
+
+
+        if ($questions) {
+            return response()->json(['success' => true, 'questions' => $questions], $this->successStatus);
+        } else {
+            return response()->json(['success' => true, 'questions' => []], $this->successStatus);
+        }
+    }
+    public function QuestionById(Request $request)
+    {
+        $questions = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])
+
+            ->whereIn('id', $request->id)
+            ->get();
+
+
 
         if ($questions) {
             return response()->json(['success' => true, 'questions' => $questions], $this->successStatus);
