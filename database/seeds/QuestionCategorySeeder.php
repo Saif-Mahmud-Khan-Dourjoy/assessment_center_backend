@@ -12,7 +12,7 @@ class QuestionCategorySeeder extends Seeder
      */
     public function run()
     {
-        QuestionCategory::create([
+          $question_category=[
             [
                 'name' => 'Advance',
                 'parents_id' => 0,
@@ -67,6 +67,10 @@ class QuestionCategorySeeder extends Seeder
                 'layer' => 0,
                 'description' => NULL,
             ],
-        ]);
+        ];
+
+        foreach ($question_category as $category) {
+            QuestionCategory::create($category);
+        }
     }
 }
