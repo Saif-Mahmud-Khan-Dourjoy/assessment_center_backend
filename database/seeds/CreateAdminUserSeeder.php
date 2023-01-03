@@ -9,6 +9,8 @@ use App\UserProfile;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\RoleSetup;
+use Carbon\Carbon;
+
 
 class CreateAdminUserSeeder extends Seeder
 {
@@ -33,7 +35,7 @@ class CreateAdminUserSeeder extends Seeder
             'password' => bcrypt('123456789'),
             'status' => '1',
             'institute_id' => 1,
-
+            'email_verified_at' => Carbon::now()->toDateTimeString()
         ]);
 
         // Add User Profile
