@@ -1,0 +1,2 @@
+1. composer require doctrine/dbal:^2.6 --ignore-platform-reqs
+2. composer require doctrine/inflector:1.4 --ignore-platform-reqs
