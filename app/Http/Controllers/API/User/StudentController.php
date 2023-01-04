@@ -261,7 +261,7 @@ class StudentController extends Controller
 
 
 
-                $url = env('FRONT_END_BASE') . '/exam-instruction/' . $input['assessment_id'] . '/' . $input['institute_id'] . '/' . $previous_user[0]->id . '/' . $token;
+                $url = env('FRONT_END_BASE') . '/#/exam-instruction/' . $input['assessment_id'] . '/' . $input['institute_id'] . '/' . $previous_user[0]->id . '/' . $token;
 
                 $candidate_email_data = [
                     'url' => $url,
