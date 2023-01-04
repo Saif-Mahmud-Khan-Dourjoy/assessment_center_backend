@@ -314,7 +314,7 @@ class QuestionSetController extends Controller
                 'privacy' => $privacy,
                 'approved_by' => $userProfile->id, //Profile ID
                 // 'round_id' => $input['round_id'],
-                'round_id' => (!empty($request["round_id"])) ? $request['round_id'] : NULL,
+                // 'round_id' => (!empty($request["round_id"])) ? $request['round_id'] : NULL,
                 'created_by' => $user->id, //User ID
                 'updated_by' => $user->id,
             ];
