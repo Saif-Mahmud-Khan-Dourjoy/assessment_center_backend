@@ -345,7 +345,7 @@ class StudentController extends Controller
 
                 // $token = $user_profile->createToken('Exam Instruction')->accessToken;
 
-                $url = env('FRONT_END_BASE') . '/exam-instruction/' . $input['assessment_id'] . '/' . $input['institute_id'] . '/' . $user_profile->id . '/' . $token;
+                $url = env('FRONT_END_BASE') . '/#/exam-instruction/' . $input['assessment_id'] . '/' . $input['institute_id'] . '/' . $user_profile->id . '/' . $token;
 
                 $candidate_email_data = [
                     'url' => $url,
