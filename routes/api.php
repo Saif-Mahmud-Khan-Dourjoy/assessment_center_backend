@@ -52,6 +52,11 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('question-by-id', 'API\Filter\QuestionGetByCatalog@QuestionById');
         
         // Route::get('valid-assessment', 'API\Question\AssessmentController@checkValidAssessment');
+        Route::get('assessment-statistic','API\Question\AssessmentController@assessmentStats');
+        Route::get('question-question-set-statistic','API\Question\AssessmentController@questionQuestionSetStats');
+        Route::get('co-recruiters','API\Question\AssessmentController@coRecruiters');
+        Route::get('question-num-by-category/{categoryName?}','API\Question\AssessmentController@questionNumberByCategory');
+        
     });
 
     Route::middleware(['auth:api', 'api_email_verified'])->group(function () {

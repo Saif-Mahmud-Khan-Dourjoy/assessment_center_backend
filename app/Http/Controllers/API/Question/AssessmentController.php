@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers\Api\Question;
 
-use App\Http\Controllers\Controller;
-use App\QuestionSet;
-use App\QuestionSetCandidate;
-use Illuminate\Http\Request;
+use App\User;
+use App\Question;
 use Carbon\Carbon;
+use App\QuestionSet;
+use App\QuestionCatalog;
+use App\QuestionCategory;
+use Illuminate\Http\Request;
+use App\QuestionSetCandidate;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class AssessmentController extends Controller
 {
@@ -37,5 +42,84 @@ class AssessmentController extends Controller
             return response()->json(['success' => true, 'assessment_candidates' => []]);
         }
         return response()->json(['success' => true, 'assessment_candidates' => $assessment_candidates]);
+    }
+   
+    public function assessmentStats(Request $request){
+        $user=Auth::user();
+        $total=0;
+        $finished=0;
+        $ongoing=0;
+        $upcoming=0;
+        $now = Carbon::now()->format('Y-m-d H:i:s');
+        if($request->type){
+            if($request->type==1){
+                $question_sets=QuestionSet::where('privacy',0)
+                          ->orWhere('institute_id',$user->institute_id)
+                          ->orWhere('created_by',$user->id)->get();
+
+              }
+              if($request->type==2){
+                  $question_sets=QuestionSet::Where('institute_id',$user->institute_id)->orWhere('created_by',$user->id)->get();
+                }else{
+                  $question_sets=QuestionSet::Where('created_by',$user->id)->get();
+                }
+             foreach($question_sets as $single){
+                 $start_time=$single->start_time;
+                 $end_time=$single->end_time;
+                 if($end_time <= $now ){
+                    $finished++;
+                 }elseif($end_time>$now && $start_time < $now){
+                    $ongoing++;
+                 }elseif($start_time > $now){
+                   $upcoming++;
+                 }
+
+             }
+             $total=count($question_sets);
+
+              return response()->json(['success'=>true,'data'=>['total'=>$total,'finished'=>$finished,'ongoing'=>$ongoing,'upcoming'=>$upcoming]]);
+        }
+
+        else{
+            return response()->json(['success'=>false,'data'=>[]]);
+        }
+       
+    }
+
+    public function questionQuestionSetStats(){
+        $user=Auth::user();
+
+        $openSourceQuestion=Question::Where('privacy',0)->get();
+        $openSourceQuestionSet=QuestionCatalog::Where('privacy',0)->get();
+        $organizationalQuestion=Question::Where('institute_id',$user->institute_id)->orWhere('created_by',$user->id)->get();
+        $organizationalQuestionSet=QuestionCatalog::Where('institute_id',$user->institute_id)->orWhere('created_by',$user->id)->get();
+        $ownQuestion=Question::Where('created_by',$user->id)->get();
+        $ownQuestionSet=QuestionCatalog::Where('created_by',$user->id)->get();
+
+        return response()->json(['success'=>true,'data'=>['publicQuestion'=>count($openSourceQuestion),'publicQuestionSet'=>count($openSourceQuestionSet),'OrganizationalQuestion'=>count($organizationalQuestion),'organizationalQuestionSet'=>count($organizationalQuestionSet),'OwnQuestion'=>count($ownQuestion),'OwnQuestionSet'=>count($ownQuestionSet)]]);
+    }
+    public function coRecruiters(){
+        $user=Auth::user();
+        
+        $coRecruiter = User::with(['user_profile','roles'])->where('institute_id',$user->institute_id)->get();
+       
+        return response()->json(['success'=>true,'data'=>$coRecruiter]);
+    }
+    public function questionNumberByCategory($categoryName=""){
+        if($categoryName==""){
+            $questionCategory= QuestionCategory::with(['question_category_tag','question_category_tag.question','question_category_tag.question.question_details','question_category_tag.question.question_answer'])->get();
+            foreach($questionCategory as $qc){
+                $count=count($qc->question_category_tag);
+                $qc['count']=$count;
+            }
+        }else{
+            $questionCategory= QuestionCategory::with(['question_category_tag','question_category_tag.question','question_category_tag.question.question_details','question_category_tag.question.question_answer'])->where("name",'like',$categoryName.'%')->get();
+            foreach($questionCategory as $qc){
+                $count=count($qc->question_category_tag);
+                $qc['count']=$count;
+            }
+        }
+         
+        return response()->json(['success'=>true,'data'=>$questionCategory]);
     }
 }

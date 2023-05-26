@@ -23,4 +23,7 @@ class QuestionCategory extends Model
     public function question_details(){
         return $this->hasMany('App\Question', 'category_id');
     }
+    public function question_category_tag(){
+        return $this->hasMany('App\QuestionCategoryTag', 'category_id');
+    }
 }

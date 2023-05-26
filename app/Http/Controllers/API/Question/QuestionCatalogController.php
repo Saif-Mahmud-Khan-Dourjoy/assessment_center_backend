@@ -68,7 +68,7 @@ class QuestionCatalogController extends Controller
         // return "Hello";
         // exit();
 
-
+     
         request()->validate([
             'title' => 'required|unique:question_catalogs,title',
         ]);
@@ -93,8 +93,8 @@ class QuestionCatalogController extends Controller
             'institute' => $institute,
             'institute_id' => $institute_id,
             'total_question' => $input['total_question'],
-            'privacy' => (!empty($_POST["privacy"])) ? $input['privacy'] : 0,
-            'status' => (!empty($_POST["status"])) ? $input['status'] : 1,
+            'privacy' => (!empty($request->input('privacy'))) ? $input['privacy'] : 0,
+            'status' => (!empty($request->input('status'))) ? $input['status'] : 1,
             'approved_by' => $userProfile->id,
             'created_by' =>  $user->id,
             'updated_by' => $user->id,
