@@ -143,7 +143,7 @@ class QuestionCatalogController extends Controller
             foreach ($question_catalog[0]->question_catalog_details as $question_catalog_detail) {
                 $this->out->writeln('Question catalog details: ' . $question_catalog_detail);
                 $this->out->writeln('Question ID: ' . $question_catalog_detail->question_id);
-                $question = Question::with(['question_details', 'question_answer', 'question_tag'])
+                $question = Question::with(['question_details', 'question_answer', 'question_tag','question_tag.category'])
                     ->where('id', $question_catalog_detail->question_id)
                     ->get();
                 $question_catalog[0]->question_catalog_details[$i++]['question'] = $question;

@@ -52,15 +52,15 @@ class AssessmentController extends Controller
         $upcoming=0;
         $now = Carbon::now()->format('Y-m-d H:i:s');
         if($request->type){
-            if($request->type==1){
+              if($request->type==1){
                 $question_sets=QuestionSet::where('privacy',0)
                           ->orWhere('institute_id',$user->institute_id)
                           ->orWhere('created_by',$user->id)->get();
 
               }
-              if($request->type==2){
+              elseif($request->type==2){
                   $question_sets=QuestionSet::Where('institute_id',$user->institute_id)->orWhere('created_by',$user->id)->get();
-                }else{
+              }else{
                   $question_sets=QuestionSet::Where('created_by',$user->id)->get();
                 }
              foreach($question_sets as $single){
@@ -78,6 +78,7 @@ class AssessmentController extends Controller
              $total=count($question_sets);
 
               return response()->json(['success'=>true,'data'=>['total'=>$total,'finished'=>$finished,'ongoing'=>$ongoing,'upcoming'=>$upcoming]]);
+          
         }
 
         else{

@@ -478,7 +478,7 @@ class QuestionSetController extends Controller
             foreach ($question_set[0]->question_set_details as $question_detail) {
                 $this->out->writeln('Question set details: ' . $question_detail);
                 $this->out->writeln('Question ID: ' . $question_detail->question_id);
-                $question = Question::with(['question_details', 'question_answer', 'question_tag'])
+                $question = Question::with(['question_details', 'question_answer', 'question_tag','question_tag.category'])
                     ->where('id', $question_detail->question_id)
                     ->get();
                 $question_set[0]->question_set_details[$i++]['question'] = $question;
