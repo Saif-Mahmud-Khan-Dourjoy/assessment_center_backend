@@ -533,7 +533,8 @@ class QuestionController extends Controller
 
         $app_url = env('APP_URL');
 
-        return response()->json(['success' => 'You have successfully upload image', 'img_url' => 'images/' . $imageName, 'base_url' => $app_url]);
+        // return response()->json(['success' => 'You have successfully upload image', 'img_url' => 'images/' . $imageName, 'base_url' => $app_url]);
+        return response()->json(['success' => 'You have successfully upload image', 'img_url' => 'images/' . $imageName, 'base_url' => url('/')]);
     }
 
     // public function imageUploadPost(Request $request)

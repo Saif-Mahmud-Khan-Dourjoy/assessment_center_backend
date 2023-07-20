@@ -139,3 +139,6 @@ Route::group(['prefix' => 'v1'], function () {
 });
 
 Route::post('image-upload', [QuestionController::class, 'imageUploadPost'])->name('image.upload.post');
+Route::get('base_url',function(){
+ return response()->json(url('/'));
+});
