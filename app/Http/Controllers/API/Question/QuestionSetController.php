@@ -466,11 +466,13 @@ class QuestionSetController extends Controller
             Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Fetching Question-set.");
             $this->out->writeln('Fetching Question set with all questions, question-set id: ' . $id);
             $userProfile = UserProfile::where('user_id', '=', Auth::id())->first();
-            $question_set = QuestionSet::inRandomOrder()->with(['question_set_details'])
+            $question_set = QuestionSet::inRandomOrder()->with(['question_set_details','question_set_candidates'])
                 ->where('id', $id)
                 ->get();
             if (sizeof($question_set) < 1)
                 return response()->json(['success' => false, 'message' => 'Question set not found'], $this->invalidStatus);
+            $candidate_count =count($question_set[0]->question_set_candidates); 
+            unset($question_set[0]->question_set_candidates);  
             $i = 0;
             //        $question_set_details = $question_set[0]->question_set_details;
             $question_set_details = json_decode($question_set[0]->question_set_details, true);
@@ -484,7 +486,7 @@ class QuestionSetController extends Controller
                 $question_set[0]->question_set_details[$i++]['question'] = $question;
             }
             Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Fetching Question-set successful.");
-            return response()->json(['success' => true, 'question_set' => $question_set], $this->successStatus);
+            return response()->json(['success' => true, 'question_set' => $question_set, 'total_candidates'=> $candidate_count], $this->successStatus);
         } catch (\Exception $e) {
             Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Unable to fetch Question-set! error: " . $e->getMessage());
             return response()->json(['success' => false, "message" => "Unable to show Assessment!", "error" => $e->getMessage()], $this->failedStatus);
