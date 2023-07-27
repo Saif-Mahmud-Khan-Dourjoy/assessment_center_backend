@@ -10,6 +10,7 @@ use App\QuestionDetail;
 use App\QuestionSet;
 use App\QuestionSetAnswer;
 use App\QuestionSetAnswerDetail;
+use App\QuestionSetCandidate;
 use App\QuestionSetDetail;
 use App\Round;
 use App\RoundCandidates;
@@ -243,7 +244,9 @@ class QuestionSetAnswerController extends Controller
         $this->out->writeln('Fetching students attended!');
         try {
             Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Assessment-wise all student fetching.");
-            $questionSet = QuestionSet::find($id);
+            $questionSet = QuestionSet::with('question_set_candidates')->find($id);
+            $question_set_candidate=QuestionSetCandidate::where('question_set_id','=',$id)->count();
+            $attended_question_set_candidate=QuestionSetCandidate::where('question_set_id','=',$id)->where('attended','=',1)->count();
             if (!$questionSet)
                 throw new \Exception("Assessment Not Found!");
             $question_answer = QuestionSetAnswer::with(['user_profile', 'question_set_answer_details'])
@@ -256,7 +259,7 @@ class QuestionSetAnswerController extends Controller
             $i = 0;
             $total_mark = $questionSet->total_mark;
             if (sizeof($question_answer) == 0) {
-                return response()->json(['success' => true, 'question_set' => $questionSet, 'question_set_answer' => $question_answer], $this->successStatus);
+                return response()->json(['success' => true, 'question_set' => $questionSet, 'question_set_answer' => $question_answer,'question_set_candidate' => $question_set_candidate,'attended_question_set_candidate' => $attended_question_set_candidate], $this->successStatus);
             }
             if (sizeof($question_answer) == 1) {
                 $mark_achieved = $question_answer[0]->total_mark;
@@ -276,12 +279,25 @@ class QuestionSetAnswerController extends Controller
                 $question_answer[0]['rank'] = 1;
                 $question_answer[0]['position'] = 1;
                 $question_answer[0]['percentage'] = $mark_percentage;
-                return response()->json(['success' => true, 'question_set' => $questionSet, 'question_set_answer' => $question_answer], $this->successStatus);
+                return response()->json(['success' => true, 'question_set' => $questionSet, 'question_set_answer' => $question_answer,'question_set_candidate' => $question_set_candidate,'attended_question_set_candidate' => $attended_question_set_candidate], $this->successStatus);
             }
             $question_answer = json_decode($question_answer, true);
-            usort($question_answer, function ($student1, $student2) {
+            // usort($question_answer, function ($student1, $student2) {
+            //     if ($student1['total_mark'] < $student2['total_mark']){
+            //         return 1;
+            //     }else if($student1['total_mark'] == $student2['total_mark'] && $student1['time_taken'] > $student2['time_taken']){
+            //         return 1;
+            //     }
+            //     else if ($student1['total_mark'] == $student2['total_mark'] && $student1['time_taken'] == $student2['time_taken']){
+            //         return 0;
+            //     }
+            //     return -1;
+            //     // return (int) ($student1['total_mark'] < $student2['total_mark']) || ($student1['total_mark'] == $student2['total_mark'] && $student1['time_taken'] > $student2['time_taken']);
+            // });
+            usort($question_answer, function($student1, $student2){
                 return ($student1['total_mark'] < $student2['total_mark']) || ($student1['total_mark'] == $student2['total_mark'] && $student1['time_taken'] > $student2['time_taken']);
             });
+
             $total_student = sizeof($question_answer);
             for ($rank = 0, $position = 0; $rank < $total_student; $rank++) {
                 $mark_achieved = $question_answer[$rank]['total_mark'];
@@ -303,7 +319,7 @@ class QuestionSetAnswerController extends Controller
                 $position++;
             }
             Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Assessment-wise all student fetching Successful.");
-            return response()->json(['success' => true, 'question_set' => $questionSet, 'question_set_answer' => $question_answer], $this->successStatus);
+            return response()->json(['success' => true, 'question_set' => $questionSet, 'question_set_answer' => $question_answer,'question_set_candidate' => $question_set_candidate,'attended_question_set_candidate' => $attended_question_set_candidate], $this->successStatus);
         } catch (\Exception $e) {
             Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Assessment-wise all student fetching is unsuccessful! error: " . $e->getMessage());
             return response()->json(['success' => false, 'message' => "All Students standing fetching un-successful!", "error" => $e->getMessage()], $this->failedStatus);
