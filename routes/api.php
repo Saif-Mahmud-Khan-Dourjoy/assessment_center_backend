@@ -56,6 +56,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('question-question-set-statistic','API\Question\AssessmentController@questionQuestionSetStats');
         Route::get('co-recruiters','API\Question\AssessmentController@coRecruiters');
         Route::get('question-num-by-category/{categoryName?}','API\Question\AssessmentController@questionNumberByCategory');
+        Route::post('questions-details','API\Question\QuestionController@questionDetails');
         
     });
 

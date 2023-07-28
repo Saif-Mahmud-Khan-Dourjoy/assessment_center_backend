@@ -566,4 +566,16 @@ class QuestionController extends Controller
             ->get();
         return response()->json(['success' => true, 'questions' => $question], $this->successStatus);
     }
+
+    public function questionDetails(Request $request){
+        $question = Question::with(['question_details', 'question_answer', 'question_tag', 'question_tag.category'])
+        ->whereIn('id', $request->questions_id)
+        ->get();
+
+    if (!$question)
+        return response()->json(['success' => false, 'message' => 'Question not found'], $this->invalidStatus);
+    else
+        return response()->json(['success' => true, 'question' => $question], $this->successStatus);
+       
+    }
 }
