@@ -12,8 +12,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\ResetPassword;
+use Illuminate\Support\Facades\URL;
 use Lcobucci\JWT\Signer\Key\LocalFileReference;
 use mysql_xdevapi\Exception;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ResetPassword as PasswordResetMail;
+
 
 class ForgotPasswordController extends Controller
 {
@@ -60,6 +65,45 @@ class ForgotPasswordController extends Controller
             return response()->json(['success' => false, "message" => "There is a problem in forgot password!", "error" => $e->getMessage()], $this->failedStatus);
         }
     }
+
+    // public function forgotPassword(Request $request): JsonResponse
+    // {
+    //     try {
+    //         Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Forgetting Password.");
+    //         $input = $request->only('email');
+          
+    //         $validator = Validator::make($input, [
+    //             'email' => "required"
+    //         ]);
+    //         if ($validator->fails())
+    //             throw new \Exception($validator->errors());
+    //         $user_email = User::where('email', $input['email'])->first();
+    //         if (!$user_email) {
+    //             Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# email Not Found!");
+    //             return response()->json(['success' => false, "message" => "email Not Found!"], $this->unAuthenticate);
+    //         }
+           
+    //         $token = Str::random(30);
+            
+    //         $base_domain= env('FRONT_END_BASE');
+    //         $url=$base_domain.'/#/reset-password/'.$token;
+
+    //         $data['url']=$url;
+    //         $data['userName']=$user_email['name'];
+    //         $data['email']=$input['email'];
+    //         $data['title']='Password Reset';
+    //         $data['body']='Please click on below to reset your password';
+            
+    //         Mail::to($input['email'])->send(new PasswordResetMail($data)); 
+
+           
+    //         // return response()->json( $data);
+    //         return response()->json(['success' => true, 'message' => "A reset link is sent to your email!"], $this->successStatus);
+    //     } catch (\Exception $e) {
+    //         Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Exception occurred! error: " . $e->getMessage());
+    //         return response()->json(['success' => false, "message" => "There is a problem in forgot password!", "error" => $e->getMessage()], $this->failedStatus);
+    //     }
+    // }
 
 
     /**
