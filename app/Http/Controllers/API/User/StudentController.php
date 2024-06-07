@@ -578,7 +578,7 @@ class StudentController extends Controller
             $client = new Client();
             $candidatesData = $candidate_email_info;
            
-            $httpResponse =$client->post('http://10.10.33.248:48218/exam-invitation/', [
+            $httpResponse =$client->post(env('EMAIL_BULK_ADDRESS'), [
                 'json' => $candidatesData
             ]);
 
