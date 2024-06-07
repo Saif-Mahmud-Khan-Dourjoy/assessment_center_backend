@@ -26,12 +26,13 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use \GuzzleHttp\Client;
+// use \GuzzleHttp\Client;
 use Illuminate\Support\Facades\URL;
 use Lcobucci\JWT\Signer\Key\LocalFileReference;
 use mysql_xdevapi\Exception;
 use Symfony\Contracts\Service;
 use Illuminate\Contracts\Encryption\DecryptException;
+use GuzzleHttp\Client;
 
 class StudentController extends Controller
 {
@@ -383,6 +384,205 @@ class StudentController extends Controller
             $student_user = Student::with(['user_profile'])->where('id', $student->id)->get();
             Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Creating studnet is successful.");
             return response()->json(['success' => true, 'student' => $student_user], $this->successStatus);
+        } catch (\Exception $e) {
+            Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Unable to create student! error: " . $e->getMessage());
+            return response()->json(['success' => false, "message" => "Student creation unsuccessful!", "error" => $e->getMessage()], $this->failedStatus);
+        }
+    }
+
+    public function store_students(Request $request)
+    {
+        try {
+            Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Creating student.");
+            request()->validate([
+                'first_name.*' => 'required',
+                'last_name.*' => 'required',
+                'email.*' => 'required|email',
+                // 'birth_date' => 'required',
+                'phone.*' => 'required',
+            ], [
+                'first_name.*.required' => 'All First Name is required',
+                'last_name.*.required' => 'All Last Name is required',
+                'email.*.required' => 'All email is required',
+                'phone.*.required' => 'All phone number is required',
+            ]);
+            $input = $request->all();
+
+            // Log::info($input);
+            // exit();
+            $candidate_email_info = [];
+            for ($i = 0; $i < count($input); $i++) {
+                $roleID = (!empty($input[$i]["role_id"])) ? $input[$i]['role_id'] : 0;
+                if ($roleID) {
+                    $student_role_id = $input[$i]['role_id'];
+                } else {
+                    $role = RoleSetup::first();
+                    if (!$role) {
+                        throw new \Exception("Role-not found for this user!");
+                        //                    return response()->json(['success' => false, 'message' => 'Role not found for this user'], $this->failedStatus);
+                    }
+                    $student_role_id = $role->student_role_id;
+                }
+
+                $rand_pass = Str::random(8);
+                $hashed_random_password = Hash::make($rand_pass);
+
+                $isAvailable = UserProfile::where('email', '=', $input[$i]['email'])->exists();
+
+                if ($isAvailable) {
+                    $previous_user = UserProfile::where('email', '=', $input[$i]['email'])->get();
+                    $previous_student = User::where("id", $previous_user[0]->user_id)->first();
+
+                  
+
+                    $previous_student->password = $hashed_random_password;
+                    $previous_student->update();
+
+                    // $token = $previous_user->createToken('Exam Instruction')->accessToken;
+                    $token = $this->getToken($input[$i]['assessment_id'], $input[$i]['institute_id'], $previous_user[0]->id, $input[$i]['email'], $previous_student->username, $rand_pass);
+                    $newCandidate = [
+                        'question_set_id' => $input[$i]['assessment_id'],
+                        'profile_id' => $previous_user[0]->id,
+                        'attended' => 0,
+                        'token' => $token
+                    ];
+                    
+                    $available_question_set_candidate=QuestionSetCandidate::where('question_set_id',$input[$i]['assessment_id'])->where('profile_id',$previous_user[0]->id)->exists();
+
+                    if(!$available_question_set_candidate){
+                        QuestionSetCandidate::create($newCandidate);
+                    }
+                    
+
+
+                    $url = env('FRONT_END_BASE') . '/#/exam-instruction/' . $input[$i]['assessment_id'] . '/' . $input[$i]['institute_id'] . '/' . $previous_user[0]->id . '/' . $token;
+
+                    $candidate_email_data = [
+                        'url' => $url,
+                        'assessment_start_time' => $input[$i]['assessment_start_time'],
+                        'candidate_name' => $input[$i]['first_name'] . ' ' . $input[$i]['last_name'],
+                        'email' => $input[$i]['email'],
+
+                    ];
+
+                 
+                    array_push($candidate_email_info, $candidate_email_data);
+                } else {
+                    $username = $this->uniqueUser($input[$i]['first_name'], $input[$i]['last_name']);
+
+                    $user_data = [
+                        'first_name' => $input[$i]['first_name'],
+                        'last_name' => $input[$i]['last_name'],
+                        'name' => $input[$i]['first_name'] . ' ' . $input[$i]['last_name'],
+                        'username' => $username,
+                        'email' => $input[$i]['email'],
+                        'status' => 1,
+                        'password' => $hashed_random_password,
+                        'phone' => $input[$i]['phone'],
+                        // 'birth_date' => $input[$i]['birth_date'],
+                        'skype' => (!empty($input[$i]["skype"])) ? $input[$i]['skype'] : 0,
+                        'profession' => (!empty($input[$i]["profession"])) ? $input[$i]['profession'] : 'n/a',
+                        'skill' => (!empty($input[$i]["skill"])) ? $input[$i]['skill'] : 'n/a',
+                        'about' => (!empty($input[$i]["about"])) ? $input[$i]['about'] : 'n/a',
+                        'img' => (!empty($input[$i]["img"])) ? $input[$i]['img'] : '',
+                        'address' => (!empty($input[$i]["address"])) ? $input[$i]['address'] : 'n/a',
+                        'institute_id' => (!(empty($input[$i]['institute_id'] or is_null($input[$i]['institute_id']))) ? $input[$i]['institute_id'] : null),
+                        // 'zipcode' => $input[$i]['zipcode'],
+                        'zipcode' => (!empty($input[$i]["zipcode"])) ? $input[$i]['zipcode'] : null,
+                        'country' => (!empty($input[$i]["country"])) ? $input[$i]['country'] : null,
+                        // 'country' => $input['country'],
+                        'completing_percentage' => 100,
+                        'total_complete_assessment' => 0,
+                        'approve_status' => 0,
+                        'active_status' => 0,
+                        'total_question' => 0,
+                        'average_rating' => 0,
+                        'guard_name' => 'web',
+                    ];
+
+                    DB::beginTransaction();
+                    try {
+                        $user = User::create($user_data);
+                        $user->assignRole($student_role_id);
+                        $user_data['user_id'] = $user->id;
+                        $user_profile = UserProfile::create($user_data);
+                        $user_data['profile_id'] = $user_profile->id;
+                        $student = Student::create($user_data);
+                        $contributor = Contributor::create($user_data);
+                        $token = $this->getToken($input[$i]['assessment_id'], $input[$i]['institute_id'], $user_profile->id, $input[$i]['email'], $username, $rand_pass);
+                        $candidate_data = [
+                            'question_set_id' => $input[$i]['assessment_id'],
+                            'profile_id' => $user_profile->id,
+                            'attended' => 0,
+                            'token' => $token
+                        ];
+
+
+                        $candidate = QuestionSetCandidate::create($candidate_data);
+
+                        // Email Sending Functionality
+
+                        // $token = $user_profile->createToken('Exam Instruction')->accessToken;
+
+                        $url = env('FRONT_END_BASE') . '/#/exam-instruction/' . $input[$i]['assessment_id'] . '/' . $input[$i]['institute_id'] . '/' . $user_profile->id . '/' . $token;
+
+                        $candidate_email_data = [
+                            'url' => $url,
+                            'assessment_start_time' => $input[$i]['assessment_start_time'],
+                            'candidate_name' => $input[$i]['first_name'] . ' ' . $input[$i]['last_name'],
+                            'email' => $input[$i]['email'],
+
+                        ];
+
+                        array_push($candidate_email_info, $candidate_email_data);
+                        // return response()->json($candidate_email_data);
+
+                        // Mail::to('saifmahmudkhandourjoy@gmail.com')->send(new ExamInfo());
+                        // dispatch(new ExamInfoSend());
+
+                        // Email Server Related Code
+
+                        //new comment
+                        // $delay = 2; //seconds delay for email sending
+
+                        // if (!($this->ExamInfoEmail(
+                        //     $candidate_email_data,
+                        //     $delay
+                        // ))) {
+                        //     throw new \Exception('Email-Server may be down!');
+                        // }
+
+                        //
+                        // if (!($this->singleUserCredential($user_data['email'], $user_data['first_name'], $user_data['last_name'], $user_data['username'], $rand_pass, $delay)))
+                        //     throw new \Exception('Email-Server may be down!');
+
+                    } catch (\Exception $e) {
+                        DB::rollback();
+                        Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Creating unique use is Unsuccessful, rolling back db-operation! error: " . $e->getMessage());
+                        return response()->json(['success' => false, 'message' => 'Student Creation unsuccessful!', 'error' => $e->getMessage()], $this->failedStatus);
+                    }
+                    Db::commit();
+                    // $student_user = Student::with(['user_profile'])->where('id', $student->id)->get();
+                    Log::channel("ac_info")->info(__CLASS__ . "@" . __FUNCTION__ . "# Creating studnet is successful.");
+                    // return response()->json(['success' => true, 'student' => $student_user], $this->successStatus);
+
+                }
+            }
+            // $client = new Client();
+            // $postData = $candidate_email_info;
+            // $params['headers'] = ['Content-Type' => 'application/json'];
+            // $params['form_params'] = $postData; 
+            // $urlHttp="http://10.10.32.21:8000/exam-invitation/";
+            // $httpResponse =$client->post($urlHttp, $params);
+
+            $client = new Client();
+            $candidatesData = $candidate_email_info;
+           
+            $httpResponse =$client->post('http://10.10.33.248:48218/exam-invitation/', [
+                'json' => $candidatesData
+            ]);
+
+            return response()->json(['success'=>$httpResponse]);
         } catch (\Exception $e) {
             Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Unable to create student! error: " . $e->getMessage());
             return response()->json(['success' => false, "message" => "Student creation unsuccessful!", "error" => $e->getMessage()], $this->failedStatus);
