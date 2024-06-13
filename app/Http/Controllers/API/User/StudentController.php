@@ -582,10 +582,10 @@ class StudentController extends Controller
                 'json' => $candidatesData
             ]);
 
-            return response()->json(['success'=>$httpResponse]);
+            return response()->json(['data'=>$httpResponse,'success'=>'true']);
         } catch (\Exception $e) {
-            Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Unable to create student! error: " . $e->getMessage());
-            return response()->json(['success' => false, "message" => "Student creation unsuccessful!", "error" => $e->getMessage()], $this->failedStatus);
+            Log::channel("ac_error")->info(__CLASS__ . "@" . __FUNCTION__ . "# Unable to create student or something went wrong in Email Server! error: " . $e->getMessage());
+            return response()->json(['success' => false, "message" => "Student creation or email sending unsuccessful!", "error" => $e->getMessage()], $this->failedStatus);
         }
     }
 
