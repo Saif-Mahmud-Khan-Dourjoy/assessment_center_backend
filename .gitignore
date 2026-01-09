@@ -3,6 +3,7 @@
 /storage/*.key
 /storage/app/students
 .env.backup
+.env
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
